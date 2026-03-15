@@ -320,21 +320,80 @@ button, .link-btn, .ghost-btn {
   transform: translate(-50%, -50%);
   z-index: 7;
   display: inline-flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
   border-radius: 999px;
-  padding: 8px 12px;
-  background: rgba(8, 8, 8, 0.85);
-  border: 1px solid rgba(255, 120, 120, 0.65);
+  padding: 8px 10px 8px 8px;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(255, 126, 126, 0.22), transparent 52%),
+    linear-gradient(140deg, rgba(14, 14, 14, 0.97), rgba(7, 7, 7, 0.95));
+  border: 1px solid rgba(255, 120, 120, 0.68);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.45), 0 0 18px rgba(227, 53, 53, 0.2);
 }
 .run-tag {
   display: inline-flex;
+  align-items: center;
   border-radius: 999px;
-  padding: 4px 8px;
-  background: rgba(227,53,53,.22);
-  border: 1px solid rgba(227,53,53,.5);
-  font-size: 11px;
-  font-weight: 700;
+  padding: 5px 10px;
+  background: linear-gradient(150deg, rgba(227,53,53,.42), rgba(95, 10, 10, .55));
+  border: 1px solid rgba(255, 140, 140, 0.5);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-shadow: 0 1px 2px rgba(0,0,0,.6);
+}
+.death-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  padding: 5px 12px 5px 8px;
+  background: linear-gradient(160deg, rgba(227, 53, 53, 0.2), rgba(18, 18, 18, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.death-counter-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 13px;
+  color: #ffd0d0;
+  background: radial-gradient(circle at 35% 25%, rgba(255,255,255,.24), rgba(227,53,53,.1));
+  border: 1px solid rgba(255, 146, 146, 0.34);
+}
+.death-counter-label {
+  font-size: 12px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .92;
+}
+.death-counter-value {
+  min-width: 30px;
+  text-align: center;
+  font-size: 21px;
+  line-height: 1;
+  font-weight: 900;
+  color: #fff2f2;
+  text-shadow: 0 0 10px rgba(255, 120, 120, 0.48);
+}
+
+.overlay-floating-nuzlocke[data-death-tier="warning"] .death-counter {
+  border-color: rgba(255, 190, 120, 0.6);
+  background: linear-gradient(160deg, rgba(255, 152, 72, 0.24), rgba(18, 18, 18, 0.3));
+}
+.overlay-floating-nuzlocke[data-death-tier="critical"] {
+  border-color: rgba(255, 78, 78, 0.88);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45), 0 0 24px rgba(255, 82, 82, 0.34);
+}
+.overlay-floating-nuzlocke[data-death-tier="critical"] .death-counter {
+  border-color: rgba(255, 120, 120, 0.7);
+  background: linear-gradient(160deg, rgba(227, 53, 53, 0.3), rgba(18, 18, 18, 0.32));
+}
+.overlay-floating-nuzlocke[data-death-tier="critical"] .death-counter-value {
+  color: #ffe6e6;
+  text-shadow: 0 0 14px rgba(255, 71, 71, 0.7);
 }
 
 .overlay-header {

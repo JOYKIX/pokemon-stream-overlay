@@ -106,8 +106,11 @@ async function renderTeam(data) {
   overlayBadge.textContent = data.badgeText || "Équipe Pokémon";
 
   const nuzlockeOn = Boolean(data.nuzlockeMode);
+  const deathCount = Math.max(0, Number(data.deathCount) || 0);
+  const deathTier = deathCount >= 10 ? "critical" : deathCount >= 5 ? "warning" : "normal";
   overlayDeathsLabel.textContent = "Morts";
-  overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
+  overlayDeathCount.textContent = String(deathCount);
+  overlayNuzlockeTag.dataset.deathTier = deathTier;
   if (nuzlockeOn) {
     const nPos = getPosition(options, 6);
     overlayNuzlockeTag.style.display = "inline-flex";
