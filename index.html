@@ -2,18 +2,38 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Team Pokémon Stream</title>
+<title>Pokémon Stream Team</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<h1>Gestion de la Team</h1>
+<h1>Team Pokémon Stream</h1>
 
-<div id="team-editor"></div>
+<div class="team-builder">
 
-<button onclick="saveTeam()">Sauvegarder</button>
+<input id="p1" placeholder="Pokémon 1">
+<input id="p2" placeholder="Pokémon 2">
+<input id="p3" placeholder="Pokémon 3">
+<input id="p4" placeholder="Pokémon 4">
+<input id="p5" placeholder="Pokémon 5">
+<input id="p6" placeholder="Pokémon 6">
+
+<button onclick="generateOverlay()">Générer l'overlay</button>
+
+</div>
+
+<div class="result">
+
+<p>URL pour OBS :</p>
+
+<input id="overlayURL" readonly>
+
+<button onclick="copyURL()">Copier</button>
+
+</div>
 
 <script src="script.js"></script>
+
 </body>
 </html>

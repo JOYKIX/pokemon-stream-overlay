@@ -1,25 +1,28 @@
-const teamEditor = document.getElementById("team-editor");
+function generateOverlay(){
 
-for (let i = 0; i < 6; i++) {
+const p1 = document.getElementById("p1").value.toLowerCase()
+const p2 = document.getElementById("p2").value.toLowerCase()
+const p3 = document.getElementById("p3").value.toLowerCase()
+const p4 = document.getElementById("p4").value.toLowerCase()
+const p5 = document.getElementById("p5").value.toLowerCase()
+const p6 = document.getElementById("p6").value.toLowerCase()
 
-    const input = document.createElement("input");
-    input.placeholder = "Nom du Pokémon";
+const team = [p1,p2,p3,p4,p5,p6].filter(Boolean)
 
-    teamEditor.appendChild(input);
+const url = `${window.location.origin}/pokemon-stream-overlay/overlay.html?team=${team.join(",")}`
+
+document.getElementById("overlayURL").value = url
+
 }
 
-function saveTeam() {
+function copyURL(){
 
-    const inputs = document.querySelectorAll("input");
+const input = document.getElementById("overlayURL")
 
-    let team = [];
+input.select()
 
-    inputs.forEach(input => {
+document.execCommand("copy")
 
-        team.push(input.value.toLowerCase());
-    });
+alert("URL copiée pour OBS")
 
-    localStorage.setItem("pokemonTeam", JSON.stringify(team));
-
-    alert("Team sauvegardée !");
 }

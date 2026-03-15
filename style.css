@@ -1,17 +1,41 @@
 body{
 background: transparent;
 font-family: Arial;
-text-align: center;
+color: white;
+}
+
+.team-builder{
+display:flex;
+flex-direction:column;
+gap:10px;
+width:300px;
+margin:auto;
+}
+
+.team-builder input{
+padding:10px;
+font-size:16px;
+}
+
+button{
+padding:10px;
+background:#ff3b3b;
+border:none;
+color:white;
+cursor:pointer;
 }
 
 #team{
-display: flex;
-gap: 20px;
-justify-content: center;
+display:flex;
+gap:20px;
+justify-content:center;
+align-items:center;
+}
+
+.pokemon img{
+width:120px;
 }
 
 .pokemon{
-width: 96px;
-height: 96px;
-image-rendering: pixelated;
+text-align:center;
 }

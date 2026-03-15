@@ -1,26 +1,41 @@
-async function loadTeam() {
+const params = new URLSearchParams(window.location.search)
 
-    const team = JSON.parse(localStorage.getItem("pokemonTeam")) || [];
+const team = params.get("team")
 
-    const container = document.getElementById("team");
-    container.innerHTML = "";
+const container = document.getElementById("team")
 
-    for (const pokemon of team) {
+async function loadTeam(){
 
-        if (!pokemon) continue;
+if(!team) return
 
-        const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`);
-        const poke = await data.json();
+const pokemonList = team.split(",")
 
-        const img = document.createElement("img");
+for(const name of pokemonList){
 
-        img.src = poke.sprites.front_default;
-        img.classList.add("pokemon");
+const data = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
 
-        container.appendChild(img);
-    }
+const pokemon = await data.json()
+
+const div = document.createElement("div")
+
+div.classList.add("pokemon")
+
+const img = document.createElement("img")
+
+img.src = pokemon.sprites.other["official-artwork"].front_default
+
+const label = document.createElement("p")
+
+label.innerText = pokemon.name
+
+div.appendChild(img)
+
+div.appendChild(label)
+
+container.appendChild(div)
+
 }
 
-loadTeam();
+}
 
-setInterval(loadTeam, 2000);
+loadTeam()
