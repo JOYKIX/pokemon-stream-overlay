@@ -1,51 +1,84 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-import { getDatabase, onValue, ref } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js';
 import {
-  createDefaultTeam,
-  createOverlayMarkup,
-  fetchPokemon,
-  normalizeChannelId,
-  normalizePokemonIdentifier
-} from './shared.js';
+  getChannelFromUrl,
+  subscribeToTeam,
+  fetchPokemonData
+} from "./shared.js";
 
-const config = window.APP_CONFIG;
-const mount = document.getElementById('overlayMount');
+const overlayTrainer = document.getElementById("overlayTrainer");
+const overlayBadge = document.getElementById("overlayBadge");
+const overlayTeam = document.getElementById("overlayTeam");
 
-if (!config?.firebase?.apiKey) {
-  mount.innerHTML = '<section class="overlay-error">Configuration Firebase absente. Ajoute <code>config.js</code> avant de lancer le site.</section>';
-  throw new Error('APP_CONFIG manquant');
+function renderEmptyCard(index) {
+  return `
+    <div class="overlay-empty">
+      <div>
+        <div class="overlay-slot-label">Slot ${index + 1}</div>
+        <div>Vide</div>
+      </div>
+    </div>
+  `;
 }
 
-const app = initializeApp(config.firebase);
-const database = getDatabase(app);
+async function renderTeam(data) {
+  if (!data) {
+    overlayTrainer.textContent = "Aucune team";
+    overlayBadge.textContent = "En attente de données";
+    overlayTeam.innerHTML = Array.from({ length: 6 }, (_, i) => renderEmptyCard(i)).join("");
+    return;
+  }
 
-const params = new URLSearchParams(window.location.search);
-const channelId = normalizeChannelId(params.get('channel')) || normalizeChannelId(config.defaultChannel) || 'stream';
+  overlayTrainer.textContent = data.trainerName || "Dresseur";
+  overlayBadge.textContent = data.badgeText || "Pokémon Team";
 
-mount.innerHTML = '<div class="overlay-loading">Connexion à la room…</div>';
+  const slots = data.slots || [];
+  overlayTeam.innerHTML = "";
 
-onValue(ref(database, `teams/${channelId}`), async (snapshot) => {
-  const data = snapshot.exists() ? snapshot.val() : { trainerName: '', team: createDefaultTeam() };
-  const team = createDefaultTeam().map((fallback, index) => ({
-    ...fallback,
-    ...(data.team?.[index] || {})
-  }));
+  for (let i = 0; i < 6; i++) {
+    const slot = slots[i];
 
-  const resolvedMap = new Map();
-  const uniqueEntries = [...new Set(team.map((slot) => normalizePokemonIdentifier(slot.pokemon)).filter(Boolean))];
+    if (!slot?.name) {
+      overlayTeam.insertAdjacentHTML("beforeend", renderEmptyCard(i));
+      continue;
+    }
 
-  await Promise.all(uniqueEntries.map(async (entry) => {
-    const resolved = await fetchPokemon(entry);
-    if (resolved) resolvedMap.set(entry, resolved);
-  }));
+    let pokemon = null;
+    try {
+      pokemon = await fetchPokemonData(slot.name, slot.shiny);
+    } catch {
+      pokemon = null;
+    }
 
-  mount.innerHTML = createOverlayMarkup({
-    trainerName: data.trainerName || '',
-    channelId,
-    team,
-    resolvedMap
-  });
-}, (error) => {
-  console.error(error);
-  mount.innerHTML = '<section class="overlay-error">Impossible de lire la room. Vérifie Firebase, l’URL de l’overlay et les règles de sécurité.</section>';
+    const sprite = pokemon?.sprite || "";
+    const levelText = slot.level ? `Lv.${slot.level}` : "";
+    const shinyPill = slot.shiny ? `<span class="meta-pill shiny">Shiny</span>` : "";
+    const itemPill = slot.item ? `<span class="meta-pill item">${slot.item}</span>` : "";
+
+    overlayTeam.insertAdjacentHTML(
+      "beforeend",
+      `
+      <div class="overlay-card">
+        <div class="overlay-card-top">
+          <div class="overlay-slot-label">Slot ${i + 1}</div>
+          <div class="overlay-level">${levelText}</div>
+        </div>
+
+        <div class="overlay-image-wrap">
+          ${sprite ? `<img src="${sprite}" alt="${slot.name}">` : ""}
+        </div>
+
+        <div class="overlay-name">${slot.name}</div>
+
+        <div class="overlay-meta">
+          ${shinyPill}
+          ${itemPill}
+        </div>
+      </div>
+      `
+    );
+  }
+}
+
+const channel = getChannelFromUrl("joykix");
+subscribeToTeam(channel, (data) => {
+  renderTeam(data);
 });
