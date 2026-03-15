@@ -31,6 +31,14 @@ export function cleanText(value) {
   return (value || "").trim();
 }
 
+async function sha256Hex(value) {
+  const data = new TextEncoder().encode(value);
+  const digest = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(digest))
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 export function normalizeInput(value) {
   return cleanText(value)
     .toLowerCase()
@@ -49,6 +57,38 @@ export function slugifyForApi(value) {
 
 function normalizeChannel(channel) {
   return cleanText(channel).toLowerCase();
+}
+
+export async function hashEditKey(channel, editKey) {
+  const normalizedChannel = normalizeChannel(channel);
+  const sanitizedKey = cleanText(editKey);
+  return sha256Hex(`${normalizedChannel}::${sanitizedKey}`);
+}
+
+async function isProfileKeyValid(profile, channel, editKeyOrHash, { preHashed = false } = {}) {
+  if (!profile) return false;
+
+  const providedHash = preHashed
+    ? cleanText(editKeyOrHash)
+    : await hashEditKey(channel, editKeyOrHash);
+
+  if (profile.editKeyHash) {
+    return profile.editKeyHash === providedHash;
+  }
+
+  return !preHashed && cleanText(profile.editKey) === cleanText(editKeyOrHash);
+}
+
+async function migrateLegacyEditKey(channel, profile) {
+  if (!profile?.editKey || profile.editKeyHash) return;
+
+  const editKeyHash = await hashEditKey(channel, profile.editKey);
+  await set(ref(db, `profiles/${normalizeChannel(channel)}`), {
+    channel: normalizeChannel(channel),
+    editKeyHash,
+    createdAt: profile.createdAt || Date.now(),
+    updatedAt: Date.now()
+  });
 }
 export function getChannelFromUrl(defaultValue = "joykix") {
   const params = new URLSearchParams(window.location.search);
@@ -303,28 +343,42 @@ export async function createProfile(channel, editKey) {
     throw new Error("IDENTIFIER_TAKEN");
   }
 
+  const editKeyHash = await hashEditKey(normalized, editKey);
+
   await set(ref(db, `profiles/${normalized}`), {
     channel: normalized,
-    editKey: cleanText(editKey),
+    editKeyHash,
     createdAt: Date.now(),
     updatedAt: Date.now()
   });
 }
 
-export async function verifyProfile(channel, editKey) {
+export async function verifyProfile(channel, editKeyOrHash, options = {}) {
   const profile = await getProfile(channel);
-  return Boolean(profile && profile.editKey === cleanText(editKey));
+  const valid = await isProfileKeyValid(profile, channel, editKeyOrHash, options);
+
+  if (valid) {
+    await migrateLegacyEditKey(channel, profile);
+  }
+
+  return valid;
 }
 
 export async function updateEditKey(channel, currentEditKey, nextEditKey) {
   const profile = await getProfile(channel);
-  if (!profile || profile.editKey !== cleanText(currentEditKey)) {
+  const isValid = await isProfileKeyValid(profile, channel, currentEditKey);
+  if (!isValid) {
     throw new Error("INVALID_EDIT_KEY");
   }
 
+  const nextHash = await hashEditKey(channel, nextEditKey);
+
+  const { editKey: _legacyEditKey, ...safeProfile } = profile;
+
   await set(ref(db, `profiles/${normalizeChannel(channel)}`), {
-    ...profile,
-    editKey: cleanText(nextEditKey),
+    ...safeProfile,
+    channel: normalizeChannel(channel),
+    editKeyHash: nextHash,
     updatedAt: Date.now()
   });
 }
@@ -337,7 +391,8 @@ export async function renameIdentifier(oldChannel, newChannel, editKey) {
   if (oldId === newId) return oldId;
 
   const oldProfile = await getProfile(oldId);
-  if (!oldProfile || oldProfile.editKey !== sanitizedKey) {
+  const isValid = await isProfileKeyValid(oldProfile, oldId, sanitizedKey);
+  if (!isValid) {
     throw new Error("INVALID_EDIT_KEY");
   }
 
@@ -348,9 +403,11 @@ export async function renameIdentifier(oldChannel, newChannel, editKey) {
 
   const oldTeam = await loadTeam(oldId);
 
+  const editKeyHash = await hashEditKey(newId, sanitizedKey);
+
   await set(ref(db, `profiles/${newId}`), {
     channel: newId,
-    editKey: sanitizedKey,
+    editKeyHash,
     createdAt: oldProfile.createdAt || Date.now(),
     updatedAt: Date.now()
   });

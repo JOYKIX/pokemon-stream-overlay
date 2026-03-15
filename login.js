@@ -1,4 +1,4 @@
-import { createProfile, verifyProfile } from "./shared.js";
+import { createProfile, verifyProfile, hashEditKey } from "./shared.js";
 import { saveSession, loadSession } from "./auth.js";
 
 const channelInput = document.getElementById("channelInput");
@@ -34,7 +34,8 @@ submitBtn.addEventListener("click", async () => {
       setStatus("Connexion réussie.", "success");
     }
 
-    saveSession({ channel, editKey });
+    const editKeyHash = await hashEditKey(channel, editKey);
+    saveSession({ channel, editKeyHash });
     window.location.href = "index.html";
   } catch (error) {
     if (error.message === "IDENTIFIER_TAKEN") {
