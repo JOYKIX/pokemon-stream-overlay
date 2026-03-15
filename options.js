@@ -1,4 +1,4 @@
-import { ensureAuthenticated, saveSession } from "./auth.js";
+import { ensureAuthenticated, saveSession, clearSession } from "./auth.js";
 import { updateEditKey, renameIdentifier, hashEditKey } from "./shared.js";
 
 const currentChannel = document.getElementById("currentChannel");
@@ -9,6 +9,7 @@ const nextChannel = document.getElementById("nextChannel");
 const renameKey = document.getElementById("renameKey");
 const renameBtn = document.getElementById("renameBtn");
 const statusBox = document.getElementById("statusBox");
+const logoutBtn = document.getElementById("logoutBtn");
 
 let session = null;
 
@@ -72,3 +73,9 @@ async function init() {
 }
 
 init();
+
+
+logoutBtn?.addEventListener("click", () => {
+  clearSession();
+  window.location.href = "login.html";
+});

@@ -388,20 +388,7 @@ saveBtn.addEventListener("click", async () => {
 });
 
 loadBtn.addEventListener("click", async () => {
-  const channel = channelInput.value.trim();
-  try {
-    setStatus("Chargement...", "info");
-    const data = await loadTeam(channel);
-    if (!data) {
-      setStatus("Aucune team trouvée pour cet identifiant.", "error");
-      return;
-    }
-    fillForm(data);
-    setStatus("Team chargée.", "success");
-  } catch (error) {
-    console.error(error);
-    setStatus("Impossible de charger la team.", "error");
-  }
+  await loadCurrentChannelTeam();
 });
 
 clearBtn.addEventListener("click", () => fillForm(null));
@@ -453,8 +440,33 @@ async function init() {
   syncNuzlockeUi();
   if (spriteScaleValue) spriteScaleValue.textContent = `${Math.max(50, Math.min(200, Number(spriteScale.value) || 100))}%`;
   renderEditorCanvas();
+  await loadCurrentChannelTeam({ silentIfMissing: true });
   setStatus("Chargement PokéAPI...", "info");
   await loadPokemonSuggestions();
+}
+
+async function loadCurrentChannelTeam({ silentIfMissing = false } = {}) {
+  const channel = channelInput.value.trim();
+  if (!channel) {
+    setStatus("Identifiant manquant.", "error");
+    return;
+  }
+
+  try {
+    setStatus("Chargement depuis la base de données...", "info");
+    const data = await loadTeam(channel);
+    if (!data) {
+      if (!silentIfMissing) {
+        setStatus("Aucune team trouvée pour cet identifiant.", "error");
+      }
+      return;
+    }
+    fillForm(data);
+    setStatus("Team chargée automatiquement depuis Firebase.", "success");
+  } catch (error) {
+    console.error(error);
+    setStatus("Impossible de charger la team.", "error");
+  }
 }
 
 init();
