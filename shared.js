@@ -361,6 +361,8 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
+      spriteHeightPx: Math.max(48, Number(displayOptions.spriteHeightPx) || 170),
+      spriteGapPx: Math.max(0, Number(displayOptions.spriteGapPx) || 12),
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
       overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
     },

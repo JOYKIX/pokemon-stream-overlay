@@ -59,6 +59,8 @@ function applyOverlayStyle(style = {}, options = {}) {
   overlayRoot.style.setProperty("--overlay-card", merged.cardColor);
   overlayRoot.style.setProperty("--overlay-card-opacity", String(merged.cardOpacity));
   overlayRoot.style.setProperty("--overlay-radius", `${merged.borderRadius}px`);
+  overlayRoot.style.setProperty("--overlay-sprite-height", `${Math.max(48, Number(options.spriteHeightPx) || 170)}px`);
+  overlayRoot.style.setProperty("--overlay-sprite-gap", `${Math.max(0, Number(options.spriteGapPx) || 12)}px`);
 
   const width = Math.max(320, Number(options.overlayWidthPx) || 1600);
   const orientation = options.overlayOrientation === "vertical" ? "vertical" : "horizontal";
@@ -95,6 +97,8 @@ async function renderTeam(data) {
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
     spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
+    spriteHeightPx: data.displayOptions?.spriteHeightPx || 170,
+    spriteGapPx: data.displayOptions?.spriteGapPx || 12,
     overlayOrientation: data.displayOptions?.overlayOrientation || "horizontal",
     overlayWidthPx: data.displayOptions?.overlayWidthPx || 1600
   };
