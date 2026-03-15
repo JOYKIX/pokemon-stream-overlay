@@ -51,78 +51,39 @@ export function getOverlayUrl(channel) {
   return url.toString();
 }
 
-const SPECIAL_ALIASES = {
-  "m mime": "mr-mime",
-  "m. mime": "mr-mime",
-  "mime jr": "mime-jr",
-  "mime jr.": "mime-jr",
-  "type 0": "type-null",
-  "type:0": "type-null",
-  "ho oh": "ho-oh",
-  "ho-oh": "ho-oh",
-  "porygon z": "porygon-z",
-  "caninos de hisui": "growlithe-hisui",
-  "arcanin de hisui": "arcanine-hisui",
-  "voltorbe de hisui": "voltorb-hisui",
-  "electrode de hisui": "electrode-hisui",
-  "qwilfish de hisui": "qwilfish-hisui",
-  "farfuret de hisui": "sneasel-hisui",
-  "zorua de hisui": "zorua-hisui",
-  "zoroark de hisui": "zoroark-hisui",
-  "brindibou": "rowlet",
-  "effleche": "dartrix",
-  "archduc": "decidueye",
-  "archduc de hisui": "decidueye-hisui",
-  "goupix d alola": "vulpix-alola",
-  "goupix d'alola": "vulpix-alola",
-  "feunard d alola": "ninetales-alola",
-  "feunard d'alola": "ninetales-alola",
-  "sabelette d alola": "sandshrew-alola",
-  "sabelette d'alola": "sandshrew-alola",
-  "sablaireau d alola": "sandslash-alola",
-  "sablaireau d'alola": "sandslash-alola",
-  "rattata d alola": "rattata-alola",
-  "rattata d'alola": "rattata-alola",
-  "rattatac d alola": "raticate-alola",
-  "rattatac d'alola": "raticate-alola",
-  "miaouss d alola": "meowth-alola",
-  "miaouss d'alola": "meowth-alola",
-  "miaouss de galar": "meowth-galar",
-  "ponyta de galar": "ponyta-galar",
-  "galopa de galar": "rapidash-galar",
-  "ramoloss de galar": "slowpoke-galar",
-  "flagadoss de galar": "slowbro-galar",
-  "roigada de galar": "slowking-galar",
-  "artikodin de galar": "articuno-galar",
-  "electhor de galar": "zapdos-galar",
-  "sulfura de galar": "moltres-galar",
-  "paldean tauros": "tauros-paldea-combat-breed"
-};
-
 export function toApiCandidate(value) {
-  const normalized = normalizeInput(value);
-  return SPECIAL_ALIASES[normalized] || slugifyForApi(value);
+  const input = cleanText(value);
+  if (/^\d+$/.test(input)) {
+    return input;
+  }
+  return slugifyForApi(input);
 }
 
-export async function fetchPokemonLocalized(inputName, shiny = false) {
+function findLocalizedName(speciesData, displayLanguage, fallback) {
+  return (
+    speciesData.names?.find(entry => entry.language?.name === displayLanguage)?.name ||
+    speciesData.names?.find(entry => entry.language?.name === "en")?.name ||
+    fallback
+  );
+}
+
+export async function fetchPokemonLocalized(inputName, shiny = false, displayLanguage = "en") {
   const apiName = toApiCandidate(inputName);
   if (!apiName) return null;
 
   const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
   if (!pokemonResponse.ok) {
-    throw new Error(`Pokémon introuvable : ${inputName}`);
+    throw new Error(`Pokémon not found: ${inputName}`);
   }
   const pokemonData = await pokemonResponse.json();
 
   const speciesResponse = await fetch(pokemonData.species.url);
   if (!speciesResponse.ok) {
-    throw new Error(`Espèce introuvable : ${inputName}`);
+    throw new Error(`Species not found: ${inputName}`);
   }
   const speciesData = await speciesResponse.json();
 
-  const frenchName =
-    speciesData.names?.find(entry => entry.language?.name === "fr")?.name ||
-    inputName;
+  const displayName = findLocalizedName(speciesData, displayLanguage, inputName);
 
   const artworkDefault =
     pokemonData?.sprites?.other?.home?.front_default ||
@@ -138,48 +99,91 @@ export async function fetchPokemonLocalized(inputName, shiny = false) {
 
   const artwork = shiny ? artworkShiny : artworkDefault;
 
-  const sprite = artwork;
-
   const types = pokemonData.types?.map(t => t.type.name) || [];
 
   return {
     id: pokemonData.id,
     apiName: pokemonData.name,
-    frenchName,
-    sprite,
+    displayName,
+    sprite: artwork,
     artwork,
     types
   };
 }
 
-export function translateType(type) {
-  const map = {
-    normal: "Normal",
-    fire: "Feu",
-    water: "Eau",
-    electric: "Électrik",
-    grass: "Plante",
-    ice: "Glace",
-    fighting: "Combat",
-    poison: "Poison",
-    ground: "Sol",
-    flying: "Vol",
-    psychic: "Psy",
-    bug: "Insecte",
-    rock: "Roche",
-    ghost: "Spectre",
-    dragon: "Dragon",
-    dark: "Ténèbres",
-    steel: "Acier",
-    fairy: "Fée"
+export function translateType(type, language = "en") {
+  const maps = {
+    en: {
+      normal: "Normal",
+      fire: "Fire",
+      water: "Water",
+      electric: "Electric",
+      grass: "Grass",
+      ice: "Ice",
+      fighting: "Fighting",
+      poison: "Poison",
+      ground: "Ground",
+      flying: "Flying",
+      psychic: "Psychic",
+      bug: "Bug",
+      rock: "Rock",
+      ghost: "Ghost",
+      dragon: "Dragon",
+      dark: "Dark",
+      steel: "Steel",
+      fairy: "Fairy"
+    },
+    fr: {
+      normal: "Normal",
+      fire: "Feu",
+      water: "Eau",
+      electric: "Électrik",
+      grass: "Plante",
+      ice: "Glace",
+      fighting: "Combat",
+      poison: "Poison",
+      ground: "Sol",
+      flying: "Vol",
+      psychic: "Psy",
+      bug: "Insecte",
+      rock: "Roche",
+      ghost: "Spectre",
+      dragon: "Dragon",
+      dark: "Ténèbres",
+      steel: "Acier",
+      fairy: "Fée"
+    },
+    es: {
+      normal: "Normal",
+      fire: "Fuego",
+      water: "Agua",
+      electric: "Eléctrico",
+      grass: "Planta",
+      ice: "Hielo",
+      fighting: "Lucha",
+      poison: "Veneno",
+      ground: "Tierra",
+      flying: "Volador",
+      psychic: "Psíquico",
+      bug: "Bicho",
+      rock: "Roca",
+      ghost: "Fantasma",
+      dragon: "Dragón",
+      dark: "Siniestro",
+      steel: "Acero",
+      fairy: "Hada"
+    }
   };
-  return map[type] || type;
+
+  return maps[language]?.[type] || maps.en[type] || type;
 }
 
-export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCount, slots, displayOptions }) {
+export function buildTeamPayload({ trainerName, badgeText, pokemonLanguage, siteLanguage, nuzlockeMode, deathCount, slots, displayOptions }) {
   return {
-    trainerName: cleanText(trainerName) || "Dresseur",
+    trainerName: cleanText(trainerName) || "Trainer",
     badgeText: cleanText(badgeText) || "Pokémon Team",
+    pokemonLanguage: cleanText(pokemonLanguage) || "en",
+    siteLanguage: cleanText(siteLanguage) || "en",
     updatedAt: Date.now(),
     nuzlockeMode: Boolean(nuzlockeMode),
     deathCount: Math.max(0, Number(deathCount) || 0),
