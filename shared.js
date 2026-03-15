@@ -9,13 +9,13 @@ import {
 
 /* COLLER DATABASE ICI */
 const firebaseConfig = {
-  apiKey: "COLLER_API_KEY_ICI",
-  authDomain: "COLLER_AUTH_DOMAIN_ICI",
-  databaseURL: "COLLER_DATABASE_URL_ICI",
-  projectId: "COLLER_PROJECT_ID_ICI",
-  storageBucket: "COLLER_STORAGE_BUCKET_ICI",
-  messagingSenderId: "COLLER_MESSAGING_SENDER_ID_ICI",
-  appId: "COLLER_APP_ID_ICI"
+  apiKey: "AIzaSyCPs6BlLuZuYD7nxdP--4JpiDRyrmq7mi4",
+  authDomain: "pokemon-stream-overlay.firebaseapp.com",
+  databaseURL: "https://pokemon-stream-overlay-default-rtdb.europe-west1.firebasedatabase.app/",
+  projectId: "pokemon-stream-overlay",
+  storageBucket: "pokemon-stream-overlay.firebasestorage.app",
+  messagingSenderId: "1008545959770",
+  appId: "1:1008545959770:web:d1fe3eeaea0b61bea2ad63"
 };
 
 const app = initializeApp(firebaseConfig);
