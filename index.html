@@ -7,24 +7,25 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
-  <div class="app-shell">
+  <div class="app-shell full-height">
     <header class="topbar">
       <div>
         <p class="eyebrow">Pokémon Stream Overlay</p>
-        <h1>Éditeur de team</h1>
+        <h1>Studio overlay</h1>
       </div>
-      <div class="topbar-actions">
+      <nav class="topbar-actions nav-tabs">
+        <a class="ghost-btn active" href="index.html">Éditeur</a>
         <a class="ghost-btn" href="customize.html">Design</a>
-        <a class="ghost-btn" href="options.html">Options du profil</a>
+        <a class="ghost-btn" href="options.html">Profil</a>
         <button id="logoutBtn" class="ghost-btn" type="button">Déconnexion</button>
-      </div>
+      </nav>
     </header>
 
-    <main class="builder-layout">
-      <aside class="panel config-sidebar">
+    <main class="builder-layout fit-screen">
+      <aside class="panel config-sidebar scrollable-panel">
         <div class="panel-head">
-          <h2>Profil éditeur</h2>
-          <p>Ton identifiant est protégé par ta clé d'édition.</p>
+          <h2>Configuration</h2>
+          <p>Régle ton overlay puis place les Pokémon par glisser-déposer.</p>
         </div>
 
         <div class="field">
@@ -39,7 +40,31 @@
 
         <div class="field">
           <label for="badgeInput">Texte secondaire</label>
-          <input id="badgeInput" type="text" placeholder="ex: Randomizer / HGSS" />
+          <input id="badgeInput" type="text" placeholder="ex: Nuzlocke HGSS" />
+        </div>
+
+        <div class="toggle-panel">
+          <h3>Résolution stream</h3>
+          <div class="inline-fields">
+            <div class="field compact-field">
+              <label for="streamWidth">Largeur (px)</label>
+              <input id="streamWidth" type="number" min="640" max="7680" step="10" value="1920" />
+            </div>
+            <div class="field compact-field">
+              <label for="streamHeight">Hauteur (px)</label>
+              <input id="streamHeight" type="number" min="360" max="4320" step="10" value="1080" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="resolutionPreset">Preset</label>
+            <select id="resolutionPreset" class="custom-select">
+              <option value="custom">Personnalisé</option>
+              <option value="1920x1080">1920 x 1080 (Full HD)</option>
+              <option value="2560x1440">2560 x 1440 (QHD)</option>
+              <option value="3840x2160">3840 x 2160 (4K)</option>
+              <option value="1280x720">1280 x 720 (HD)</option>
+            </select>
+          </div>
         </div>
 
         <div class="toggle-panel">
@@ -52,7 +77,7 @@
         </div>
 
         <div class="toggle-panel">
-          <h3>Éléments visibles</h3>
+          <h3>Affichage</h3>
           <div class="toggle-grid">
             <label class="checkbox-chip"><input type="checkbox" id="showHeader" checked><span>Header</span></label>
             <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Nom</span></label>
@@ -65,50 +90,35 @@
         </div>
 
         <div class="toggle-panel">
-          <h3>Sprites Pokémon</h3>
+          <h3>Sprites</h3>
           <div class="field">
             <label for="spriteVariant">Style de sprite</label>
-            <select id="spriteVariant">
-              <option value="auto">Auto (recommandé)</option>
-              <option value="official-artwork">Artwork officiel (dessin)</option>
+            <select id="spriteVariant" class="custom-select">
+              <option value="auto">Auto</option>
+              <option value="official-artwork">Artwork officiel</option>
               <option value="home">Pokémon HOME</option>
-              <option value="pixel">Pixel rétro (front)</option>
-              <option value="dream-world">Dream World (dessin vectoriel)</option>
-              <option value="showdown">Showdown (souvent animé)</option>
-              <option value="scarlet-violet">Style 3D (Scarlet/Violet)</option>
+              <option value="pixel">Pixel rétro</option>
+              <option value="dream-world">Dream World</option>
+              <option value="showdown">Showdown</option>
+              <option value="scarlet-violet">Scarlet/Violet</option>
             </select>
           </div>
           <div class="toggle-grid">
             <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Préférer animé</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Sprite seul (sans carte)</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Sprite seul</span></label>
           </div>
           <div class="inline-fields">
-            <div class="field">
-              <label for="spriteHeightPx">Hauteur sprite (px)</label>
+            <div class="field compact-field">
+              <label for="spriteHeightPx">Hauteur sprite</label>
               <input id="spriteHeightPx" type="number" min="48" max="800" step="1" value="170" />
             </div>
-            <div class="field">
-              <label for="spriteGapPx">Espacement sprites (px)</label>
+            <div class="field compact-field">
+              <label for="spriteGapPx">Espacement</label>
               <input id="spriteGapPx" type="number" min="0" max="200" step="1" value="12" />
             </div>
           </div>
         </div>
 
-
-        <div class="toggle-panel">
-          <h3>Format overlay OBS</h3>
-          <div class="field">
-            <label for="overlayOrientation">Orientation</label>
-            <select id="overlayOrientation">
-              <option value="horizontal">Horizontale</option>
-              <option value="vertical">Verticale</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="overlayWidthPx">Largeur (px)</label>
-            <input id="overlayWidthPx" type="number" min="320" max="3840" step="10" value="1600" />
-          </div>
-        </div>
         <div class="field">
           <label for="overlayUrl">URL overlay OBS</label>
           <input id="overlayUrl" type="text" readonly />
@@ -120,22 +130,30 @@
         </div>
       </aside>
 
-      <section class="panel team-panel">
+      <section class="panel team-panel scrollable-panel">
         <div class="panel-head">
-          <h2>Équipe Pokémon</h2>
-          <p>Éditeur retravaillé : aperçu live par slot, autocomplétion FR, et feedback immédiat.</p>
+          <h2>Équipe + placement visuel</h2>
+          <p>Édite les slots et déplace les cartes directement dans la scène.</p>
         </div>
 
         <datalist id="pokemonSuggestions"></datalist>
         <div class="slots" id="teamSlots"></div>
 
-        <div class="actions">
-          <button id="saveBtn" class="primary-btn">Sauvegarder la team</button>
-          <button id="loadBtn" class="secondary-btn">Recharger depuis la base</button>
-          <button id="clearBtn" class="danger-btn">Vider le formulaire</button>
+        <div class="editor-canvas-wrap">
+          <div class="editor-toolbar">
+            <strong>Canvas interactif</strong>
+            <button id="resetPositionsBtn" type="button" class="secondary-btn small">Réinitialiser le placement</button>
+          </div>
+          <div id="editorCanvas" class="editor-canvas"></div>
         </div>
 
-        <div id="statusBox" class="status-box info">Prêt.</div>
+        <div class="actions">
+          <button id="saveBtn" class="primary-btn">Sauvegarder la team</button>
+          <button id="loadBtn" class="secondary-btn">Charger depuis Firebase</button>
+          <button id="clearBtn" class="danger-btn">Réinitialiser le formulaire</button>
+        </div>
+
+        <div id="statusBox" class="status-box info">Chargement…</div>
       </section>
     </main>
   </div>
