@@ -444,8 +444,8 @@ button, .link-btn, .ghost-btn {
 .overlay-level { color: #ffd54f; font-size: 14px; font-weight: 900; }
 .overlay-image-wrap { min-height: 130px; display: grid; place-items: center; }
 .overlay-image-wrap img {
-  width: calc(clamp(96px, 14vh, 170px) * var(--overlay-sprite-scale, 1) * var(--pokemon-scale, 1));
-  height: auto;
+  width: auto;
+  height: calc(var(--overlay-sprite-height, 170px) * var(--overlay-sprite-scale, 1) * var(--pokemon-scale, 1));
   max-width: none;
   max-height: none;
   object-fit: contain;
