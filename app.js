@@ -1,221 +1,190 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js';
-import { getDatabase, ref, get, set } from 'https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js';
 import {
-  MAX_TEAM_SIZE,
-  buildOverlayUrl,
-  createDefaultTeam,
-  createOverlayMarkup,
-  fetchPokemon,
-  normalizeChannelId,
-  normalizePokemonIdentifier,
-  safeLevel
-} from './shared.js';
+  getOverlayUrl,
+  buildTeamPayload,
+  fetchPokemonData,
+  saveTeam,
+  loadTeam
+} from "./shared.js";
 
-const config = window.APP_CONFIG;
-if (!config?.firebase?.apiKey) {
-  document.body.innerHTML = '<main class="app-shell"><section class="panel overlay-error"><h2>Configuration manquante</h2><p>Copie <code>config.example.js</code> en <code>config.js</code> puis colle ta configuration Firebase.</p></section></main>';
-  throw new Error('APP_CONFIG manquant');
+const teamSlots = document.getElementById("teamSlots");
+const channelInput = document.getElementById("channelInput");
+const trainerInput = document.getElementById("trainerInput");
+const badgeInput = document.getElementById("badgeInput");
+const saveBtn = document.getElementById("saveBtn");
+const loadBtn = document.getElementById("loadBtn");
+const clearBtn = document.getElementById("clearBtn");
+const statusBox = document.getElementById("statusBox");
+const overlayUrlInput = document.getElementById("overlayUrl");
+const copyUrlBtn = document.getElementById("copyUrlBtn");
+const openOverlayBtn = document.getElementById("openOverlayBtn");
+
+function setStatus(message, type = "info") {
+  statusBox.textContent = message;
+  statusBox.className = `status-box ${type}`;
 }
 
-const app = initializeApp(config.firebase);
-const database = getDatabase(app);
-
-const elements = {
-  channelId: document.getElementById('channelId'),
-  trainerName: document.getElementById('trainerName'),
-  teamSlots: document.getElementById('teamSlots'),
-  previewMount: document.getElementById('previewMount'),
-  overlayUrl: document.getElementById('overlayUrl'),
-  saveButton: document.getElementById('saveButton'),
-  clearButton: document.getElementById('clearButton'),
-  copyButton: document.getElementById('copyButton'),
-  loadButton: document.getElementById('loadButton'),
-  statusBanner: document.getElementById('statusBanner')
-};
-
-let teamState = createDefaultTeam();
-renderSlots();
-bootstrap();
-
-function bootstrap() {
-  const queryChannel = normalizeChannelId(new URLSearchParams(window.location.search).get('channel'));
-  const savedChannel = normalizeChannelId(localStorage.getItem('pokeOverlayChannel'));
-  const initialChannel = queryChannel || savedChannel || normalizeChannelId(config.defaultChannel) || 'stream';
-
-  elements.channelId.value = initialChannel;
-  elements.overlayUrl.value = buildOverlayUrl(initialChannel);
-
-  attachListeners();
-  updatePreview();
-  loadTeam();
-}
-
-function attachListeners() {
-  elements.channelId.addEventListener('input', () => {
-    const value = normalizeChannelId(elements.channelId.value);
-    if (value !== elements.channelId.value) elements.channelId.value = value;
-    localStorage.setItem('pokeOverlayChannel', value);
-    elements.overlayUrl.value = buildOverlayUrl(value);
-    updatePreview();
-  });
-
-  elements.trainerName.addEventListener('input', updatePreview);
-  elements.loadButton.addEventListener('click', loadTeam);
-  elements.saveButton.addEventListener('click', saveTeam);
-  elements.clearButton.addEventListener('click', clearTeam);
-  elements.copyButton.addEventListener('click', async () => {
-    await navigator.clipboard.writeText(elements.overlayUrl.value);
-    setStatus('Lien OBS copié dans le presse-papiers.', 'success');
-  });
-}
-
-function renderSlots() {
-  elements.teamSlots.innerHTML = '';
-
-  for (let i = 0; i < MAX_TEAM_SIZE; i += 1) {
-    const slot = teamState[i];
-    const card = document.createElement('article');
-    card.className = 'slot-card';
-    card.innerHTML = `
-      <div class="slot-head">
-        <span class="slot-index">${i + 1}</span>
-        <span class="slot-meta">Slot ${i + 1}</span>
+function createSlot(index) {
+  const wrapper = document.createElement("article");
+  wrapper.className = "slot-card";
+  wrapper.innerHTML = `
+    <h3>Pokémon ${index + 1}</h3>
+    <div class="slot-grid">
+      <div class="preview-box" id="previewBox${index}">
+        <div class="preview-placeholder">Aperçu</div>
       </div>
-      <label class="field">
-        <span>Pokémon / Dex ID</span>
-        <input data-slot="${i}" data-field="pokemon" type="text" value="${escapeAttr(slot.pokemon)}" placeholder="ex: pikachu ou 25" />
-      </label>
-      <div class="inline-mini">
-        <label class="field">
-          <span>Surnom</span>
-          <input data-slot="${i}" data-field="nickname" type="text" value="${escapeAttr(slot.nickname)}" placeholder="facultatif" />
-        </label>
-        <label class="field">
-          <span>Niveau</span>
-          <input data-slot="${i}" data-field="level" type="number" min="1" max="100" value="${safeLevel(slot.level)}" />
+
+      <div class="slot-fields">
+        <input type="text" id="name${index}" placeholder="Nom du Pokémon" />
+        <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
+        <input type="text" id="item${index}" placeholder="Objet (optionnel)" />
+        <label class="checkbox-row">
+          <input type="checkbox" id="shiny${index}" />
+          <span>Shiny</span>
         </label>
       </div>
-      <label class="toggle-row">
-        <span>Version shiny</span>
-        <input data-slot="${i}" data-field="shiny" type="checkbox" ${slot.shiny ? 'checked' : ''} />
-      </label>
-    `;
-    elements.teamSlots.appendChild(card);
-  }
+    </div>
+  `;
+  teamSlots.appendChild(wrapper);
 
-  elements.teamSlots.querySelectorAll('input').forEach((input) => {
-    const handler = () => {
-      const slotIndex = Number.parseInt(input.dataset.slot, 10);
-      const field = input.dataset.field;
-      if (field === 'shiny') {
-        teamState[slotIndex][field] = input.checked;
-      } else {
-        teamState[slotIndex][field] = input.value;
-      }
-      if (field === 'level') {
-        teamState[slotIndex][field] = safeLevel(input.value);
-      }
-      updatePreview();
-    };
+  const nameInput = wrapper.querySelector(`#name${index}`);
+  const shinyInput = wrapper.querySelector(`#shiny${index}`);
 
-    input.addEventListener('input', handler);
-    input.addEventListener('change', handler);
-  });
-}
+  async function updatePreview() {
+    const previewBox = wrapper.querySelector(`#previewBox${index}`);
+    const name = nameInput.value.trim();
+    const shiny = shinyInput.checked;
 
-async function loadTeam() {
-  const channelId = normalizeChannelId(elements.channelId.value);
-  if (!channelId) {
-    setStatus('Choisis un ID de room avant de charger une équipe.', 'error');
-    return;
-  }
-
-  try {
-    setStatus('Chargement de l’équipe…', 'info');
-    const snapshot = await get(ref(database, `teams/${channelId}`));
-    if (!snapshot.exists()) {
-      setStatus('Aucune équipe enregistrée pour cette room. Tu peux en créer une maintenant.', 'info');
+    if (!name) {
+      previewBox.innerHTML = `<div class="preview-placeholder">Aperçu</div>`;
       return;
     }
 
-    const data = snapshot.val();
-    elements.trainerName.value = data.trainerName || '';
-    teamState = createDefaultTeam().map((fallback, index) => ({
-      ...fallback,
-      ...(data.team?.[index] || {})
-    }));
-    renderSlots();
-    elements.overlayUrl.value = buildOverlayUrl(channelId);
-    updatePreview();
-    setStatus('Équipe chargée depuis Firebase.', 'success');
-  } catch (error) {
-    console.error(error);
-    setStatus('Impossible de charger l’équipe. Vérifie la configuration Firebase et les règles de sécurité.', 'error');
+    previewBox.innerHTML = `<div class="preview-placeholder">Chargement...</div>`;
+
+    try {
+      const pokemon = await fetchPokemonData(name, shiny);
+      if (!pokemon?.sprite) {
+        previewBox.innerHTML = `<div class="preview-placeholder">Pas d’image</div>`;
+        return;
+      }
+
+      previewBox.innerHTML = `<img src="${pokemon.sprite}" alt="${name}">`;
+    } catch {
+      previewBox.innerHTML = `<div class="preview-placeholder">Introuvable</div>`;
+    }
+  }
+
+  nameInput.addEventListener("change", updatePreview);
+  shinyInput.addEventListener("change", updatePreview);
+}
+
+for (let i = 0; i < 6; i++) {
+  createSlot(i);
+}
+
+function updateOverlayLink() {
+  const channel = channelInput.value.trim() || "joykix";
+  const url = getOverlayUrl(channel);
+  overlayUrlInput.value = url;
+  openOverlayBtn.href = url;
+}
+
+function collectSlots() {
+  const slots = [];
+  for (let i = 0; i < 6; i++) {
+    slots.push({
+      name: document.getElementById(`name${i}`).value,
+      level: document.getElementById(`level${i}`).value,
+      item: document.getElementById(`item${i}`).value,
+      shiny: document.getElementById(`shiny${i}`).checked
+    });
+  }
+  return slots;
+}
+
+function fillForm(data) {
+  trainerInput.value = data?.trainerName || "";
+  badgeInput.value = data?.badgeText || "";
+
+  const slots = data?.slots || [];
+  for (let i = 0; i < 6; i++) {
+    const slot = slots[i] || {};
+    document.getElementById(`name${i}`).value = slot.name || "";
+    document.getElementById(`level${i}`).value = slot.level || "";
+    document.getElementById(`item${i}`).value = slot.item || "";
+    document.getElementById(`shiny${i}`).checked = Boolean(slot.shiny);
+    document.getElementById(`name${i}`).dispatchEvent(new Event("change"));
   }
 }
 
-async function saveTeam() {
-  const channelId = normalizeChannelId(elements.channelId.value);
-  if (!channelId) {
-    setStatus('Choisis un ID de room valide avant de sauvegarder.', 'error');
+saveBtn.addEventListener("click", async () => {
+  const channel = channelInput.value.trim();
+  if (!channel) {
+    setStatus("Tu dois entrer un identifiant de canal.", "error");
     return;
   }
 
-  const payload = {
-    trainerName: elements.trainerName.value.trim(),
-    updatedAt: Date.now(),
-    team: teamState.map((slot, index) => ({
-      slot: index + 1,
-      pokemon: normalizePokemonIdentifier(slot.pokemon),
-      nickname: (slot.nickname || '').trim(),
-      level: safeLevel(slot.level),
-      shiny: Boolean(slot.shiny)
-    }))
-  };
+  const payload = buildTeamPayload({
+    trainerName: trainerInput.value,
+    badgeText: badgeInput.value,
+    slots: collectSlots()
+  });
 
   try {
-    setStatus('Sauvegarde en cours…', 'info');
-    await set(ref(database, `teams/${channelId}`), payload);
-    localStorage.setItem('pokeOverlayChannel', channelId);
-    elements.overlayUrl.value = buildOverlayUrl(channelId);
-    updatePreview();
-    setStatus('Équipe sauvegardée. L’overlay OBS se met à jour en direct.', 'success');
+    setStatus("Sauvegarde en cours...", "info");
+    await saveTeam(channel, payload);
+    setStatus("Team sauvegardée. OBS devrait se mettre à jour.", "success");
+    updateOverlayLink();
   } catch (error) {
     console.error(error);
-    setStatus('La sauvegarde a échoué. Vérifie ta configuration Firebase.', 'error');
+    setStatus("Erreur lors de la sauvegarde Firebase.", "error");
   }
-}
+});
 
-function clearTeam() {
-  teamState = createDefaultTeam();
-  renderSlots();
-  updatePreview();
-  setStatus('Équipe vidée localement. Clique sur “Sauvegarder en direct” pour pousser le changement.', 'info');
-}
+loadBtn.addEventListener("click", async () => {
+  const channel = channelInput.value.trim();
+  if (!channel) {
+    setStatus("Tu dois entrer un identifiant de canal.", "error");
+    return;
+  }
 
-async function updatePreview() {
-  const channelId = normalizeChannelId(elements.channelId.value);
-  const resolvedMap = new Map();
+  try {
+    setStatus("Chargement depuis Firebase...", "info");
+    const data = await loadTeam(channel);
+    if (!data) {
+      setStatus("Aucune team trouvée pour ce canal.", "error");
+      return;
+    }
+    fillForm(data);
+    setStatus("Team chargée.", "success");
+  } catch (error) {
+    console.error(error);
+    setStatus("Impossible de charger la team.", "error");
+  }
+});
 
-  const uniqueEntries = [...new Set(teamState.map((slot) => normalizePokemonIdentifier(slot.pokemon)).filter(Boolean))];
-  await Promise.all(uniqueEntries.map(async (entry) => {
-    const resolved = await fetchPokemon(entry);
-    if (resolved) resolvedMap.set(entry, resolved);
-  }));
+clearBtn.addEventListener("click", () => {
+  trainerInput.value = "";
+  badgeInput.value = "";
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`name${i}`).value = "";
+    document.getElementById(`level${i}`).value = "";
+    document.getElementById(`item${i}`).value = "";
+    document.getElementById(`shiny${i}`).checked = false;
+    document.getElementById(`name${i}`).dispatchEvent(new Event("change"));
+  }
+  setStatus("Formulaire vidé.", "info");
+});
 
-  elements.previewMount.innerHTML = createOverlayMarkup({
-    trainerName: elements.trainerName.value.trim(),
-    channelId,
-    team: teamState,
-    resolvedMap
-  });
-}
+copyUrlBtn.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(overlayUrlInput.value);
+    setStatus("URL OBS copiée.", "success");
+  } catch {
+    setStatus("Impossible de copier l’URL.", "error");
+  }
+});
 
-function setStatus(message, kind = 'info') {
-  elements.statusBanner.className = `status-banner ${kind}`;
-  elements.statusBanner.textContent = message;
-}
+channelInput.addEventListener("input", updateOverlayLink);
 
-function escapeAttr(value) {
-  return String(value ?? '').replace(/"/g, '&quot;');
-}
+updateOverlayLink();
