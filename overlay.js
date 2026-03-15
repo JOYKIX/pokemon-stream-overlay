@@ -53,6 +53,7 @@ function renderEmptyCard(index) {
 async function renderTeam(data) {
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE);
+    overlayRoot.classList.remove("sprite-only-mode");
     overlayRoot.classList.remove("hide-header");
     overlayTrainer.textContent = "Aucune team";
     overlayBadge.textContent = "En attente de données";
@@ -73,8 +74,13 @@ async function renderTeam(data) {
     showLevel: data.displayOptions?.showLevel ?? true,
     showItem: data.displayOptions?.showItem ?? true,
     showShiny: data.displayOptions?.showShiny ?? true,
-    showTypes: data.displayOptions?.showTypes ?? false
+    showTypes: data.displayOptions?.showTypes ?? false,
+    spriteVariant: data.displayOptions?.spriteVariant || "auto",
+    preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
+    spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode)
   };
+
+  overlayRoot.classList.toggle("sprite-only-mode", options.spriteOnlyMode);
 
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
   overlayTrainer.textContent = data.trainerName || "Dresseur";
@@ -98,7 +104,10 @@ async function renderTeam(data) {
 
     let pokemon = null;
     try {
-      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny);
+      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, {
+        variant: options.spriteVariant,
+        animated: options.preferAnimatedSprite
+      });
     } catch {
       pokemon = null;
     }

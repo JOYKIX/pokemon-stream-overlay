@@ -24,6 +24,9 @@ const showLevel = document.getElementById("showLevel");
 const showItem = document.getElementById("showItem");
 const showShiny = document.getElementById("showShiny");
 const showTypes = document.getElementById("showTypes");
+const spriteVariant = document.getElementById("spriteVariant");
+const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
+const spriteOnlyMode = document.getElementById("spriteOnlyMode");
 
 const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
@@ -71,6 +74,10 @@ function createSlot(index) {
     const previewBox = wrapper.querySelector(`#previewBox${index}`);
     const name = nameInput.value.trim();
     const shiny = shinyInput.checked;
+    const spriteOptions = {
+      variant: spriteVariant.value,
+      animated: preferAnimatedSprite.checked
+    };
 
     if (!name) {
       previewBox.innerHTML = '<div class="preview-placeholder">Aperçu</div>';
@@ -80,7 +87,7 @@ function createSlot(index) {
     previewBox.innerHTML = '<div class="preview-placeholder">Chargement...</div>';
 
     try {
-      const pokemon = await fetchPokemonLocalized(name, shiny);
+      const pokemon = await fetchPokemonLocalized(name, shiny, spriteOptions);
       previewBox.innerHTML = `
         <div class="preview-content">
           <img src="${pokemon.sprite}" alt="${pokemon.displayName}">
@@ -123,7 +130,10 @@ function collectDisplayOptions() {
     showLevel: showLevel.checked,
     showItem: showItem.checked,
     showShiny: showShiny.checked,
-    showTypes: showTypes.checked
+    showTypes: showTypes.checked,
+    spriteVariant: spriteVariant.value,
+    preferAnimatedSprite: preferAnimatedSprite.checked,
+    spriteOnlyMode: spriteOnlyMode.checked
   };
 }
 
@@ -141,6 +151,9 @@ function fillForm(data) {
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
   showTypes.checked = opts.showTypes ?? false;
+  spriteVariant.value = opts.spriteVariant || "auto";
+  preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
+  spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
 
   const slots = data?.slots || [];
   for (let i = 0; i < 6; i++) {
@@ -214,6 +227,18 @@ loadBtn.addEventListener("click", async () => {
 });
 
 clearBtn.addEventListener("click", () => fillForm(null));
+
+spriteVariant.addEventListener("change", () => {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`name${i}`).dispatchEvent(new Event("change"));
+  }
+});
+
+preferAnimatedSprite.addEventListener("change", () => {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`name${i}`).dispatchEvent(new Event("change"));
+  }
+});
 
 copyUrlBtn.addEventListener("click", async () => {
   try {
