@@ -1,7 +1,7 @@
 import {
   getOverlayUrl,
   buildTeamPayload,
-  fetchPokemonData,
+  fetchPokemonLocalized,
   saveTeam,
   loadTeam
 } from "./shared.js";
@@ -10,6 +10,14 @@ const teamSlots = document.getElementById("teamSlots");
 const channelInput = document.getElementById("channelInput");
 const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
+
+const showHeader = document.getElementById("showHeader");
+const showName = document.getElementById("showName");
+const showLevel = document.getElementById("showLevel");
+const showItem = document.getElementById("showItem");
+const showShiny = document.getElementById("showShiny");
+const showTypes = document.getElementById("showTypes");
+
 const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
 const clearBtn = document.getElementById("clearBtn");
@@ -32,9 +40,8 @@ function createSlot(index) {
       <div class="preview-box" id="previewBox${index}">
         <div class="preview-placeholder">Aperçu</div>
       </div>
-
       <div class="slot-fields">
-        <input type="text" id="name${index}" placeholder="Nom du Pokémon" />
+        <input type="text" id="name${index}" placeholder="Nom du Pokémon en français" />
         <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
         <input type="text" id="item${index}" placeholder="Objet (optionnel)" />
         <label class="checkbox-row">
@@ -62,13 +69,13 @@ function createSlot(index) {
     previewBox.innerHTML = `<div class="preview-placeholder">Chargement...</div>`;
 
     try {
-      const pokemon = await fetchPokemonData(name, shiny);
-      if (!pokemon?.sprite) {
-        previewBox.innerHTML = `<div class="preview-placeholder">Pas d’image</div>`;
-        return;
-      }
-
-      previewBox.innerHTML = `<img src="${pokemon.sprite}" alt="${name}">`;
+      const pokemon = await fetchPokemonLocalized(name, shiny);
+      previewBox.innerHTML = `
+        <div class="preview-content">
+          <img src="${pokemon.sprite}" alt="${pokemon.frenchName}">
+          <div class="preview-name-fr">${pokemon.frenchName}</div>
+        </div>
+      `;
     } catch {
       previewBox.innerHTML = `<div class="preview-placeholder">Introuvable</div>`;
     }
@@ -102,9 +109,28 @@ function collectSlots() {
   return slots;
 }
 
+function collectDisplayOptions() {
+  return {
+    showHeader: showHeader.checked,
+    showName: showName.checked,
+    showLevel: showLevel.checked,
+    showItem: showItem.checked,
+    showShiny: showShiny.checked,
+    showTypes: showTypes.checked
+  };
+}
+
 function fillForm(data) {
   trainerInput.value = data?.trainerName || "";
   badgeInput.value = data?.badgeText || "";
+
+  const opts = data?.displayOptions || {};
+  showHeader.checked = opts.showHeader ?? true;
+  showName.checked = opts.showName ?? true;
+  showLevel.checked = opts.showLevel ?? true;
+  showItem.checked = opts.showItem ?? true;
+  showShiny.checked = opts.showShiny ?? true;
+  showTypes.checked = opts.showTypes ?? false;
 
   const slots = data?.slots || [];
   for (let i = 0; i < 6; i++) {
@@ -120,14 +146,15 @@ function fillForm(data) {
 saveBtn.addEventListener("click", async () => {
   const channel = channelInput.value.trim();
   if (!channel) {
-    setStatus("Tu dois entrer un identifiant de canal.", "error");
+    setStatus("Tu dois entrer un identifiant.", "error");
     return;
   }
 
   const payload = buildTeamPayload({
     trainerName: trainerInput.value,
     badgeText: badgeInput.value,
-    slots: collectSlots()
+    slots: collectSlots(),
+    displayOptions: collectDisplayOptions()
   });
 
   try {
@@ -144,15 +171,15 @@ saveBtn.addEventListener("click", async () => {
 loadBtn.addEventListener("click", async () => {
   const channel = channelInput.value.trim();
   if (!channel) {
-    setStatus("Tu dois entrer un identifiant de canal.", "error");
+    setStatus("Tu dois entrer un identifiant.", "error");
     return;
   }
 
   try {
-    setStatus("Chargement depuis Firebase...", "info");
+    setStatus("Chargement...", "info");
     const data = await loadTeam(channel);
     if (!data) {
-      setStatus("Aucune team trouvée pour ce canal.", "error");
+      setStatus("Aucune team trouvée.", "error");
       return;
     }
     fillForm(data);
@@ -166,6 +193,13 @@ loadBtn.addEventListener("click", async () => {
 clearBtn.addEventListener("click", () => {
   trainerInput.value = "";
   badgeInput.value = "";
+  showHeader.checked = true;
+  showName.checked = true;
+  showLevel.checked = true;
+  showItem.checked = true;
+  showShiny.checked = true;
+  showTypes.checked = false;
+
   for (let i = 0; i < 6; i++) {
     document.getElementById(`name${i}`).value = "";
     document.getElementById(`level${i}`).value = "";
@@ -186,5 +220,4 @@ copyUrlBtn.addEventListener("click", async () => {
 });
 
 channelInput.addEventListener("input", updateOverlayLink);
-
 updateOverlayLink();
