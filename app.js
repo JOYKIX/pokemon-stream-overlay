@@ -28,6 +28,8 @@ const showTypes = document.getElementById("showTypes");
 const spriteVariant = document.getElementById("spriteVariant");
 const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
 const spriteOnlyMode = document.getElementById("spriteOnlyMode");
+const spriteHeightPx = document.getElementById("spriteHeightPx");
+const spriteGapPx = document.getElementById("spriteGapPx");
 const overlayOrientation = document.getElementById("overlayOrientation");
 const overlayWidthPx = document.getElementById("overlayWidthPx");
 
@@ -137,6 +139,8 @@ function collectDisplayOptions() {
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
+    spriteHeightPx: Math.max(48, Number(spriteHeightPx.value) || 170),
+    spriteGapPx: Math.max(0, Number(spriteGapPx.value) || 12),
     overlayOrientation: overlayOrientation.value,
     overlayWidthPx: Math.max(320, Number(overlayWidthPx.value) || 1600)
   };
@@ -166,6 +170,8 @@ function fillForm(data) {
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
+  spriteHeightPx.value = String(Math.max(48, Number(opts.spriteHeightPx) || 170));
+  spriteGapPx.value = String(Math.max(0, Number(opts.spriteGapPx) || 12));
   overlayOrientation.value = opts.overlayOrientation === "vertical" ? "vertical" : "horizontal";
   overlayWidthPx.value = String(Math.max(320, Number(opts.overlayWidthPx) || 1600));
   syncNuzlockeUi();

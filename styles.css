@@ -163,6 +163,8 @@ button, .link-btn, .ghost-btn {
   --overlay-card: #111;
   --overlay-card-opacity: 0.9;
   --overlay-radius: 20px;
+  --overlay-sprite-height: 170px;
+  --overlay-sprite-gap: 12px;
   width: 100%;
   max-width: 1600px;
   margin: 0 auto;
@@ -210,7 +212,7 @@ button, .link-btn, .ghost-btn {
 .run-death-counter { border-radius: 12px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.28); display: inline-flex; gap: 8px; align-items: baseline; }
 .run-death-counter strong { font-size: 22px; }
 
-.overlay-team { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+.overlay-team { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--overlay-sprite-gap); }
 .overlay-root.is-vertical .overlay-team { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .overlay-card {
   border-radius: var(--overlay-radius);
@@ -223,7 +225,7 @@ button, .link-btn, .ghost-btn {
 .overlay-card-top { display: flex; justify-content: flex-end; min-height: 18px; }
 .overlay-level { color: #ffd54f; font-size: 14px; font-weight: 900; }
 .overlay-image-wrap { min-height: 165px; display: grid; place-items: center; }
-.overlay-image-wrap img { width: 100%; max-height: 170px; object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,.45)); }
+.overlay-image-wrap img { width: 100%; max-height: var(--overlay-sprite-height); object-fit: contain; filter: drop-shadow(0 8px 16px rgba(0,0,0,.45)); }
 .overlay-name-wrap { text-align: center; }
 .overlay-name { font-size: 20px; margin: 4px 0; font-weight: 800; }
 .overlay-species { font-size: 14px; color: #f0f0f0; opacity: .86; }
@@ -244,11 +246,7 @@ button, .link-btn, .ghost-btn {
   box-shadow: none;
   min-height: 220px;
 }
-.overlay-root.sprite-only-mode .overlay-card-top,
-.overlay-root.sprite-only-mode .overlay-name-wrap,
-.overlay-root.sprite-only-mode .overlay-meta,
-.overlay-root.sprite-only-mode .overlay-types { display: none; }
-.overlay-root.sprite-only-mode .overlay-image-wrap { min-height: 220px; }
+.overlay-root.sprite-only-mode .overlay-image-wrap { min-height: var(--overlay-sprite-height); }
 
 @media (max-width: 1240px) {
   .builder-layout { grid-template-columns: 1fr; }
