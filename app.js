@@ -5,7 +5,8 @@ import {
   fetchFrenchPokemonIndex,
   saveTeam,
   loadTeam,
-  DEFAULT_OVERLAY_STYLE
+  DEFAULT_OVERLAY_STYLE,
+  shouldUsePixelRendering
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 
@@ -99,7 +100,8 @@ function createSlot(index) {
         variant: spriteVariant.value,
         animated: preferAnimatedSprite.checked
       });
-      previewBox.innerHTML = `<div class="preview-content"><img src="${pokemon.sprite}" alt="${pokemon.displayName}"><div class="preview-name-fr">${pokemon.displayName}</div></div>`;
+      const pixelSpriteClass = shouldUsePixelRendering(spriteVariant.value, preferAnimatedSprite.checked) ? " pixel-sprite-mode" : "";
+      previewBox.innerHTML = `<div class="preview-content${pixelSpriteClass}"><img src="${pokemon.sprite}" alt="${pokemon.displayName}"><div class="preview-name-fr">${pokemon.displayName}</div></div>`;
     } catch {
       previewBox.innerHTML = '<div class="preview-placeholder">Introuvable</div>';
     }

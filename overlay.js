@@ -3,7 +3,8 @@ import {
   subscribeToTeam,
   fetchPokemonLocalized,
   translateType,
-  DEFAULT_OVERLAY_STYLE
+  DEFAULT_OVERLAY_STYLE,
+  shouldUsePixelRendering
 } from "./shared.js";
 
 const overlayRoot = document.getElementById("overlayRoot");
@@ -132,7 +133,7 @@ async function renderTeam(data) {
 
     const pos = getPosition(options, index);
     const sprite = pokemon?.sprite || pokemon?.artwork || "";
-    const pixelSpriteClass = options.spriteVariant === "pixel" ? "pixel-sprite-mode" : "";
+    const pixelSpriteClass = shouldUsePixelRendering(options.spriteVariant, options.preferAnimatedSprite) ? "pixel-sprite-mode" : "";
     const cardClass = options.spriteOnlyMode
       ? `overlay-card cardless ${pixelSpriteClass}`.trim()
       : `overlay-card ${pixelSpriteClass}`.trim();
