@@ -138,7 +138,7 @@ button, .link-btn, .ghost-btn {
 .preview-content { text-align: center; }
 .preview-content img {
   width: auto;
-  max-width: 100%;
+  max-width: 200%;
   max-height: 92px;
   object-fit: contain;
 }
