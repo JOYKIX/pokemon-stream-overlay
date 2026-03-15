@@ -34,8 +34,7 @@ const showTypes = document.getElementById("showTypes");
 const spriteVariant = document.getElementById("spriteVariant");
 const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
 const spriteOnlyMode = document.getElementById("spriteOnlyMode");
-const spriteHeightPx = document.getElementById("spriteHeightPx");
-const spriteGapPx = document.getElementById("spriteGapPx");
+const snapToGridInput = document.getElementById("snapToGrid");
 
 const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
@@ -47,6 +46,7 @@ const openOverlayBtn = document.getElementById("openOverlayBtn");
 const pokemonSuggestions = document.getElementById("pokemonSuggestions");
 
 let slotPositions = defaultSlotPositions();
+let slotScales = Array.from({ length: 6 }, () => 1);
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
@@ -140,13 +140,12 @@ function collectDisplayOptions() {
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
-    spriteHeightPx: Math.max(48, Number(spriteHeightPx.value) || 170),
-    spriteGapPx: Math.max(0, Number(spriteGapPx.value) || 12),
     editorResolution: {
       width: Math.max(640, Number(streamWidth.value) || 1920),
       height: Math.max(360, Number(streamHeight.value) || 1080)
     },
-    slotPositions
+    slotPositions,
+    slotScales
   };
 }
 
@@ -154,6 +153,7 @@ function syncNuzlockeUi() {
   const enabled = nuzlockeModeInput.checked;
   deathCountField.style.display = enabled ? "grid" : "none";
   deathCountInput.disabled = !enabled;
+  renderEditorCanvas();
 }
 
 function applyResolutionPreset(value) {
@@ -168,9 +168,12 @@ function renderEditorCanvas() {
   const width = Math.max(640, Number(streamWidth.value) || 1920);
   const height = Math.max(360, Number(streamHeight.value) || 1080);
   editorCanvas.style.aspectRatio = `${width} / ${height}`;
+  editorCanvas.classList.toggle("show-grid", Boolean(snapToGridInput?.checked));
 
   const slots = collectSlots();
   editorCanvas.innerHTML = "";
+  const nuzlockeEnabled = nuzlockeModeInput.checked;
+
   slots.forEach((slot, index) => {
     const pos = slotPositions[index] || { x: 10, y: 10 };
     const token = document.createElement("button");
@@ -180,9 +183,36 @@ function renderEditorCanvas() {
     token.style.left = `${pos.x}%`;
     token.style.top = `${pos.y}%`;
     token.innerHTML = `<strong>${slot.nickname || slot.name || `Slot ${index + 1}`}</strong><span>${slot.name ? "Glisser pour placer" : "Ajoute un Pokémon"}</span>`;
+    const scale = Math.max(0.6, Math.min(2, Number(slotScales[index]) || 1));
+    token.style.width = `${Math.round((slot.name ? 170 : 150) * scale)}px`;
     enableDrag(token, index);
+    enableScale(token, index);
     editorCanvas.appendChild(token);
   });
+
+  if (nuzlockeEnabled) {
+    const deathToken = document.createElement("button");
+    deathToken.type = "button";
+    deathToken.className = "canvas-token canvas-token-nuzlocke";
+    deathToken.dataset.index = "nuzlocke";
+    const nPos = slotPositions[6] || { x: 88, y: 12 };
+    deathToken.style.left = `${nPos.x}%`;
+    deathToken.style.top = `${nPos.y}%`;
+    deathToken.innerHTML = `<strong>Nuzlocke</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} morts</span>`;
+    enableDrag(deathToken, 6);
+    editorCanvas.appendChild(deathToken);
+  }
+}
+
+function enableScale(node, index) {
+  node.addEventListener("wheel", (event) => {
+    if (!event.ctrlKey) return;
+    event.preventDefault();
+    const current = Math.max(0.6, Math.min(2, Number(slotScales[index]) || 1));
+    const delta = event.deltaY < 0 ? 0.05 : -0.05;
+    slotScales[index] = Math.max(0.6, Math.min(2, Number((current + delta).toFixed(2))));
+    renderEditorCanvas();
+  }, { passive: false });
 }
 
 function enableDrag(node, index) {
@@ -192,9 +222,13 @@ function enableDrag(node, index) {
     const y = ((event.clientY - rect.top) / rect.height) * 100;
     const clampedX = Math.max(3, Math.min(97, x));
     const clampedY = Math.max(6, Math.min(94, y));
-    slotPositions[index] = { x: clampedX, y: clampedY };
-    node.style.left = `${clampedX}%`;
-    node.style.top = `${clampedY}%`;
+    const useSnap = snapToGridInput?.checked;
+    const gridSize = 2;
+    const finalX = useSnap ? Math.round(clampedX / gridSize) * gridSize : clampedX;
+    const finalY = useSnap ? Math.round(clampedY / gridSize) * gridSize : clampedY;
+    slotPositions[index] = { x: finalX, y: finalY };
+    node.style.left = `${finalX}%`;
+    node.style.top = `${finalY}%`;
   };
 
   const onPointerUp = () => {
@@ -229,13 +263,14 @@ function fillForm(data) {
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
-  spriteHeightPx.value = String(Math.max(48, Number(opts.spriteHeightPx) || 170));
-  spriteGapPx.value = String(Math.max(0, Number(opts.spriteGapPx) || 12));
   streamWidth.value = String(Math.max(640, Number(opts.editorResolution?.width) || 1920));
   streamHeight.value = String(Math.max(360, Number(opts.editorResolution?.height) || 1080));
-  slotPositions = Array.isArray(opts.slotPositions) && opts.slotPositions.length === 6
-    ? opts.slotPositions.map((p) => ({ x: Number(p?.x) || 10, y: Number(p?.y) || 10 }))
-    : defaultSlotPositions();
+  slotPositions = Array.isArray(opts.slotPositions) && opts.slotPositions.length >= 6
+    ? opts.slotPositions.slice(0, 7).map((p, i) => ({ x: Number(p?.x) || (i === 6 ? 88 : 10), y: Number(p?.y) || (i === 6 ? 12 : 10) }))
+    : [...defaultSlotPositions(), { x: 88, y: 12 }];
+  slotScales = Array.isArray(opts.slotScales)
+    ? opts.slotScales.slice(0, 6).map((value) => Math.max(0.6, Math.min(2, Number(value) || 1)))
+    : Array.from({ length: 6 }, () => 1);
 
   syncNuzlockeUi();
 
@@ -315,12 +350,15 @@ loadBtn.addEventListener("click", async () => {
 
 clearBtn.addEventListener("click", () => fillForm(null));
 resetPositionsBtn.addEventListener("click", () => {
-  slotPositions = defaultSlotPositions();
+  slotPositions = [...defaultSlotPositions(), { x: 88, y: 12 }];
+  slotScales = Array.from({ length: 6 }, () => 1);
   renderEditorCanvas();
 });
 nuzlockeModeInput.addEventListener("change", syncNuzlockeUi);
 streamWidth.addEventListener("input", renderEditorCanvas);
 streamHeight.addEventListener("input", renderEditorCanvas);
+deathCountInput.addEventListener("input", renderEditorCanvas);
+snapToGridInput?.addEventListener("change", renderEditorCanvas);
 resolutionPreset.addEventListener("change", () => {
   applyResolutionPreset(resolutionPreset.value);
   renderEditorCanvas();

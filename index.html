@@ -105,17 +105,7 @@
           </div>
           <div class="toggle-grid">
             <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Préférer animé</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Sprite seul</span></label>
-          </div>
-          <div class="inline-fields">
-            <div class="field compact-field">
-              <label for="spriteHeightPx">Hauteur sprite</label>
-              <input id="spriteHeightPx" type="number" min="48" max="800" step="1" value="170" />
-            </div>
-            <div class="field compact-field">
-              <label for="spriteGapPx">Espacement</label>
-              <input id="spriteGapPx" type="number" min="0" max="200" step="1" value="12" />
-            </div>
+            <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Retirer le fond (cards off)</span></label>
           </div>
         </div>
 
@@ -142,7 +132,10 @@
         <div class="editor-canvas-wrap">
           <div class="editor-toolbar">
             <strong>Canvas interactif</strong>
-            <button id="resetPositionsBtn" type="button" class="secondary-btn small">Réinitialiser le placement</button>
+            <div class="editor-toolbar-actions">
+              <label class="checkbox-chip small-chip"><input type="checkbox" id="snapToGrid" checked><span>Grille aimantée</span></label>
+              <button id="resetPositionsBtn" type="button" class="secondary-btn small">Réinitialiser le placement</button>
+            </div>
           </div>
           <div id="editorCanvas" class="editor-canvas"></div>
         </div>
