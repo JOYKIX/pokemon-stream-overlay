@@ -13,10 +13,32 @@ const overlayTeam = document.getElementById("overlayTeam");
 const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
+const overlayDeathWrap = document.getElementById("overlayDeathWrap");
+
+const TYPE_COLORS = {
+  normal: "#a8a77a",
+  fire: "#ee8130",
+  water: "#6390f0",
+  electric: "#f7d02c",
+  grass: "#7ac74c",
+  ice: "#96d9d6",
+  fighting: "#c22e28",
+  poison: "#a33ea1",
+  ground: "#e2bf65",
+  flying: "#a98ff3",
+  psychic: "#f95587",
+  bug: "#a6b91a",
+  rock: "#b6a136",
+  ghost: "#735797",
+  dragon: "#6f35fc",
+  dark: "#705746",
+  steel: "#b7b7ce",
+  fairy: "#d685ad"
+};
 
 function hexToRgb(hex) {
   const normalized = hex.replace("#", "");
-  if (normalized.length !== 6) return { r: 9, g: 15, b: 31 };
+  if (normalized.length !== 6) return { r: 10, g: 10, b: 10 };
   return {
     r: Number.parseInt(normalized.slice(0, 2), 16),
     g: Number.parseInt(normalized.slice(2, 4), 16),
@@ -24,7 +46,7 @@ function hexToRgb(hex) {
   };
 }
 
-function applyOverlayStyle(style = {}) {
+function applyOverlayStyle(style = {}, options = {}) {
   const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
   const rgb = hexToRgb(merged.backgroundColor);
   const bodyBackground = merged.transparentBackground
@@ -37,35 +59,30 @@ function applyOverlayStyle(style = {}) {
   overlayRoot.style.setProperty("--overlay-card", merged.cardColor);
   overlayRoot.style.setProperty("--overlay-card-opacity", String(merged.cardOpacity));
   overlayRoot.style.setProperty("--overlay-radius", `${merged.borderRadius}px`);
+
+  const width = Math.max(320, Number(options.overlayWidthPx) || 1600);
+  const orientation = options.overlayOrientation === "vertical" ? "vertical" : "horizontal";
+  overlayRoot.style.maxWidth = `${width}px`;
+  overlayRoot.classList.toggle("is-vertical", orientation === "vertical");
 }
 
-function renderEmptyCard(index) {
-  return `
-    <div class="overlay-empty">
-      <div>
-        <div class="overlay-slot-label">Slot ${index + 1}</div>
-        <div>Vide</div>
-      </div>
-    </div>
-  `;
+function renderTypeBadge(type) {
+  const color = TYPE_COLORS[type] || "#666";
+  return `<span class="type-pill" style="--type-color:${color}">${translateType(type)}</span>`;
 }
 
 async function renderTeam(data) {
   if (!data) {
-    applyOverlayStyle(DEFAULT_OVERLAY_STYLE);
-    overlayRoot.classList.remove("sprite-only-mode");
-    overlayRoot.classList.remove("hide-header");
+    applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
+    overlayRoot.classList.remove("sprite-only-mode", "hide-header");
+    overlayRoot.classList.remove("nuzlocke-on");
     overlayTrainer.textContent = "Aucune team";
     overlayBadge.textContent = "En attente de données";
-    overlayRoot.classList.remove("nuzlocke-on");
-    overlayNuzlockeTag.textContent = "Nuzlocke";
-    overlayDeathsLabel.textContent = "Morts";
-    overlayDeathCount.textContent = "0";
-    overlayTeam.innerHTML = Array.from({ length: 6 }, (_, i) => renderEmptyCard(i)).join("");
+    overlayNuzlockeTag.textContent = "Run libre";
+    overlayDeathWrap.style.display = "none";
+    overlayTeam.innerHTML = "";
     return;
   }
-
-  applyOverlayStyle(data.overlayStyle);
 
   const options = {
     showHeader: data.displayOptions?.showHeader ?? true,
@@ -74,34 +91,32 @@ async function renderTeam(data) {
     showLevel: data.displayOptions?.showLevel ?? true,
     showItem: data.displayOptions?.showItem ?? true,
     showShiny: data.displayOptions?.showShiny ?? true,
-    showTypes: data.displayOptions?.showTypes ?? false,
+    showTypes: data.displayOptions?.showTypes ?? true,
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
-    spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode)
+    spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
+    overlayOrientation: data.displayOptions?.overlayOrientation || "horizontal",
+    overlayWidthPx: data.displayOptions?.overlayWidthPx || 1600
   };
 
+  applyOverlayStyle(data.overlayStyle, options);
   overlayRoot.classList.toggle("sprite-only-mode", options.spriteOnlyMode);
-
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
+
   overlayTrainer.textContent = data.trainerName || "Dresseur";
   overlayBadge.textContent = data.badgeText || "Équipe Pokémon";
+
   const nuzlockeOn = Boolean(data.nuzlockeMode);
   overlayRoot.classList.toggle("nuzlocke-on", nuzlockeOn);
   overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Run libre";
   overlayDeathsLabel.textContent = "Morts";
   overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
+  overlayDeathWrap.style.display = nuzlockeOn ? "inline-flex" : "none";
+
   overlayTeam.innerHTML = "";
+  const slots = (data.slots || []).filter(slot => slot?.name);
 
-  const slots = data.slots || [];
-
-  for (let i = 0; i < 6; i++) {
-    const slot = slots[i];
-
-    if (!slot?.name) {
-      overlayTeam.insertAdjacentHTML("beforeend", renderEmptyCard(i));
-      continue;
-    }
-
+  for (const slot of slots) {
     let pokemon = null;
     try {
       pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, {
@@ -125,47 +140,22 @@ async function renderTeam(data) {
         `
       : "";
 
-    const levelHtml = options.showLevel && slot.level
-      ? `<div class="overlay-level">Lv.${slot.level}</div>`
-      : "";
-
-    const shinyHtml = options.showShiny && slot.shiny
-      ? '<span class="meta-pill shiny">Shiny</span>'
-      : "";
-
-    const itemHtml = options.showItem && slot.item
-      ? `<span class="meta-pill item">${slot.item}</span>`
-      : "";
-
+    const levelHtml = options.showLevel && slot.level ? `<div class="overlay-level">Lv.${slot.level}</div>` : "";
+    const shinyHtml = options.showShiny && slot.shiny ? '<span class="meta-pill shiny">Shiny ✨</span>' : "";
+    const itemHtml = options.showItem && slot.item ? `<span class="meta-pill item">${slot.item}</span>` : "";
     const typesHtml = options.showTypes && pokemon?.types?.length
-      ? `<div class="overlay-types">
-          ${pokemon.types.map(type => `<span class="type-pill">${translateType(type)}</span>`).join("")}
-        </div>`
+      ? `<div class="overlay-types">${pokemon.types.map(renderTypeBadge).join("")}</div>`
       : "";
 
     overlayTeam.insertAdjacentHTML(
       "beforeend",
-      `
-      <div class="overlay-card">
-        <div class="overlay-card-top">
-          <div class="overlay-slot-label">Slot ${i + 1}</div>
-          ${levelHtml}
-        </div>
-
-        <div class="overlay-image-wrap">
-          ${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}
-        </div>
-
+      `<article class="overlay-card">
+        <div class="overlay-card-top">${levelHtml}</div>
+        <div class="overlay-image-wrap">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
         ${nameHtml}
-
-        <div class="overlay-meta">
-          ${shinyHtml}
-          ${itemHtml}
-        </div>
-
+        <div class="overlay-meta">${shinyHtml}${itemHtml}</div>
         ${typesHtml}
-      </div>
-      `
+      </article>`
     );
   }
 }

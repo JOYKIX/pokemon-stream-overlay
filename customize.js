@@ -80,7 +80,7 @@ async function saveStyle() {
         nuzlockeMode: false,
         deathCount: 0,
         slots: Array.from({ length: 6 }, () => ({ name: "", nickname: "", level: "", item: "", shiny: false })),
-        displayOptions: { showHeader: true, showName: true, showNickname: true, showLevel: true, showItem: true, showShiny: true, showTypes: false },
+        displayOptions: { showHeader: true, showName: true, showNickname: true, showLevel: true, showItem: true, showShiny: true, showTypes: true, overlayOrientation: "horizontal", overlayWidthPx: 1600 },
         overlayStyle: style
       });
 
