@@ -365,7 +365,13 @@ button, .link-btn, .ghost-btn {
 .overlay-card-top { display: flex; justify-content: flex-end; min-height: 18px; }
 .overlay-level { color: #ffd54f; font-size: 14px; font-weight: 900; }
 .overlay-image-wrap { min-height: 130px; display: grid; place-items: center; }
-.overlay-image-wrap img { width: auto; max-width: 100%; max-height: calc(clamp(96px, 14vh, 170px) * var(--overlay-sprite-scale, 1)); object-fit: contain; }
+.overlay-image-wrap img {
+  width: calc(clamp(96px, 14vh, 170px) * var(--overlay-sprite-scale, 1));
+  height: auto;
+  max-width: none;
+  max-height: none;
+  object-fit: contain;
+}
 .overlay-card.pixel-sprite-mode .overlay-image-wrap img { image-rendering: pixelated; }
 .overlay-name-wrap { text-align: center; }
 .overlay-name { font-size: 20px; margin: 4px 0; font-weight: 800; }
