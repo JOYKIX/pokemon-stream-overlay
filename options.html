@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon Stream Overlay - Options</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-page">
+  <div class="app-shell app-shell-narrow">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Options de sécurité</p>
+        <h1>Modifier la clé et l'identifiant</h1>
+      </div>
+      <div class="topbar-actions">
+        <a class="ghost-btn" href="index.html">Retour éditeur</a>
+      </div>
+    </header>
+
+    <main class="single-column">
+      <section class="panel">
+        <div class="panel-head"><h2>Changer la clé d'édition</h2></div>
+        <div class="field"><label for="currentChannel">Identifiant actuel</label><input id="currentChannel" type="text" readonly></div>
+        <div class="field"><label for="currentKey">Clé actuelle</label><input id="currentKey" type="password"></div>
+        <div class="field"><label for="nextKey">Nouvelle clé</label><input id="nextKey" type="password"></div>
+        <div class="actions"><button id="updateKeyBtn" class="primary-btn">Mettre à jour la clé</button></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head"><h2>Changer l'identifiant</h2><p>L'ancien identifiant sera supprimé de la base de données.</p></div>
+        <div class="field"><label for="nextChannel">Nouvel identifiant unique</label><input id="nextChannel" type="text" placeholder="nouvel-id"></div>
+        <div class="field"><label for="renameKey">Clé d'édition</label><input id="renameKey" type="password"></div>
+        <div class="actions"><button id="renameBtn" class="danger-btn">Renommer l'identifiant</button></div>
+      </section>
+
+      <div id="statusBox" class="status-box info">Prêt.</div>
+    </main>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

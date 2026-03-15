@@ -5,6 +5,7 @@ import {
   buildTeamPayload,
   getOverlayUrl
 } from "./shared.js";
+import { ensureAuthenticated, clearSession } from "./auth.js";
 
 const channelInput = document.getElementById("channelInput");
 const transparentBackground = document.getElementById("transparentBackground");
@@ -19,6 +20,7 @@ const loadBtn = document.getElementById("loadBtn");
 const saveBtn = document.getElementById("saveBtn");
 const statusBox = document.getElementById("statusBox");
 const stylePreview = document.getElementById("stylePreview");
+const logoutBtn = document.getElementById("logoutBtn");
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
@@ -63,56 +65,27 @@ function fillForm(style) {
   applyStylePreview(merged);
 }
 
-async function loadExistingTeam(channel) {
-  const existing = await loadTeam(channel);
-  if (!existing) {
-    return null;
-  }
-  return existing;
-}
-
 async function saveStyle() {
   const channel = channelInput.value.trim();
-  if (!channel) {
-    setStatus("Tu dois entrer un identifiant.", "error");
-    return;
-  }
-
   try {
     setStatus("Sauvegarde en cours...", "info");
-    const existing = await loadExistingTeam(channel);
+    const existing = await loadTeam(channel);
     const style = collectStyle();
 
     const payload = existing
-      ? {
-        ...existing,
-        overlayStyle: {
-          ...DEFAULT_OVERLAY_STYLE,
-          ...existing.overlayStyle,
-          ...style
-        },
-        updatedAt: Date.now()
-      }
+      ? { ...existing, overlayStyle: { ...DEFAULT_OVERLAY_STYLE, ...existing.overlayStyle, ...style }, updatedAt: Date.now() }
       : buildTeamPayload({
         trainerName: "Dresseur",
         badgeText: "Équipe Pokémon",
         nuzlockeMode: false,
         deathCount: 0,
         slots: Array.from({ length: 6 }, () => ({ name: "", nickname: "", level: "", item: "", shiny: false })),
-        displayOptions: {
-          showHeader: true,
-          showName: true,
-          showNickname: true,
-          showLevel: true,
-          showItem: true,
-          showShiny: true,
-          showTypes: false
-        },
+        displayOptions: { showHeader: true, showName: true, showNickname: true, showLevel: true, showItem: true, showShiny: true, showTypes: false },
         overlayStyle: style
       });
 
     await saveTeam(channel, payload);
-    setStatus(`Design sauvegardé. URL overlay: ${getOverlayUrl(channel)}`, "success");
+    setStatus(`Design sauvegardé. URL: ${getOverlayUrl(channel)}`, "success");
   } catch (error) {
     console.error(error);
     setStatus("Erreur pendant la sauvegarde du design.", "error");
@@ -121,42 +94,32 @@ async function saveStyle() {
 
 async function loadStyle() {
   const channel = channelInput.value.trim();
-  if (!channel) {
-    setStatus("Tu dois entrer un identifiant.", "error");
-    return;
-  }
-
   try {
     setStatus("Chargement du style...", "info");
-    const existing = await loadExistingTeam(channel);
-    if (!existing) {
-      fillForm(DEFAULT_OVERLAY_STYLE);
-      setStatus("Aucune donnée trouvée, style par défaut chargé.", "info");
-      return;
-    }
-
-    fillForm(existing.overlayStyle || DEFAULT_OVERLAY_STYLE);
-    setStatus("Style chargé.", "success");
+    const existing = await loadTeam(channel);
+    fillForm(existing?.overlayStyle || DEFAULT_OVERLAY_STYLE);
+    setStatus(existing ? "Style chargé." : "Style par défaut chargé.", "success");
   } catch (error) {
     console.error(error);
     setStatus("Impossible de charger le style.", "error");
   }
 }
 
-[
-  transparentBackground,
-  backgroundColor,
-  backgroundOpacity,
-  textColor,
-  accentColor,
-  cardColor,
-  cardOpacity,
-  borderRadius
-].forEach((input) => {
-  input.addEventListener("input", () => applyStylePreview(collectStyle()));
-});
+[transparentBackground, backgroundColor, backgroundOpacity, textColor, accentColor, cardColor, cardOpacity, borderRadius]
+  .forEach((input) => input.addEventListener("input", () => applyStylePreview(collectStyle())));
 
 saveBtn.addEventListener("click", saveStyle);
 loadBtn.addEventListener("click", loadStyle);
+logoutBtn.addEventListener("click", () => {
+  clearSession();
+  window.location.href = "login.html";
+});
 
-fillForm(DEFAULT_OVERLAY_STYLE);
+async function init() {
+  const session = await ensureAuthenticated();
+  if (!session) return;
+  channelInput.value = session.channel;
+  fillForm(DEFAULT_OVERLAY_STYLE);
+}
+
+init();

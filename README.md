@@ -14,14 +14,15 @@ Cette version utilise :
 
 ## Fichiers
 
-- `index.html` : page de gestion
+- `login.html` : connexion par identifiant + clé d'édition
+- `index.html` : éditeur principal de team
+- `customize.html` : éditeur de design overlay
+- `options.html` : changement d'identifiant et de clé
 - `overlay.html` : page à mettre dans OBS
-- `styles.css` : design
-- `app.js` : logique de gestion
+- `styles.css` : design global
+- `app.js`, `customize.js`, `login.js`, `options.js` : logique des interfaces
 - `overlay.js` : logique OBS
-- `shared.js` : fonctions communes
-- `config.example.js` : modèle de configuration
-- `config.js` : ta vraie configuration (à personnaliser)
+- `shared.js` + `auth.js` : fonctions communes + session locale
 
 ## Mise en place
 
@@ -78,3 +79,14 @@ https://ton-utilisateur.github.io/ton-repo/overlay.html?channel=joykix
 - Le champ Pokémon attend surtout un **nom PokéAPI anglais** ou un **numéro du Pokédex**
 - Les noms affichés sur l'overlay remontent en français quand PokéAPI les fournit
 - La synchronisation est en direct via Firebase
+
+
+## Sécurité de l'éditeur
+
+- Le projet utilise un mécanisme léger : **identifiant unique + clé d'édition**.
+- Ce n'est **pas** un système de compte utilisateur complet (pas d'email / mot de passe).
+- Si l'identifiant existe déjà dans la base, la création est refusée.
+- Les options permettent de :
+  - changer la clé d'édition
+  - changer l'identifiant (ce qui supprime l'ancien ID dans la database)
+

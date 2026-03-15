@@ -4,7 +4,8 @@ import {
   ref,
   set,
   get,
-  onValue
+  onValue,
+  remove
 } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -44,6 +45,11 @@ export function slugifyForApi(value) {
   return normalizeInput(value).replace(/\s+/g, "-");
 }
 
+
+
+function normalizeChannel(channel) {
+  return cleanText(channel).toLowerCase();
+}
 export function getChannelFromUrl(defaultValue = "joykix") {
   const params = new URLSearchParams(window.location.search);
   return params.get("channel")?.trim() || defaultValue;
@@ -270,16 +276,94 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
 }
 
 export async function saveTeam(channel, payload) {
-  await set(ref(db, `teams/${channel.trim().toLowerCase()}`), payload);
+  await set(ref(db, `teams/${normalizeChannel(channel)}`), payload);
 }
 
 export async function loadTeam(channel) {
-  const snapshot = await get(ref(db, `teams/${channel.trim().toLowerCase()}`));
+  const snapshot = await get(ref(db, `teams/${normalizeChannel(channel)}`));
   return snapshot.exists() ? snapshot.val() : null;
 }
 
 export function subscribeToTeam(channel, callback) {
-  return onValue(ref(db, `teams/${channel.trim().toLowerCase()}`), snapshot => {
+  return onValue(ref(db, `teams/${normalizeChannel(channel)}`), snapshot => {
     callback(snapshot.exists() ? snapshot.val() : null);
   });
+}
+
+
+export async function getProfile(channel) {
+  const snapshot = await get(ref(db, `profiles/${normalizeChannel(channel)}`));
+  return snapshot.exists() ? snapshot.val() : null;
+}
+
+export async function createProfile(channel, editKey) {
+  const normalized = normalizeChannel(channel);
+  const existing = await getProfile(normalized);
+  if (existing) {
+    throw new Error("IDENTIFIER_TAKEN");
+  }
+
+  await set(ref(db, `profiles/${normalized}`), {
+    channel: normalized,
+    editKey: cleanText(editKey),
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  });
+}
+
+export async function verifyProfile(channel, editKey) {
+  const profile = await getProfile(channel);
+  return Boolean(profile && profile.editKey === cleanText(editKey));
+}
+
+export async function updateEditKey(channel, currentEditKey, nextEditKey) {
+  const profile = await getProfile(channel);
+  if (!profile || profile.editKey !== cleanText(currentEditKey)) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  await set(ref(db, `profiles/${normalizeChannel(channel)}`), {
+    ...profile,
+    editKey: cleanText(nextEditKey),
+    updatedAt: Date.now()
+  });
+}
+
+export async function renameIdentifier(oldChannel, newChannel, editKey) {
+  const oldId = normalizeChannel(oldChannel);
+  const newId = normalizeChannel(newChannel);
+  const sanitizedKey = cleanText(editKey);
+
+  if (oldId === newId) return oldId;
+
+  const oldProfile = await getProfile(oldId);
+  if (!oldProfile || oldProfile.editKey !== sanitizedKey) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  const existingNewProfile = await getProfile(newId);
+  if (existingNewProfile) {
+    throw new Error("IDENTIFIER_TAKEN");
+  }
+
+  const oldTeam = await loadTeam(oldId);
+
+  await set(ref(db, `profiles/${newId}`), {
+    channel: newId,
+    editKey: sanitizedKey,
+    createdAt: oldProfile.createdAt || Date.now(),
+    updatedAt: Date.now()
+  });
+
+  if (oldTeam) {
+    await set(ref(db, `teams/${newId}`), {
+      ...oldTeam,
+      updatedAt: Date.now()
+    });
+  }
+
+  await remove(ref(db, `profiles/${oldId}`));
+  await remove(ref(db, `teams/${oldId}`));
+
+  return newId;
 }

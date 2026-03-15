@@ -3,72 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Stream Overlay - Personnalisation</title>
+  <title>Pokémon Stream Overlay - Design</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
-  <div class="app-shell app-shell-compact">
+  <div class="app-shell">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Overlay designer</p>
-        <h1>Personnalisation visuelle</h1>
+        <p class="eyebrow">Design system</p>
+        <h1>Éditeur visuel complet</h1>
       </div>
       <div class="topbar-actions">
-        <a class="ghost-btn" href="index.html">Retour au manager</a>
+        <a class="ghost-btn" href="index.html">Retour éditeur</a>
+        <a class="ghost-btn" href="options.html">Options du profil</a>
+        <button id="logoutBtn" class="ghost-btn" type="button">Déconnexion</button>
       </div>
     </header>
 
     <main class="builder-layout">
       <aside class="panel config-sidebar">
         <div class="panel-head">
-          <h2>Canal</h2>
-          <p>Tu modifies le style du même channel que ton overlay OBS.</p>
+          <h2>Canal actif</h2>
         </div>
-
         <div class="field">
           <label for="channelInput">Identifiant</label>
-          <input id="channelInput" type="text" placeholder="ex: joykix" value="joykix" />
+          <input id="channelInput" type="text" readonly />
         </div>
 
         <div class="toggle-panel">
           <h3>Fond global</h3>
-          <label class="checkbox-chip wide"><input type="checkbox" id="transparentBackground" checked><span>Retirer le fond (transparent)</span></label>
-          <div class="field">
-            <label for="backgroundColor">Couleur du fond</label>
-            <input id="backgroundColor" type="color" value="#090f1f" />
-          </div>
-          <div class="field">
-            <label for="backgroundOpacity">Opacité du fond</label>
-            <input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75" />
-          </div>
+          <label class="checkbox-chip wide"><input type="checkbox" id="transparentBackground" checked><span>Fond transparent</span></label>
+          <div class="field"><label for="backgroundColor">Couleur</label><input id="backgroundColor" type="color" value="#090f1f" /></div>
+          <div class="field"><label for="backgroundOpacity">Opacité</label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75" /></div>
         </div>
 
         <div class="toggle-panel">
-          <h3>Style principal</h3>
-          <div class="field">
-            <label for="textColor">Couleur du texte</label>
-            <input id="textColor" type="color" value="#f3f6ff" />
-          </div>
-          <div class="field">
-            <label for="accentColor">Couleur accent</label>
-            <input id="accentColor" type="color" value="#6d5dfc" />
-          </div>
-          <div class="field">
-            <label for="cardColor">Couleur des cartes</label>
-            <input id="cardColor" type="color" value="#101b33" />
-          </div>
-          <div class="field">
-            <label for="cardOpacity">Opacité des cartes</label>
-            <input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9" />
-          </div>
-          <div class="field">
-            <label for="borderRadius">Arrondi des cartes (px)</label>
-            <input id="borderRadius" type="range" min="0" max="50" step="1" value="24" />
-          </div>
+          <h3>Cartes</h3>
+          <div class="field"><label for="textColor">Texte</label><input id="textColor" type="color" value="#f3f6ff" /></div>
+          <div class="field"><label for="accentColor">Accent</label><input id="accentColor" type="color" value="#6d5dfc" /></div>
+          <div class="field"><label for="cardColor">Fond des cartes</label><input id="cardColor" type="color" value="#101b33" /></div>
+          <div class="field"><label for="cardOpacity">Opacité cartes</label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9" /></div>
+          <div class="field"><label for="borderRadius">Arrondis</label><input id="borderRadius" type="range" min="0" max="50" step="1" value="24" /></div>
         </div>
 
         <div class="actions vertical">
-          <button id="loadBtn" class="secondary-btn">Charger le style actuel</button>
+          <button id="loadBtn" class="secondary-btn">Charger le style</button>
           <button id="saveBtn" class="primary-btn">Sauvegarder le design</button>
         </div>
         <div id="statusBox" class="status-box info">Prêt.</div>
@@ -77,13 +56,9 @@
       <section class="panel team-panel">
         <div class="panel-head">
           <h2>Aperçu instantané</h2>
-          <p>Ce mock reflète les couleurs et réglages que tu sauvegardes dans Firebase.</p>
         </div>
         <div id="stylePreview" class="designer-preview">
-          <div class="designer-preview-card">
-            <h3>Header overlay</h3>
-            <p>Dresseur • Badge • Compteur</p>
-          </div>
+          <div class="designer-preview-card"><h3>Header overlay</h3><p>Dresseur • Badge • Compteur</p></div>
           <div class="designer-preview-grid">
             <div class="designer-preview-slot">Slot 1</div>
             <div class="designer-preview-slot">Slot 2</div>
