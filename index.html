@@ -22,12 +22,12 @@
       <section class="panel panel-main">
         <div class="panel-head">
           <h2>Configuration</h2>
-          <p>Modifie ta team et OBS se mettra à jour en direct.</p>
+          <p>Tu peux écrire les noms des Pokémon en français. L’overlay affichera aussi les noms en français.</p>
         </div>
 
         <div class="form-grid">
           <div class="field">
-            <label for="channelInput">Nom du canal / identifiant</label>
+            <label for="channelInput">Identifiant</label>
             <input id="channelInput" type="text" placeholder="ex: joykix" value="joykix" />
             <small>Utilise le même identifiant dans l’URL OBS.</small>
           </div>
@@ -39,7 +39,19 @@
 
           <div class="field">
             <label for="badgeInput">Texte secondaire</label>
-            <input id="badgeInput" type="text" placeholder="ex: Nuzlocke / Randomizer / Ligue" />
+            <input id="badgeInput" type="text" placeholder="ex: Randomizer / Nuzlocke / HGSS" />
+          </div>
+        </div>
+
+        <div class="toggle-panel">
+          <h3>Éléments à afficher sur l’overlay</h3>
+          <div class="toggle-grid">
+            <label class="checkbox-chip"><input type="checkbox" id="showHeader" checked><span>Header</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Nom</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showLevel" checked><span>Niveau</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showItem" checked><span>Objet</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showShiny" checked><span>Badge shiny</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showTypes"><span>Types</span></label>
           </div>
         </div>
 
@@ -47,7 +59,7 @@
 
         <div class="actions">
           <button id="saveBtn" class="primary-btn">Sauvegarder la team</button>
-          <button id="loadBtn" class="secondary-btn">Recharger depuis la base</button>
+          <button id="loadBtn" class="secondary-btn">Recharger</button>
           <button id="clearBtn" class="danger-btn">Vider</button>
         </div>
 
@@ -68,16 +80,6 @@
         <div class="actions vertical">
           <button id="copyUrlBtn" class="secondary-btn">Copier l’URL</button>
           <a id="openOverlayBtn" class="primary-btn link-btn" href="overlay.html?channel=joykix" target="_blank">Tester l’overlay</a>
-        </div>
-
-        <div class="tips">
-          <h3>Conseils OBS</h3>
-          <ul>
-            <li>Ajoute une <strong>source navigateur</strong>.</li>
-            <li>Mets l’URL générée ci-dessus.</li>
-            <li>Coche “Rafraîchir le navigateur lorsque la scène devient active”.</li>
-            <li>Fond transparent déjà géré.</li>
-          </ul>
         </div>
       </aside>
     </main>
