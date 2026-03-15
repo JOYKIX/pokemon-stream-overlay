@@ -139,7 +139,7 @@ button, .link-btn, .ghost-btn {
 .preview-content img {
   width: auto;
   max-width: 200%;
-  max-height: 92px;
+  max-height: 150px;
   object-fit: contain;
 }
 .preview-content.pixel-sprite-mode img { image-rendering: pixelated; }
