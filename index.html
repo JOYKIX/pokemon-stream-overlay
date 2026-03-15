@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
-  <div class="app-shell">
+  <div class="app-shell app-shell-compact">
     <header class="topbar">
       <div>
         <p class="eyebrow">Gestionnaire OBS</p>
@@ -18,33 +18,40 @@
       </div>
     </header>
 
-    <main class="grid">
-      <section class="panel panel-main">
+    <main class="builder-layout">
+      <aside class="panel config-sidebar">
         <div class="panel-head">
           <h2>Configuration</h2>
-          <p>Tu peux écrire les noms des Pokémon en français. L’overlay affichera aussi les noms en français.</p>
+          <p>Tout est regroupé ici pour éditer vite, sans scroll de page.</p>
         </div>
 
-        <div class="form-grid">
-          <div class="field">
-            <label for="channelInput">Identifiant</label>
-            <input id="channelInput" type="text" placeholder="ex: joykix" value="joykix" />
-            <small>Utilise le même identifiant dans l’URL OBS.</small>
-          </div>
+        <div class="field">
+          <label for="channelInput">Identifiant</label>
+          <input id="channelInput" type="text" placeholder="ex: joykix" value="joykix" />
+          <small>Utilise le même identifiant dans l’URL OBS.</small>
+        </div>
 
-          <div class="field">
-            <label for="trainerInput">Nom du dresseur</label>
-            <input id="trainerInput" type="text" placeholder="ex: JOYKIX" />
-          </div>
+        <div class="field">
+          <label for="trainerInput">Nom du dresseur</label>
+          <input id="trainerInput" type="text" placeholder="ex: JOYKIX" />
+        </div>
 
+        <div class="field">
+          <label for="badgeInput">Texte secondaire</label>
+          <input id="badgeInput" type="text" placeholder="ex: Randomizer / HGSS" />
+        </div>
+
+        <div class="nuzlocke-panel">
+          <h3>Mode de run</h3>
+          <label class="checkbox-chip wide"><input type="checkbox" id="nuzlockeMode"><span>Activer le mode Nuzlocke</span></label>
           <div class="field">
-            <label for="badgeInput">Texte secondaire</label>
-            <input id="badgeInput" type="text" placeholder="ex: Randomizer / Nuzlocke / HGSS" />
+            <label for="deathCountInput">Compteur de morts</label>
+            <input id="deathCountInput" type="number" min="0" step="1" value="0" />
           </div>
         </div>
 
         <div class="toggle-panel">
-          <h3>Éléments à afficher sur l’overlay</h3>
+          <h3>Éléments à afficher</h3>
           <div class="toggle-grid">
             <label class="checkbox-chip"><input type="checkbox" id="showHeader" checked><span>Header</span></label>
             <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Nom</span></label>
@@ -56,21 +63,8 @@
           </div>
         </div>
 
-        <div class="slots" id="teamSlots"></div>
-
-        <div class="actions">
-          <button id="saveBtn" class="primary-btn">Sauvegarder la team</button>
-          <button id="loadBtn" class="secondary-btn">Recharger</button>
-          <button id="clearBtn" class="danger-btn">Vider</button>
-        </div>
-
-        <div id="statusBox" class="status-box info">Prêt.</div>
-      </section>
-
-      <aside class="panel panel-side">
-        <div class="panel-head">
+        <div class="panel-head panel-head-sm">
           <h2>OBS</h2>
-          <p>Copie cette URL dans une source navigateur OBS.</p>
         </div>
 
         <div class="field">
@@ -83,6 +77,23 @@
           <a id="openOverlayBtn" class="primary-btn link-btn" href="overlay.html?channel=joykix" target="_blank">Tester l’overlay</a>
         </div>
       </aside>
+
+      <section class="panel team-panel">
+        <div class="panel-head">
+          <h2>Équipe Pokémon</h2>
+          <p>Saisis les noms en français, les visuels se mettent à jour automatiquement.</p>
+        </div>
+
+        <div class="slots slots-compact" id="teamSlots"></div>
+
+        <div class="actions">
+          <button id="saveBtn" class="primary-btn">Sauvegarder la team</button>
+          <button id="loadBtn" class="secondary-btn">Recharger</button>
+          <button id="clearBtn" class="danger-btn">Vider</button>
+        </div>
+
+        <div id="statusBox" class="status-box info">Prêt.</div>
+      </section>
     </main>
   </div>
 

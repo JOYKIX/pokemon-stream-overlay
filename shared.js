@@ -176,11 +176,13 @@ export function translateType(type) {
   return map[type] || type;
 }
 
-export function buildTeamPayload({ trainerName, badgeText, slots, displayOptions }) {
+export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCount, slots, displayOptions }) {
   return {
     trainerName: cleanText(trainerName) || "Dresseur",
     badgeText: cleanText(badgeText) || "Pokémon Team",
     updatedAt: Date.now(),
+    nuzlockeMode: Boolean(nuzlockeMode),
+    deathCount: Math.max(0, Number(deathCount) || 0),
     displayOptions: {
       showHeader: Boolean(displayOptions.showHeader),
       showName: Boolean(displayOptions.showName),
