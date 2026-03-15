@@ -20,7 +20,7 @@ body.app-page {
 }
 
 .app-shell { width: min(1600px, 100% - 24px); margin: 12px auto; }
-.app-shell.full-height { min-height: calc(100vh - 24px); display: grid; grid-template-rows: auto 1fr; gap: 14px; }
+.app-shell.full-height { width: calc(100% - 24px); min-height: calc(100vh - 24px); display: grid; grid-template-rows: auto 1fr; gap: 14px; }
 .app-shell-narrow { width: min(980px, 100% - 36px); }
 .topbar {
   background: var(--panel);
@@ -145,6 +145,8 @@ button, .link-btn, .ghost-btn {
 .preview-content.pixel-sprite-mode img { image-rendering: pixelated; }
 .preview-name-fr, .preview-placeholder { font-size: 12px; color: var(--muted); }
 .slot-fields { display: grid; gap: 8px; }
+.slot-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.slot-tools .small { flex: 1; min-width: 92px; }
 .inline-fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 8px; }
 
 .editor-canvas-wrap { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 14px; background: rgba(0,0,0,.24); padding: 10px; }
@@ -244,9 +246,7 @@ button, .link-btn, .ghost-btn {
 .overlay-image-wrap img {
   width: auto;
   max-width: 100%;
-  max-height: clamp(96px, 14vh, 170px);
-  transform: scale(var(--overlay-sprite-scale, 1));
-  transform-origin: center;
+  max-height: calc(clamp(96px, 14vh, 170px) * var(--overlay-sprite-scale, 1));
   object-fit: contain;
 }
 .overlay-card.pixel-sprite-mode .overlay-image-wrap img {

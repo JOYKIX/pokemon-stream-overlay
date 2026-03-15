@@ -326,6 +326,44 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
   };
 }
 
+export async function getNextEvolutionName(inputName) {
+  const index = await fetchFrenchPokemonIndex();
+  const apiName = toApiCandidate(inputName, index);
+  if (!apiName) return null;
+
+  const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
+  if (!pokemonResponse.ok) return null;
+  const pokemonData = await pokemonResponse.json();
+
+  const speciesResponse = await fetch(pokemonData.species.url);
+  if (!speciesResponse.ok) return null;
+  const speciesData = await speciesResponse.json();
+
+  const evolutionChainUrl = speciesData?.evolution_chain?.url;
+  if (!evolutionChainUrl) return null;
+
+  const evolutionResponse = await fetch(evolutionChainUrl);
+  if (!evolutionResponse.ok) return null;
+  const evolutionData = await evolutionResponse.json();
+
+  const queue = [evolutionData.chain];
+  while (queue.length) {
+    const node = queue.shift();
+    if (!node?.species?.name) continue;
+
+    if (node.species.name === speciesData.name) {
+      const next = node.evolves_to?.[0]?.species?.name;
+      if (!next) return null;
+      const translated = index.find((entry) => entry.apiName === next);
+      return translated?.frenchName || next;
+    }
+
+    (node.evolves_to || []).forEach((branch) => queue.push(branch));
+  }
+
+  return null;
+}
+
 export function translateType(type) {
   const map = {
     normal: "Normal",
