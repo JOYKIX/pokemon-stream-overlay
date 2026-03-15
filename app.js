@@ -35,6 +35,8 @@ const showTypes = document.getElementById("showTypes");
 const spriteVariant = document.getElementById("spriteVariant");
 const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
 const spriteOnlyMode = document.getElementById("spriteOnlyMode");
+const spriteScale = document.getElementById("spriteScale");
+const spriteScaleValue = document.getElementById("spriteScaleValue");
 const snapToGridInput = document.getElementById("snapToGrid");
 
 const saveBtn = document.getElementById("saveBtn");
@@ -142,6 +144,7 @@ function collectDisplayOptions() {
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
+    spriteScale: Math.max(0.5, Math.min(2, (Number(spriteScale.value) || 100) / 100)),
     editorResolution: {
       width: Math.max(640, Number(streamWidth.value) || 1920),
       height: Math.max(360, Number(streamHeight.value) || 1080)
@@ -265,6 +268,9 @@ function fillForm(data) {
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
+  const normalizedSpriteScale = Math.max(0.5, Math.min(2, Number(opts.spriteScale) || 1));
+  spriteScale.value = String(Math.round(normalizedSpriteScale * 100));
+  spriteScaleValue.textContent = `${Math.round(normalizedSpriteScale * 100)}%`;
   streamWidth.value = String(Math.max(640, Number(opts.editorResolution?.width) || 1920));
   streamHeight.value = String(Math.max(360, Number(opts.editorResolution?.height) || 1080));
   slotPositions = Array.isArray(opts.slotPositions) && opts.slotPositions.length >= 6
@@ -361,6 +367,10 @@ streamWidth.addEventListener("input", renderEditorCanvas);
 streamHeight.addEventListener("input", renderEditorCanvas);
 deathCountInput.addEventListener("input", renderEditorCanvas);
 snapToGridInput?.addEventListener("change", renderEditorCanvas);
+spriteScale.addEventListener("input", () => {
+  const value = Math.max(50, Math.min(200, Number(spriteScale.value) || 100));
+  spriteScaleValue.textContent = `${value}%`;
+});
 resolutionPreset.addEventListener("change", () => {
   applyResolutionPreset(resolutionPreset.value);
   renderEditorCanvas();
@@ -386,6 +396,7 @@ async function init() {
   channelInput.value = session.channel;
   updateOverlayLink();
   syncNuzlockeUi();
+  if (spriteScaleValue) spriteScaleValue.textContent = `${Math.max(50, Math.min(200, Number(spriteScale.value) || 100))}%`;
   renderEditorCanvas();
   setStatus("Chargement PokéAPI...", "info");
   await loadPokemonSuggestions();

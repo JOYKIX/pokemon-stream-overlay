@@ -197,6 +197,7 @@ button, .link-btn, .ghost-btn {
   --overlay-card-opacity: 0.9;
   --overlay-radius: 20px;
   --overlay-sprite-height: 170px;
+  --overlay-sprite-scale: 1;
   --stream-width: 1920;
   --stream-height: 1080;
   width: 100vw;
@@ -244,6 +245,8 @@ button, .link-btn, .ghost-btn {
   width: auto;
   max-width: 100%;
   max-height: clamp(96px, 14vh, 170px);
+  transform: scale(var(--overlay-sprite-scale, 1));
+  transform-origin: center;
   object-fit: contain;
 }
 .overlay-card.pixel-sprite-mode .overlay-image-wrap img {

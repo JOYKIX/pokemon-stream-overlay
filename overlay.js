@@ -72,6 +72,7 @@ async function renderTeam(data) {
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
     overlayRoot.classList.remove("sprite-only-mode", "hide-header");
+    overlayRoot.style.setProperty("--overlay-sprite-scale", "1");
     overlayTrainer.textContent = "Aucune team";
     overlayBadge.textContent = "En attente de données";
     overlayNuzlockeTag.style.display = "none";
@@ -90,6 +91,7 @@ async function renderTeam(data) {
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
     spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
+    spriteScale: Math.max(0.5, Math.min(2, Number(data.displayOptions?.spriteScale) || 1)),
     editorResolution: data.displayOptions?.editorResolution || { width: 1920, height: 1080 },
     slotPositions: data.displayOptions?.slotPositions || [],
     slotScales: data.displayOptions?.slotScales || []
@@ -97,6 +99,7 @@ async function renderTeam(data) {
 
   applyOverlayStyle(data.overlayStyle, options);
   overlayRoot.classList.toggle("sprite-only-mode", options.spriteOnlyMode);
+  overlayRoot.style.setProperty("--overlay-sprite-scale", String(options.spriteScale));
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
 
   overlayTrainer.textContent = data.trainerName || "Dresseur";
