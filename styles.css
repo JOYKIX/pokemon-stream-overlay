@@ -484,3 +484,112 @@ button,
     grid-template-columns: 1fr;
   }
 }
+
+/* 2026 refresh */
+body {
+  font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.app-shell {
+  max-width: 1560px;
+}
+
+.slot-card {
+  background: linear-gradient(180deg, rgba(30, 40, 70, 0.9), rgba(17, 25, 47, 0.9));
+}
+
+.preview-box {
+  min-height: 148px;
+}
+
+.preview-box img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.overlay-root {
+  max-width: 1920px;
+  padding: 18px 30px;
+}
+
+.overlay-team {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.overlay-card,
+.overlay-empty {
+  width: 100%;
+  min-height: 350px;
+}
+
+.overlay-card {
+  border-radius: 24px;
+  padding: 14px;
+  background:
+    radial-gradient(circle at top center, rgba(53, 118, 255, 0.22), transparent 42%),
+    linear-gradient(180deg, rgba(18, 28, 52, 0.94), rgba(9, 14, 31, 0.94));
+  border: 1px solid rgba(157, 183, 255, 0.24);
+}
+
+.overlay-image-wrap {
+  min-height: 165px;
+  margin-bottom: 8px;
+}
+
+.overlay-image-wrap img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.45));
+}
+
+.overlay-name-wrap {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 4px 0 8px;
+}
+
+.overlay-name {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.overlay-species {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #b3c0ef;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.overlay-species.is-primary {
+  margin-top: 0;
+  color: #f3f6ff;
+  font-size: 22px;
+  font-weight: 900;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.overlay-empty {
+  border-radius: 24px;
+}
+
+@media (max-width: 1550px) {
+  .overlay-team {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1100px) {
+  .overlay-team {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

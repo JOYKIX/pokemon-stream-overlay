@@ -33,6 +33,7 @@ async function renderTeam(data) {
   const options = {
     showHeader: data.displayOptions?.showHeader ?? true,
     showName: data.displayOptions?.showName ?? true,
+    showNickname: data.displayOptions?.showNickname ?? true,
     showLevel: data.displayOptions?.showLevel ?? true,
     showItem: data.displayOptions?.showItem ?? true,
     showShiny: data.displayOptions?.showShiny ?? true,
@@ -61,9 +62,17 @@ async function renderTeam(data) {
       pokemon = null;
     }
 
-    const sprite = pokemon?.artwork || pokemon?.sprite || "";
+    const sprite = pokemon?.sprite || pokemon?.artwork || "";
+    const nickname = slot.nickname?.trim();
+    const hasNickname = Boolean(nickname);
+
     const nameHtml = options.showName
-      ? `<div class="overlay-name">${pokemon?.frenchName || slot.name}</div>`
+      ? `
+          <div class="overlay-name-wrap">
+            ${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}
+            <div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.frenchName || slot.name}</div>
+          </div>
+        `
       : "";
 
     const levelHtml = options.showLevel && slot.level

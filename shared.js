@@ -124,15 +124,21 @@ export async function fetchPokemonLocalized(inputName, shiny = false) {
     speciesData.names?.find(entry => entry.language?.name === "fr")?.name ||
     inputName;
 
-  const artwork =
+  const artworkDefault =
+    pokemonData?.sprites?.other?.home?.front_default ||
     pokemonData?.sprites?.other?.["official-artwork"]?.front_default ||
     pokemonData?.sprites?.front_default ||
     "";
 
-  const sprite =
-    shiny
-      ? (pokemonData?.sprites?.front_shiny || artwork)
-      : (pokemonData?.sprites?.front_default || artwork);
+  const artworkShiny =
+    pokemonData?.sprites?.other?.home?.front_shiny ||
+    pokemonData?.sprites?.other?.["official-artwork"]?.front_shiny ||
+    pokemonData?.sprites?.front_shiny ||
+    artworkDefault;
+
+  const artwork = shiny ? artworkShiny : artworkDefault;
+
+  const sprite = artwork;
 
   const types = pokemonData.types?.map(t => t.type.name) || [];
 
@@ -178,6 +184,7 @@ export function buildTeamPayload({ trainerName, badgeText, slots, displayOptions
     displayOptions: {
       showHeader: Boolean(displayOptions.showHeader),
       showName: Boolean(displayOptions.showName),
+      showNickname: Boolean(displayOptions.showNickname),
       showLevel: Boolean(displayOptions.showLevel),
       showItem: Boolean(displayOptions.showItem),
       showShiny: Boolean(displayOptions.showShiny),
@@ -186,6 +193,7 @@ export function buildTeamPayload({ trainerName, badgeText, slots, displayOptions
     slots: slots.map((slot, index) => ({
       id: index + 1,
       name: cleanText(slot.name),
+      nickname: cleanText(slot.nickname),
       level: Number(slot.level) || null,
       item: cleanText(slot.item),
       shiny: Boolean(slot.shiny)
