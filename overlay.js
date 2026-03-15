@@ -10,6 +10,7 @@ const overlayTrainer = document.getElementById("overlayTrainer");
 const overlayBadge = document.getElementById("overlayBadge");
 const overlayTeam = document.getElementById("overlayTeam");
 const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
+const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
 
 function renderEmptyCard(index) {
@@ -17,7 +18,7 @@ function renderEmptyCard(index) {
     <div class="overlay-empty">
       <div>
         <div class="overlay-slot-label">Slot ${index + 1}</div>
-        <div>Vide</div>
+        <div>Empty</div>
       </div>
     </div>
   `;
@@ -26,9 +27,11 @@ function renderEmptyCard(index) {
 async function renderTeam(data) {
   if (!data) {
     overlayRoot.classList.remove("hide-header");
-    overlayTrainer.textContent = "Aucune team";
-    overlayBadge.textContent = "En attente de données";
+    overlayTrainer.textContent = "No team";
+    overlayBadge.textContent = "Waiting for data";
     overlayRoot.classList.remove("nuzlocke-on");
+    overlayNuzlockeTag.textContent = "Nuzlocke";
+    overlayDeathsLabel.textContent = "Deaths";
     overlayDeathCount.textContent = "0";
     overlayTeam.innerHTML = Array.from({ length: 6 }, (_, i) => renderEmptyCard(i)).join("");
     return;
@@ -44,12 +47,15 @@ async function renderTeam(data) {
     showTypes: data.displayOptions?.showTypes ?? false
   };
 
+  const pokemonLanguage = data.pokemonLanguage || "en";
+
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
-  overlayTrainer.textContent = data.trainerName || "Dresseur";
+  overlayTrainer.textContent = data.trainerName || "Trainer";
   overlayBadge.textContent = data.badgeText || "Pokémon Team";
   const nuzlockeOn = Boolean(data.nuzlockeMode);
   overlayRoot.classList.toggle("nuzlocke-on", nuzlockeOn);
-  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Run libre";
+  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Free run";
+  overlayDeathsLabel.textContent = data.siteLanguage === "fr" ? "Morts" : "Deaths";
   overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
   overlayTeam.innerHTML = "";
 
@@ -65,7 +71,7 @@ async function renderTeam(data) {
 
     let pokemon = null;
     try {
-      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny);
+      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, pokemonLanguage);
     } catch {
       pokemon = null;
     }
@@ -78,7 +84,7 @@ async function renderTeam(data) {
       ? `
           <div class="overlay-name-wrap">
             ${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}
-            <div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.frenchName || slot.name}</div>
+            <div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.displayName || slot.name}</div>
           </div>
         `
       : "";
@@ -97,7 +103,7 @@ async function renderTeam(data) {
 
     const typesHtml = options.showTypes && pokemon?.types?.length
       ? `<div class="overlay-types">
-          ${pokemon.types.map(type => `<span class="type-pill">${translateType(type)}</span>`).join("")}
+          ${pokemon.types.map(type => `<span class="type-pill">${translateType(type, pokemonLanguage)}</span>`).join("")}
         </div>`
       : "";
 
@@ -111,7 +117,7 @@ async function renderTeam(data) {
         </div>
 
         <div class="overlay-image-wrap">
-          ${sprite ? `<img src="${sprite}" alt="${pokemon?.frenchName || slot.name}">` : ""}
+          ${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}
         </div>
 
         ${nameHtml}
