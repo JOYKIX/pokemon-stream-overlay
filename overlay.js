@@ -9,6 +9,8 @@ const overlayRoot = document.getElementById("overlayRoot");
 const overlayTrainer = document.getElementById("overlayTrainer");
 const overlayBadge = document.getElementById("overlayBadge");
 const overlayTeam = document.getElementById("overlayTeam");
+const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
+const overlayDeathCount = document.getElementById("overlayDeathCount");
 
 function renderEmptyCard(index) {
   return `
@@ -26,6 +28,8 @@ async function renderTeam(data) {
     overlayRoot.classList.remove("hide-header");
     overlayTrainer.textContent = "Aucune team";
     overlayBadge.textContent = "En attente de données";
+    overlayRoot.classList.remove("nuzlocke-on");
+    overlayDeathCount.textContent = "0";
     overlayTeam.innerHTML = Array.from({ length: 6 }, (_, i) => renderEmptyCard(i)).join("");
     return;
   }
@@ -43,6 +47,10 @@ async function renderTeam(data) {
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
   overlayTrainer.textContent = data.trainerName || "Dresseur";
   overlayBadge.textContent = data.badgeText || "Pokémon Team";
+  const nuzlockeOn = Boolean(data.nuzlockeMode);
+  overlayRoot.classList.toggle("nuzlocke-on", nuzlockeOn);
+  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Run libre";
+  overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
   overlayTeam.innerHTML = "";
 
   const slots = data.slots || [];

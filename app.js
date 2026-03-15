@@ -10,6 +10,8 @@ const teamSlots = document.getElementById("teamSlots");
 const channelInput = document.getElementById("channelInput");
 const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
+const nuzlockeModeInput = document.getElementById("nuzlockeMode");
+const deathCountInput = document.getElementById("deathCountInput");
 
 const showHeader = document.getElementById("showHeader");
 const showName = document.getElementById("showName");
@@ -43,9 +45,11 @@ function createSlot(index) {
       </div>
       <div class="slot-fields">
         <input type="text" id="name${index}" placeholder="Nom du Pokémon en français" />
-        <input type="text" id="nickname${index}" placeholder="Surnom (optionnel)" />
-        <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
-        <input type="text" id="item${index}" placeholder="Objet (optionnel)" />
+        <input type="text" id="nickname${index}" placeholder="Surnom" />
+        <div class="inline-fields">
+          <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
+          <input type="text" id="item${index}" placeholder="Objet" />
+        </div>
         <label class="checkbox-row">
           <input type="checkbox" id="shiny${index}" />
           <span>Shiny</span>
@@ -127,6 +131,8 @@ function collectDisplayOptions() {
 function fillForm(data) {
   trainerInput.value = data?.trainerName || "";
   badgeInput.value = data?.badgeText || "";
+  nuzlockeModeInput.checked = Boolean(data?.nuzlockeMode);
+  deathCountInput.value = Number(data?.deathCount) || 0;
 
   const opts = data?.displayOptions || {};
   showHeader.checked = opts.showHeader ?? true;
@@ -159,6 +165,8 @@ saveBtn.addEventListener("click", async () => {
   const payload = buildTeamPayload({
     trainerName: trainerInput.value,
     badgeText: badgeInput.value,
+    nuzlockeMode: nuzlockeModeInput.checked,
+    deathCount: deathCountInput.value,
     slots: collectSlots(),
     displayOptions: collectDisplayOptions()
   });
@@ -199,6 +207,8 @@ loadBtn.addEventListener("click", async () => {
 clearBtn.addEventListener("click", () => {
   trainerInput.value = "";
   badgeInput.value = "";
+  nuzlockeModeInput.checked = false;
+  deathCountInput.value = 0;
   showHeader.checked = true;
   showName.checked = true;
   showNickname.checked = true;
