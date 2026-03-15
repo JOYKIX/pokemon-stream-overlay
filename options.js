@@ -1,5 +1,5 @@
 import { ensureAuthenticated, saveSession } from "./auth.js";
-import { updateEditKey, renameIdentifier } from "./shared.js";
+import { updateEditKey, renameIdentifier, hashEditKey } from "./shared.js";
 
 const currentChannel = document.getElementById("currentChannel");
 const currentKey = document.getElementById("currentKey");
@@ -27,7 +27,8 @@ updateKeyBtn.addEventListener("click", async () => {
 
   try {
     await updateEditKey(session.channel, current, next);
-    session = { ...session, editKey: next };
+    const editKeyHash = await hashEditKey(session.channel, next);
+    session = { ...session, editKeyHash };
     saveSession(session);
     currentKey.value = "";
     nextKey.value = "";
@@ -48,7 +49,8 @@ renameBtn.addEventListener("click", async () => {
 
   try {
     const renamed = await renameIdentifier(session.channel, newId, key);
-    session = { ...session, channel: renamed };
+    const editKeyHash = await hashEditKey(renamed, key);
+    session = { ...session, channel: renamed, editKeyHash };
     saveSession(session);
     currentChannel.value = renamed;
     nextChannel.value = "";

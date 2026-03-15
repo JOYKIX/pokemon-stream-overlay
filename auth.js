@@ -1,4 +1,4 @@
-import { getProfile } from "./shared.js";
+import { getProfile, verifyProfile } from "./shared.js";
 
 const SESSION_KEY = "pokemonOverlaySessionV2";
 
@@ -11,7 +11,7 @@ export function loadSession() {
     const raw = localStorage.getItem(SESSION_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed?.channel || !parsed?.editKey) return null;
+    if (!parsed?.channel || !parsed?.editKeyHash) return null;
     return parsed;
   } catch {
     return null;
@@ -30,7 +30,8 @@ export async function ensureAuthenticated({ redirectTo = "login.html" } = {}) {
   }
 
   const profile = await getProfile(session.channel);
-  if (!profile || profile.editKey !== session.editKey) {
+  const valid = await verifyProfile(session.channel, session.editKeyHash, { preHashed: true });
+  if (!profile || !valid) {
     clearSession();
     window.location.href = redirectTo;
     return null;
