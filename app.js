@@ -15,6 +15,7 @@ const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
 const deathCountInput = document.getElementById("deathCountInput");
+const deathCountField = document.getElementById("deathCountField");
 const logoutBtn = document.getElementById("logoutBtn");
 
 const showHeader = document.getElementById("showHeader");
@@ -27,6 +28,8 @@ const showTypes = document.getElementById("showTypes");
 const spriteVariant = document.getElementById("spriteVariant");
 const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
 const spriteOnlyMode = document.getElementById("spriteOnlyMode");
+const overlayOrientation = document.getElementById("overlayOrientation");
+const overlayWidthPx = document.getElementById("overlayWidthPx");
 
 const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
@@ -133,8 +136,17 @@ function collectDisplayOptions() {
     showTypes: showTypes.checked,
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
-    spriteOnlyMode: spriteOnlyMode.checked
+    spriteOnlyMode: spriteOnlyMode.checked,
+    overlayOrientation: overlayOrientation.value,
+    overlayWidthPx: Math.max(320, Number(overlayWidthPx.value) || 1600)
   };
+}
+
+
+function syncNuzlockeUi() {
+  const enabled = nuzlockeModeInput.checked;
+  deathCountField.style.display = enabled ? "grid" : "none";
+  deathCountInput.disabled = !enabled;
 }
 
 function fillForm(data) {
@@ -150,10 +162,13 @@ function fillForm(data) {
   showLevel.checked = opts.showLevel ?? true;
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
-  showTypes.checked = opts.showTypes ?? false;
+  showTypes.checked = opts.showTypes ?? true;
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
+  overlayOrientation.value = opts.overlayOrientation === "vertical" ? "vertical" : "horizontal";
+  overlayWidthPx.value = String(Math.max(320, Number(opts.overlayWidthPx) || 1600));
+  syncNuzlockeUi();
 
   const slots = data?.slots || [];
   for (let i = 0; i < 6; i++) {
@@ -227,6 +242,7 @@ loadBtn.addEventListener("click", async () => {
 });
 
 clearBtn.addEventListener("click", () => fillForm(null));
+nuzlockeModeInput.addEventListener("change", syncNuzlockeUi);
 
 spriteVariant.addEventListener("change", () => {
   for (let i = 0; i < 6; i++) {
@@ -261,6 +277,7 @@ async function init() {
   channelInput.value = session.channel;
   updateOverlayLink();
 
+  syncNuzlockeUi();
   setStatus("Chargement PokéAPI...", "info");
   await loadPokemonSuggestions();
 }

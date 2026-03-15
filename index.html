@@ -45,7 +45,7 @@
         <div class="toggle-panel">
           <h3>Mode de run</h3>
           <label class="checkbox-chip wide"><input type="checkbox" id="nuzlockeMode"><span>Activer Nuzlocke</span></label>
-          <div class="field">
+          <div class="field" id="deathCountField">
             <label for="deathCountInput">Compteur de morts</label>
             <input id="deathCountInput" type="number" min="0" step="1" value="0" />
           </div>
@@ -60,7 +60,7 @@
             <label class="checkbox-chip"><input type="checkbox" id="showLevel" checked><span>Niveau</span></label>
             <label class="checkbox-chip"><input type="checkbox" id="showItem" checked><span>Objet</span></label>
             <label class="checkbox-chip"><input type="checkbox" id="showShiny" checked><span>Shiny</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showTypes"><span>Types</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showTypes" checked><span>Types</span></label>
           </div>
         </div>
 
@@ -84,6 +84,21 @@
           </div>
         </div>
 
+
+        <div class="toggle-panel">
+          <h3>Format overlay OBS</h3>
+          <div class="field">
+            <label for="overlayOrientation">Orientation</label>
+            <select id="overlayOrientation">
+              <option value="horizontal">Horizontale</option>
+              <option value="vertical">Verticale</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="overlayWidthPx">Largeur (px)</label>
+            <input id="overlayWidthPx" type="number" min="320" max="3840" step="10" value="1600" />
+          </div>
+        </div>
         <div class="field">
           <label for="overlayUrl">URL overlay OBS</label>
           <input id="overlayUrl" type="text" readonly />

@@ -202,13 +202,13 @@ function toApiCandidate(value, index = []) {
 
 export const DEFAULT_OVERLAY_STYLE = {
   transparentBackground: true,
-  backgroundColor: "#090f1f",
-  backgroundOpacity: 0.75,
-  textColor: "#f3f6ff",
-  accentColor: "#6d5dfc",
-  cardColor: "#101b33",
+  backgroundColor: "#0a0a0a",
+  backgroundOpacity: 0.76,
+  textColor: "#ffffff",
+  accentColor: "#e53935",
+  cardColor: "#111111",
   cardOpacity: 0.9,
-  borderRadius: 24
+  borderRadius: 20
 };
 
 function getSpriteFromVariant(pokemonData, variant, shiny, animated) {
@@ -360,7 +360,9 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       showTypes: Boolean(displayOptions.showTypes),
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
-      spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode)
+      spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
+      overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
+      overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
     },
     overlayStyle: {
       ...DEFAULT_OVERLAY_STYLE,
