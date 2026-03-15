@@ -91,7 +91,7 @@ async function renderTeam(data) {
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
     spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
-    spriteScale: Math.max(0.5, Math.min(2, Number(data.displayOptions?.spriteScale) || 1)),
+    spriteScale: Math.max(0.5, Math.min(10, Number(data.displayOptions?.spriteScale) || 1)),
     editorResolution: data.displayOptions?.editorResolution || { width: 1920, height: 1080 },
     slotPositions: data.displayOptions?.slotPositions || [],
     slotScales: data.displayOptions?.slotScales || []

@@ -39,6 +39,7 @@ const spriteOnlyMode = document.getElementById("spriteOnlyMode");
 const spriteScale = document.getElementById("spriteScale");
 const spriteScaleValue = document.getElementById("spriteScaleValue");
 const snapToGridInput = document.getElementById("snapToGrid");
+const autoSaveInput = document.getElementById("autoSave");
 
 const saveBtn = document.getElementById("saveBtn");
 const loadBtn = document.getElementById("loadBtn");
@@ -52,10 +53,32 @@ const pokemonSuggestions = document.getElementById("pokemonSuggestions");
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
 const slotPreviewUpdaters = [];
+let autoSaveTimer = null;
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
   statusBox.className = `status-box ${type}`;
+}
+
+function isScarletVioletVariant() {
+  return spriteVariant.value === "scarlet-violet";
+}
+
+function syncShinyAvailability() {
+  const shinyAllowed = !isScarletVioletVariant();
+  showShiny.disabled = !shinyAllowed;
+  if (!shinyAllowed) {
+    showShiny.checked = false;
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const shinyInput = document.getElementById(`shiny${i}`);
+    if (!shinyInput) continue;
+    shinyInput.disabled = !shinyAllowed;
+    if (!shinyAllowed) {
+      shinyInput.checked = false;
+    }
+  }
 }
 
 function defaultSlotPositions() {
@@ -93,6 +116,9 @@ function createSlot(index) {
   teamSlots.appendChild(wrapper);
 
   const nameInput = wrapper.querySelector(`#name${index}`);
+  const nicknameInput = wrapper.querySelector(`#nickname${index}`);
+  const levelInput = wrapper.querySelector(`#level${index}`);
+  const itemInput = wrapper.querySelector(`#item${index}`);
   const shinyInput = wrapper.querySelector(`#shiny${index}`);
   const evolutionBtn = wrapper.querySelector(`#evolutionBtn${index}`);
   const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
@@ -131,6 +157,7 @@ function createSlot(index) {
     nameInput.value = nextEvolution;
     await updatePreview();
     setStatus(`Pokémon ${index + 1} évolué en ${nextEvolution}.`, "success");
+    queueAutoSave();
   });
 
   deadBtn.addEventListener("click", () => {
@@ -143,6 +170,7 @@ function createSlot(index) {
     deathCountInput.value = String(Math.max(0, Number(deathCountInput.value) || 0) + 1);
     updatePreview();
     setStatus(`Pokémon ${index + 1} retiré et compteur de morts mis à jour.`, "success");
+    queueAutoSave();
   });
 
   slotPreviewUpdaters[index] = updatePreview;
@@ -152,8 +180,18 @@ function createSlot(index) {
     evolutionBtn.disabled = true;
     evolutionBtn.dataset.nextEvolution = "";
     renderEditorCanvas();
+    queueAutoSave();
   });
-  shinyInput.addEventListener("change", updatePreview);
+  [nicknameInput, levelInput, itemInput].forEach((input) => {
+    input.addEventListener("input", () => {
+      renderEditorCanvas();
+      queueAutoSave();
+    });
+  });
+  shinyInput.addEventListener("change", () => {
+    updatePreview();
+    queueAutoSave();
+  });
   nuzlockeModeInput.addEventListener("change", () => {
     deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
   });
@@ -172,7 +210,7 @@ function collectSlots() {
     nickname: document.getElementById(`nickname${i}`).value,
     level: document.getElementById(`level${i}`).value,
     item: document.getElementById(`item${i}`).value,
-    shiny: document.getElementById(`shiny${i}`).checked
+    shiny: isScarletVioletVariant() ? false : document.getElementById(`shiny${i}`).checked
   }));
 }
 
@@ -183,12 +221,12 @@ function collectDisplayOptions() {
     showNickname: showNickname.checked,
     showLevel: showLevel.checked,
     showItem: showItem.checked,
-    showShiny: showShiny.checked,
+    showShiny: isScarletVioletVariant() ? false : showShiny.checked,
     showTypes: showTypes.checked,
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
-    spriteScale: Math.max(0.5, Math.min(2, (Number(spriteScale.value) || 100) / 100)),
+    spriteScale: Math.max(0.5, Math.min(10, (Number(spriteScale.value) || 100) / 100)),
     editorResolution: {
       width: Math.max(640, Number(streamWidth.value) || 1920),
       height: Math.max(360, Number(streamHeight.value) || 1080)
@@ -264,6 +302,7 @@ function enableScale(node, index) {
     const delta = event.deltaY < 0 ? 0.05 : -0.05;
     slotScales[index] = Math.max(0.6, Math.min(2, Number((current + delta).toFixed(2))));
     renderEditorCanvas();
+    queueAutoSave();
   }, { passive: false });
 }
 
@@ -287,6 +326,7 @@ function enableDrag(node, index) {
     node.releasePointerCapture?.(pointerId);
     window.removeEventListener("pointermove", onPointerMove);
     window.removeEventListener("pointerup", onPointerUp);
+    queueAutoSave();
   };
 
   let pointerId = null;
@@ -315,7 +355,7 @@ function fillForm(data) {
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
-  const normalizedSpriteScale = Math.max(0.5, Math.min(2, Number(opts.spriteScale) || 1));
+  const normalizedSpriteScale = Math.max(0.5, Math.min(10, Number(opts.spriteScale) || 1));
   spriteScale.value = String(Math.round(normalizedSpriteScale * 100));
   spriteScaleValue.textContent = `${Math.round(normalizedSpriteScale * 100)}%`;
   streamWidth.value = String(Math.max(640, Number(opts.editorResolution?.width) || 1920));
@@ -340,22 +380,12 @@ function fillForm(data) {
     slotPreviewUpdaters[i]?.();
   }
 
+  syncShinyAvailability();
+
   renderEditorCanvas();
 }
 
-async function loadPokemonSuggestions() {
-  try {
-    const entries = await fetchFrenchPokemonIndex();
-    pokemonSuggestions.innerHTML = entries.map((entry) => `<option value="${entry.frenchName}"></option>`).join("");
-    setStatus("Prêt.", "info");
-  } catch {
-    setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
-  }
-}
-
-for (let i = 0; i < 6; i++) createSlot(i);
-
-saveBtn.addEventListener("click", async () => {
+async function saveCurrentTeam() {
   const channel = channelInput.value.trim();
 
   let overlayStyle = DEFAULT_OVERLAY_STYLE;
@@ -385,7 +415,29 @@ saveBtn.addEventListener("click", async () => {
     console.error(error);
     setStatus("Erreur lors de la sauvegarde Firebase.", "error");
   }
-});
+}
+
+function queueAutoSave() {
+  if (!autoSaveInput?.checked) return;
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(() => {
+    saveCurrentTeam();
+  }, 450);
+}
+
+async function loadPokemonSuggestions() {
+  try {
+    const entries = await fetchFrenchPokemonIndex();
+    pokemonSuggestions.innerHTML = entries.map((entry) => `<option value="${entry.frenchName}"></option>`).join("");
+    setStatus("Prêt.", "info");
+  } catch {
+    setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
+  }
+}
+
+for (let i = 0; i < 6; i++) createSlot(i);
+
+saveBtn.addEventListener("click", saveCurrentTeam);
 
 loadBtn.addEventListener("click", async () => {
   await loadCurrentChannelTeam();
@@ -396,26 +448,71 @@ resetPositionsBtn.addEventListener("click", () => {
   slotPositions = [...defaultSlotPositions(), { x: 88, y: 12 }];
   slotScales = Array.from({ length: 6 }, () => 1);
   renderEditorCanvas();
+  queueAutoSave();
 });
 nuzlockeModeInput.addEventListener("change", syncNuzlockeUi);
-streamWidth.addEventListener("input", renderEditorCanvas);
-streamHeight.addEventListener("input", renderEditorCanvas);
-deathCountInput.addEventListener("input", renderEditorCanvas);
-snapToGridInput?.addEventListener("change", renderEditorCanvas);
+nuzlockeModeInput.addEventListener("change", queueAutoSave);
+streamWidth.addEventListener("input", () => {
+  renderEditorCanvas();
+  queueAutoSave();
+});
+streamHeight.addEventListener("input", () => {
+  renderEditorCanvas();
+  queueAutoSave();
+});
+deathCountInput.addEventListener("input", () => {
+  renderEditorCanvas();
+  queueAutoSave();
+});
+snapToGridInput?.addEventListener("change", () => {
+  renderEditorCanvas();
+  queueAutoSave();
+});
 spriteScale.addEventListener("input", () => {
-  const value = Math.max(50, Math.min(200, Number(spriteScale.value) || 100));
+  const value = Math.max(50, Math.min(1000, Number(spriteScale.value) || 100));
   spriteScaleValue.textContent = `${value}%`;
   renderEditorCanvas();
+  queueAutoSave();
 });
 resolutionPreset.addEventListener("change", () => {
   applyResolutionPreset(resolutionPreset.value);
   renderEditorCanvas();
+  queueAutoSave();
+});
+
+autoSaveInput?.addEventListener("change", () => {
+  if (autoSaveInput.checked) {
+    setStatus("Sauvegarde auto activée.", "info");
+    queueAutoSave();
+    return;
+  }
+  clearTimeout(autoSaveTimer);
+  setStatus("Sauvegarde auto désactivée.", "info");
 });
 
 [spriteVariant, preferAnimatedSprite].forEach((input) => {
   input.addEventListener("change", () => {
+    syncShinyAvailability();
     slotPreviewUpdaters.forEach((update) => update?.());
+    queueAutoSave();
   });
+});
+
+[
+  trainerInput,
+  badgeInput,
+  nuzlockeModeInput,
+  showHeader,
+  showName,
+  showNickname,
+  showLevel,
+  showItem,
+  showShiny,
+  showTypes,
+  spriteOnlyMode
+].forEach((input) => {
+  const eventName = input.type === "checkbox" ? "change" : "input";
+  input.addEventListener(eventName, queueAutoSave);
 });
 
 copyUrlBtn.addEventListener("click", async () => {
@@ -438,7 +535,8 @@ async function init() {
   channelInput.value = session.channel;
   updateOverlayLink();
   syncNuzlockeUi();
-  if (spriteScaleValue) spriteScaleValue.textContent = `${Math.max(50, Math.min(200, Number(spriteScale.value) || 100))}%`;
+  if (spriteScaleValue) spriteScaleValue.textContent = `${Math.max(50, Math.min(1000, Number(spriteScale.value) || 100))}%`;
+  syncShinyAvailability();
   renderEditorCanvas();
   await loadCurrentChannelTeam({ silentIfMissing: true });
   setStatus("Chargement PokéAPI...", "info");
