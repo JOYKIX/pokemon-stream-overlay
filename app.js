@@ -6,7 +6,8 @@ import {
   saveTeam,
   loadTeam,
   DEFAULT_OVERLAY_STYLE,
-  shouldUsePixelRendering
+  shouldUsePixelRendering,
+  getNextEvolutionName
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 
@@ -50,6 +51,7 @@ const pokemonSuggestions = document.getElementById("pokemonSuggestions");
 
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
+const slotPreviewUpdaters = [];
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
@@ -81,6 +83,10 @@ function createSlot(index) {
         <label class="checkbox-chip custom-check" for="shiny${index}">
           <input type="checkbox" id="shiny${index}" /><span>Shiny</span>
         </label>
+        <div class="slot-tools">
+          <button type="button" class="secondary-btn small evolution-btn" id="evolutionBtn${index}" disabled>Évolution</button>
+          <button type="button" class="danger-btn small dead-btn" id="deadBtn${index}" style="display:none;">Mort</button>
+        </div>
       </div>
     </div>
   `;
@@ -88,12 +94,15 @@ function createSlot(index) {
 
   const nameInput = wrapper.querySelector(`#name${index}`);
   const shinyInput = wrapper.querySelector(`#shiny${index}`);
+  const evolutionBtn = wrapper.querySelector(`#evolutionBtn${index}`);
+  const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
 
   async function updatePreview() {
     const previewBox = wrapper.querySelector(`#previewBox${index}`);
     const name = nameInput.value.trim();
     if (!name) {
       previewBox.innerHTML = '<div class="preview-placeholder">Aperçu</div>';
+      evolutionBtn.disabled = true;
       return;
     }
     previewBox.innerHTML = '<div class="preview-placeholder">Chargement...</div>';
@@ -102,17 +111,52 @@ function createSlot(index) {
         variant: spriteVariant.value,
         animated: preferAnimatedSprite.checked
       });
+      const nextEvolution = await getNextEvolutionName(name);
+      evolutionBtn.disabled = !nextEvolution;
+      evolutionBtn.dataset.nextEvolution = nextEvolution || "";
       const pixelSpriteClass = shouldUsePixelRendering(spriteVariant.value, preferAnimatedSprite.checked) ? " pixel-sprite-mode" : "";
       previewBox.innerHTML = `<div class="preview-content${pixelSpriteClass}"><img src="${pokemon.sprite}" alt="${pokemon.displayName}"><div class="preview-name-fr">${pokemon.displayName}</div></div>`;
     } catch {
+      evolutionBtn.disabled = true;
+      evolutionBtn.dataset.nextEvolution = "";
       previewBox.innerHTML = '<div class="preview-placeholder">Introuvable</div>';
     }
+    deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
     renderEditorCanvas();
   }
 
+  evolutionBtn.addEventListener("click", async () => {
+    const nextEvolution = evolutionBtn.dataset.nextEvolution;
+    if (!nextEvolution) return;
+    nameInput.value = nextEvolution;
+    await updatePreview();
+    setStatus(`Pokémon ${index + 1} évolué en ${nextEvolution}.`, "success");
+  });
+
+  deadBtn.addEventListener("click", () => {
+    if (!nuzlockeModeInput.checked) return;
+    nameInput.value = "";
+    wrapper.querySelector(`#nickname${index}`).value = "";
+    wrapper.querySelector(`#level${index}`).value = "";
+    wrapper.querySelector(`#item${index}`).value = "";
+    shinyInput.checked = false;
+    deathCountInput.value = String(Math.max(0, Number(deathCountInput.value) || 0) + 1);
+    updatePreview();
+    setStatus(`Pokémon ${index + 1} retiré et compteur de morts mis à jour.`, "success");
+  });
+
+  slotPreviewUpdaters[index] = updatePreview;
+
   nameInput.addEventListener("change", updatePreview);
-  nameInput.addEventListener("input", renderEditorCanvas);
+  nameInput.addEventListener("input", () => {
+    evolutionBtn.disabled = true;
+    evolutionBtn.dataset.nextEvolution = "";
+    renderEditorCanvas();
+  });
   shinyInput.addEventListener("change", updatePreview);
+  nuzlockeModeInput.addEventListener("change", () => {
+    deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
+  });
 }
 
 function updateOverlayLink() {
@@ -158,6 +202,9 @@ function syncNuzlockeUi() {
   const enabled = nuzlockeModeInput.checked;
   deathCountField.style.display = enabled ? "grid" : "none";
   deathCountInput.disabled = !enabled;
+  document.querySelectorAll(".dead-btn").forEach((button) => {
+    button.style.display = enabled ? "inline-flex" : "none";
+  });
   renderEditorCanvas();
 }
 
@@ -290,6 +337,7 @@ function fillForm(data) {
     document.getElementById(`level${i}`).value = slot.level || "";
     document.getElementById(`item${i}`).value = slot.item || "";
     document.getElementById(`shiny${i}`).checked = Boolean(slot.shiny);
+    slotPreviewUpdaters[i]?.();
   }
 
   renderEditorCanvas();
@@ -370,10 +418,17 @@ snapToGridInput?.addEventListener("change", renderEditorCanvas);
 spriteScale.addEventListener("input", () => {
   const value = Math.max(50, Math.min(200, Number(spriteScale.value) || 100));
   spriteScaleValue.textContent = `${value}%`;
+  renderEditorCanvas();
 });
 resolutionPreset.addEventListener("change", () => {
   applyResolutionPreset(resolutionPreset.value);
   renderEditorCanvas();
+});
+
+[spriteVariant, preferAnimatedSprite].forEach((input) => {
+  input.addEventListener("change", () => {
+    slotPreviewUpdaters.forEach((update) => update?.());
+  });
 });
 
 copyUrlBtn.addEventListener("click", async () => {
