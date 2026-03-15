@@ -369,6 +369,7 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
+      spriteScale: Math.max(0.5, Math.min(2, Number(displayOptions.spriteScale) || 1)),
       editorResolution: {
         width: Math.max(640, Number(displayOptions.editorResolution?.width) || 1920),
         height: Math.max(360, Number(displayOptions.editorResolution?.height) || 1080)
