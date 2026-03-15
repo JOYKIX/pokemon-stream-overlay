@@ -204,6 +204,7 @@ export const DEFAULT_OVERLAY_STYLE = {
   transparentBackground: true,
   backgroundColor: "#0a0a0a",
   backgroundOpacity: 0.76,
+  backgroundImage: "",
   textColor: "#ffffff",
   accentColor: "#e53935",
   cardColor: "#111111",
