@@ -119,7 +119,7 @@ async function init() {
   const session = await ensureAuthenticated();
   if (!session) return;
   channelInput.value = session.channel;
-  fillForm(DEFAULT_OVERLAY_STYLE);
+  await loadStyle();
 }
 
 init();
