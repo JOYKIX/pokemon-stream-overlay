@@ -13,10 +13,9 @@ const overlayTeam = document.getElementById("overlayTeam");
 const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
-const overlayDeathWrap = document.getElementById("overlayDeathWrap");
 
 const TYPE_COLORS = {
-  normal: "#a8a77a", fire: "#ee8130", water: "#6390f0", electric: "#f7d02c", grass: "#7ac74c", ice: "#96d9d6", fighting: "#c22e28", poison: "#a33ea1", ground: "#e2bf65", flying: "#a98ff3", psychic: "#f95587", bug: "#a6b91a", rock: "#b6a136", ghost: "#735797", dragon: "#6f35fc", dark: "#705746", steel: "#b7b7ce", fairy: "#d685ad"
+  normal: "#b9b27a", fire: "#ff6b2c", water: "#2c8dff", electric: "#f5c400", grass: "#38c259", ice: "#29d3ff", fighting: "#e84a4a", poison: "#bb59ff", ground: "#d99f3a", flying: "#6da8ff", psychic: "#ff4ea4", bug: "#7fcf23", rock: "#c49326", ghost: "#8f74ff", dragon: "#5f6dff", dark: "#5f4a44", steel: "#7093b5", fairy: "#ff77c8"
 };
 
 function hexToRgb(hex) {
@@ -35,7 +34,6 @@ function applyOverlayStyle(style = {}, options = {}) {
   overlayRoot.style.setProperty("--overlay-card", merged.cardColor);
   overlayRoot.style.setProperty("--overlay-card-opacity", String(merged.cardOpacity));
   overlayRoot.style.setProperty("--overlay-radius", `${merged.borderRadius}px`);
-  overlayRoot.style.setProperty("--overlay-sprite-height", `${Math.max(48, Number(options.spriteHeightPx) || 170)}px`);
 
   const streamWidth = Math.max(640, Number(options.editorResolution?.width) || 1920);
   const streamHeight = Math.max(360, Number(options.editorResolution?.height) || 1080);
@@ -56,7 +54,8 @@ function getPosition(options, index) {
     { x: 70, y: 20 },
     { x: 10, y: 62 },
     { x: 40, y: 62 },
-    { x: 70, y: 62 }
+    { x: 70, y: 62 },
+    { x: 88, y: 12 }
   ];
 
   if (Array.isArray(positions) && positions[index]) {
@@ -74,8 +73,7 @@ async function renderTeam(data) {
     overlayRoot.classList.remove("sprite-only-mode", "hide-header");
     overlayTrainer.textContent = "Aucune team";
     overlayBadge.textContent = "En attente de données";
-    overlayNuzlockeTag.textContent = "Run libre";
-    overlayDeathWrap.style.display = "none";
+    overlayNuzlockeTag.style.display = "none";
     overlayTeam.innerHTML = "";
     return;
   }
@@ -91,9 +89,9 @@ async function renderTeam(data) {
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
     spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
-    spriteHeightPx: data.displayOptions?.spriteHeightPx || 170,
     editorResolution: data.displayOptions?.editorResolution || { width: 1920, height: 1080 },
-    slotPositions: data.displayOptions?.slotPositions || []
+    slotPositions: data.displayOptions?.slotPositions || [],
+    slotScales: data.displayOptions?.slotScales || []
   };
 
   applyOverlayStyle(data.overlayStyle, options);
@@ -104,10 +102,16 @@ async function renderTeam(data) {
   overlayBadge.textContent = data.badgeText || "Équipe Pokémon";
 
   const nuzlockeOn = Boolean(data.nuzlockeMode);
-  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Run libre";
   overlayDeathsLabel.textContent = "Morts";
   overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
-  overlayDeathWrap.style.display = nuzlockeOn ? "inline-flex" : "none";
+  if (nuzlockeOn) {
+    const nPos = getPosition(options, 6);
+    overlayNuzlockeTag.style.display = "inline-flex";
+    overlayNuzlockeTag.style.left = `${nPos.x}%`;
+    overlayNuzlockeTag.style.top = `${nPos.y}%`;
+  } else {
+    overlayNuzlockeTag.style.display = "none";
+  }
 
   overlayTeam.innerHTML = "";
   const slots = data.slots || [];
@@ -128,6 +132,8 @@ async function renderTeam(data) {
 
     const pos = getPosition(options, index);
     const sprite = pokemon?.sprite || pokemon?.artwork || "";
+    const cardClass = options.spriteOnlyMode ? "overlay-card cardless" : "overlay-card";
+    const scale = Math.max(0.6, Math.min(2, Number(options.slotScales?.[index]) || 1));
     const nickname = slot.nickname?.trim();
     const hasNickname = Boolean(nickname);
 
@@ -142,7 +148,7 @@ async function renderTeam(data) {
 
     overlayTeam.insertAdjacentHTML(
       "beforeend",
-      `<article class="overlay-card" style="left:${pos.x}%; top:${pos.y}%">
+      `<article class="${cardClass}" style="left:${pos.x}%; top:${pos.y}%; --slot-scale:${scale}">
         <div class="overlay-card-top">${levelHtml}</div>
         <div class="overlay-image-wrap">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
         ${nameHtml}
