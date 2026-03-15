@@ -64,6 +64,26 @@
           </div>
         </div>
 
+        <div class="toggle-panel">
+          <h3>Sprites Pokémon</h3>
+          <div class="field">
+            <label for="spriteVariant">Style de sprite</label>
+            <select id="spriteVariant">
+              <option value="auto">Auto (recommandé)</option>
+              <option value="official-artwork">Artwork officiel (dessin)</option>
+              <option value="home">Pokémon HOME</option>
+              <option value="pixel">Pixel rétro (front)</option>
+              <option value="dream-world">Dream World (dessin vectoriel)</option>
+              <option value="showdown">Showdown (souvent animé)</option>
+              <option value="scarlet-violet">Style 3D (Scarlet/Violet)</option>
+            </select>
+          </div>
+          <div class="toggle-grid">
+            <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Préférer animé</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Sprite seul (sans carte)</span></label>
+          </div>
+        </div>
+
         <div class="field">
           <label for="overlayUrl">URL overlay OBS</label>
           <input id="overlayUrl" type="text" readonly />

@@ -211,7 +211,63 @@ export const DEFAULT_OVERLAY_STYLE = {
   borderRadius: 24
 };
 
-export async function fetchPokemonLocalized(inputName, shiny = false) {
+function getSpriteFromVariant(pokemonData, variant, shiny, animated) {
+  const sprites = pokemonData?.sprites || {};
+  const frontDefault = shiny ? sprites.front_shiny : sprites.front_default;
+  const officialArtwork = shiny
+    ? sprites?.other?.["official-artwork"]?.front_shiny
+    : sprites?.other?.["official-artwork"]?.front_default;
+  const home = shiny
+    ? sprites?.other?.home?.front_shiny
+    : sprites?.other?.home?.front_default;
+  const dreamWorld = sprites?.other?.dream_world?.front_default;
+  const showdown = shiny
+    ? sprites?.other?.showdown?.front_shiny
+    : sprites?.other?.showdown?.front_default;
+
+  const animatedGen5 = shiny
+    ? sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_shiny
+    : sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
+
+  const scarletViolet = shiny
+    ? sprites?.versions?.["generation-ix"]?.["scarlet-violet"]?.front_shiny
+    : sprites?.versions?.["generation-ix"]?.["scarlet-violet"]?.front_default;
+
+  if (variant === "showdown") {
+    return showdown || officialArtwork || home || frontDefault || "";
+  }
+
+  if (variant === "pixel") {
+    return (animated ? animatedGen5 : frontDefault) || frontDefault || officialArtwork || home || "";
+  }
+
+  if (variant === "dream-world") {
+    return dreamWorld || officialArtwork || home || frontDefault || "";
+  }
+
+  if (variant === "home") {
+    return home || officialArtwork || frontDefault || "";
+  }
+
+  if (variant === "scarlet-violet") {
+    return scarletViolet || home || officialArtwork || frontDefault || "";
+  }
+
+  if (variant === "official-artwork") {
+    return officialArtwork || home || frontDefault || "";
+  }
+
+  if (variant === "auto") {
+    if (animated) {
+      return showdown || animatedGen5 || home || officialArtwork || frontDefault || "";
+    }
+    return officialArtwork || home || frontDefault || "";
+  }
+
+  return officialArtwork || home || frontDefault || "";
+}
+
+export async function fetchPokemonLocalized(inputName, shiny = false, spriteOptions = {}) {
   const index = await fetchFrenchPokemonIndex();
   const apiName = toApiCandidate(inputName, index);
   if (!apiName) return null;
@@ -234,18 +290,21 @@ export async function fetchPokemonLocalized(inputName, shiny = false) {
     inputName;
 
   const artworkDefault =
-    pokemonData?.sprites?.other?.home?.front_default ||
     pokemonData?.sprites?.other?.["official-artwork"]?.front_default ||
+    pokemonData?.sprites?.other?.home?.front_default ||
     pokemonData?.sprites?.front_default ||
     "";
 
   const artworkShiny =
-    pokemonData?.sprites?.other?.home?.front_shiny ||
     pokemonData?.sprites?.other?.["official-artwork"]?.front_shiny ||
+    pokemonData?.sprites?.other?.home?.front_shiny ||
     pokemonData?.sprites?.front_shiny ||
     artworkDefault;
 
   const artwork = shiny ? artworkShiny : artworkDefault;
+  const spriteVariant = spriteOptions.variant || "auto";
+  const animated = Boolean(spriteOptions.animated);
+  const sprite = getSpriteFromVariant(pokemonData, spriteVariant, shiny, animated) || artwork;
 
   const types = pokemonData.types?.map(t => t.type.name) || [];
 
@@ -253,7 +312,7 @@ export async function fetchPokemonLocalized(inputName, shiny = false) {
     id: pokemonData.id,
     apiName: pokemonData.name,
     displayName,
-    sprite: artwork,
+    sprite,
     artwork,
     types
   };
@@ -298,7 +357,10 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       showLevel: Boolean(displayOptions.showLevel),
       showItem: Boolean(displayOptions.showItem),
       showShiny: Boolean(displayOptions.showShiny),
-      showTypes: Boolean(displayOptions.showTypes)
+      showTypes: Boolean(displayOptions.showTypes),
+      spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
+      preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
+      spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode)
     },
     overlayStyle: {
       ...DEFAULT_OVERLAY_STYLE,

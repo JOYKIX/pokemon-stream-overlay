@@ -65,6 +65,7 @@ input[type="number"],
 input[type="password"],
 input[type="color"],
 input[type="range"],
+select,
 input[readonly] {
   width: 100%;
   border-radius: 12px;
@@ -77,6 +78,7 @@ input[readonly] {
 input[readonly] { color: #9eb1ff; }
 input[type="color"] { padding: 4px; }
 input[type="range"] { padding: 0; }
+select { padding-right: 30px; }
 
 .toggle-panel {
   border: 1px solid var(--line-soft);
@@ -209,6 +211,21 @@ button, .link-btn, .ghost-btn {
 .overlay-meta, .overlay-types { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
 .overlay-pill, .type-pill { font-size: 12px; border-radius: 999px; padding: 6px 10px; background: rgba(255,255,255,.08); }
 .overlay-empty { border: 1px dashed rgba(255,255,255,.28); }
+
+.overlay-root.sprite-only-mode .overlay-card {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+.overlay-root.sprite-only-mode .overlay-card-top,
+.overlay-root.sprite-only-mode .overlay-name-wrap,
+.overlay-root.sprite-only-mode .overlay-meta,
+.overlay-root.sprite-only-mode .overlay-types {
+  display: none;
+}
+.overlay-root.sprite-only-mode .overlay-image-wrap {
+  min-height: 240px;
+}
 
 @media (max-width: 1240px) {
   .builder-layout { grid-template-columns: 1fr; }
