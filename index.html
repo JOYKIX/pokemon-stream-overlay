@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PokéOverlay Live — Gestion d'équipe</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="page page-app">
+  <div class="bg"></div>
+  <main class="app-shell">
+    <section class="panel hero-panel">
+      <div>
+        <span class="eyebrow">PokéAPI + Firebase + OBS</span>
+        <h1>PokéOverlay Live</h1>
+        <p class="lead">
+          Gère ton équipe sur le site et mets-la à jour en direct dans OBS.
+          Cette version fonctionne sur <strong>GitHub Pages</strong> parce qu'elle utilise
+          <strong>Firebase Realtime Database</strong> pour partager l'état entre la page de gestion et l'overlay.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <a class="button button-ghost" href="./overlay.html" target="_blank" rel="noopener">Ouvrir l'overlay</a>
+      </div>
+    </section>
+
+    <section class="grid-two">
+      <div class="panel">
+        <div class="section-head">
+          <h2>Configuration</h2>
+          <p>Choisis l'identifiant de ta room. OBS l'utilisera pour lire la bonne équipe.</p>
+        </div>
+
+        <div class="field-grid compact-grid">
+          <label class="field">
+            <span>ID de room / stream</span>
+            <input id="channelId" type="text" placeholder="ex: joykix" maxlength="40" />
+          </label>
+
+          <label class="field">
+            <span>Nom du dresseur</span>
+            <input id="trainerName" type="text" placeholder="ex: JOYKIX" maxlength="40" />
+          </label>
+        </div>
+
+        <div class="inline-actions sticky-actions">
+          <button id="loadButton" class="button button-ghost" type="button">Charger</button>
+          <button id="saveButton" class="button" type="button">Sauvegarder en direct</button>
+          <button id="clearButton" class="button button-danger" type="button">Vider l'équipe</button>
+        </div>
+
+        <div id="statusBanner" class="status-banner" aria-live="polite"></div>
+      </div>
+
+      <div class="panel">
+        <div class="section-head">
+          <h2>URL OBS</h2>
+          <p>Ajoute ce lien comme <strong>Source navigateur</strong> dans OBS.</p>
+        </div>
+
+        <label class="field">
+          <span>Lien overlay</span>
+          <div class="copy-row">
+            <input id="overlayUrl" type="text" readonly />
+            <button id="copyButton" class="button button-ghost" type="button">Copier</button>
+          </div>
+        </label>
+
+        <div class="tip-box">
+          <strong>Réglages OBS conseillés</strong>
+          <ul>
+            <li>Largeur : <strong>1920</strong></li>
+            <li>Hauteur : <strong>360</strong></li>
+            <li>Cocher <strong>Rafraîchir le navigateur quand la scène devient active</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-head">
+        <h2>Équipe Pokémon</h2>
+        <p>
+          Entre un <strong>nom anglais PokéAPI</strong> ou un <strong>numéro du Pokédex national</strong>
+          (ex : <code>pikachu</code>, <code>charizard</code>, <code>25</code>, <code>6</code>).
+        </p>
+      </div>
+
+      <div id="teamSlots" class="slots-grid"></div>
+    </section>
+
+    <section class="panel preview-panel">
+      <div class="section-head">
+        <h2>Aperçu local</h2>
+        <p>Tu vois ici presque exactement ce qu'OBS affichera.</p>
+      </div>
+      <div id="previewMount" class="overlay-preview"></div>
+    </section>
+  </main>
+
+  <script src="./config.js"></script>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
