@@ -2,7 +2,8 @@ import {
   getChannelFromUrl,
   subscribeToTeam,
   fetchPokemonLocalized,
-  translateType
+  translateType,
+  DEFAULT_OVERLAY_STYLE
 } from "./shared.js";
 
 const overlayRoot = document.getElementById("overlayRoot");
@@ -13,12 +14,37 @@ const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
 
+function hexToRgb(hex) {
+  const normalized = hex.replace("#", "");
+  if (normalized.length !== 6) return { r: 9, g: 15, b: 31 };
+  return {
+    r: Number.parseInt(normalized.slice(0, 2), 16),
+    g: Number.parseInt(normalized.slice(2, 4), 16),
+    b: Number.parseInt(normalized.slice(4, 6), 16)
+  };
+}
+
+function applyOverlayStyle(style = {}) {
+  const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
+  const rgb = hexToRgb(merged.backgroundColor);
+  const bodyBackground = merged.transparentBackground
+    ? "transparent"
+    : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity})`;
+
+  document.body.style.background = bodyBackground;
+  overlayRoot.style.setProperty("--overlay-text", merged.textColor);
+  overlayRoot.style.setProperty("--overlay-accent", merged.accentColor);
+  overlayRoot.style.setProperty("--overlay-card", merged.cardColor);
+  overlayRoot.style.setProperty("--overlay-card-opacity", String(merged.cardOpacity));
+  overlayRoot.style.setProperty("--overlay-radius", `${merged.borderRadius}px`);
+}
+
 function renderEmptyCard(index) {
   return `
     <div class="overlay-empty">
       <div>
         <div class="overlay-slot-label">Slot ${index + 1}</div>
-        <div>Empty</div>
+        <div>Vide</div>
       </div>
     </div>
   `;
@@ -26,16 +52,19 @@ function renderEmptyCard(index) {
 
 async function renderTeam(data) {
   if (!data) {
+    applyOverlayStyle(DEFAULT_OVERLAY_STYLE);
     overlayRoot.classList.remove("hide-header");
-    overlayTrainer.textContent = "No team";
-    overlayBadge.textContent = "Waiting for data";
+    overlayTrainer.textContent = "Aucune team";
+    overlayBadge.textContent = "En attente de données";
     overlayRoot.classList.remove("nuzlocke-on");
     overlayNuzlockeTag.textContent = "Nuzlocke";
-    overlayDeathsLabel.textContent = "Deaths";
+    overlayDeathsLabel.textContent = "Morts";
     overlayDeathCount.textContent = "0";
     overlayTeam.innerHTML = Array.from({ length: 6 }, (_, i) => renderEmptyCard(i)).join("");
     return;
   }
+
+  applyOverlayStyle(data.overlayStyle);
 
   const options = {
     showHeader: data.displayOptions?.showHeader ?? true,
@@ -47,15 +76,13 @@ async function renderTeam(data) {
     showTypes: data.displayOptions?.showTypes ?? false
   };
 
-  const pokemonLanguage = data.pokemonLanguage || "en";
-
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
-  overlayTrainer.textContent = data.trainerName || "Trainer";
-  overlayBadge.textContent = data.badgeText || "Pokémon Team";
+  overlayTrainer.textContent = data.trainerName || "Dresseur";
+  overlayBadge.textContent = data.badgeText || "Équipe Pokémon";
   const nuzlockeOn = Boolean(data.nuzlockeMode);
   overlayRoot.classList.toggle("nuzlocke-on", nuzlockeOn);
-  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Free run";
-  overlayDeathsLabel.textContent = data.siteLanguage === "fr" ? "Morts" : "Deaths";
+  overlayNuzlockeTag.textContent = nuzlockeOn ? "Nuzlocke" : "Run libre";
+  overlayDeathsLabel.textContent = "Morts";
   overlayDeathCount.textContent = String(Math.max(0, Number(data.deathCount) || 0));
   overlayTeam.innerHTML = "";
 
@@ -71,7 +98,7 @@ async function renderTeam(data) {
 
     let pokemon = null;
     try {
-      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, pokemonLanguage);
+      pokemon = await fetchPokemonLocalized(slot.name, slot.shiny);
     } catch {
       pokemon = null;
     }
@@ -94,7 +121,7 @@ async function renderTeam(data) {
       : "";
 
     const shinyHtml = options.showShiny && slot.shiny
-      ? `<span class="meta-pill shiny">Shiny</span>`
+      ? '<span class="meta-pill shiny">Shiny</span>'
       : "";
 
     const itemHtml = options.showItem && slot.item
@@ -103,7 +130,7 @@ async function renderTeam(data) {
 
     const typesHtml = options.showTypes && pokemon?.types?.length
       ? `<div class="overlay-types">
-          ${pokemon.types.map(type => `<span class="type-pill">${translateType(type, pokemonLanguage)}</span>`).join("")}
+          ${pokemon.types.map(type => `<span class="type-pill">${translateType(type)}</span>`).join("")}
         </div>`
       : "";
 

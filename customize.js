@@ -1,0 +1,162 @@
+import {
+  loadTeam,
+  saveTeam,
+  DEFAULT_OVERLAY_STYLE,
+  buildTeamPayload,
+  getOverlayUrl
+} from "./shared.js";
+
+const channelInput = document.getElementById("channelInput");
+const transparentBackground = document.getElementById("transparentBackground");
+const backgroundColor = document.getElementById("backgroundColor");
+const backgroundOpacity = document.getElementById("backgroundOpacity");
+const textColor = document.getElementById("textColor");
+const accentColor = document.getElementById("accentColor");
+const cardColor = document.getElementById("cardColor");
+const cardOpacity = document.getElementById("cardOpacity");
+const borderRadius = document.getElementById("borderRadius");
+const loadBtn = document.getElementById("loadBtn");
+const saveBtn = document.getElementById("saveBtn");
+const statusBox = document.getElementById("statusBox");
+const stylePreview = document.getElementById("stylePreview");
+
+function setStatus(message, type = "info") {
+  statusBox.textContent = message;
+  statusBox.className = `status-box ${type}`;
+}
+
+function collectStyle() {
+  return {
+    transparentBackground: transparentBackground.checked,
+    backgroundColor: backgroundColor.value,
+    backgroundOpacity: Number(backgroundOpacity.value),
+    textColor: textColor.value,
+    accentColor: accentColor.value,
+    cardColor: cardColor.value,
+    cardOpacity: Number(cardOpacity.value),
+    borderRadius: Number(borderRadius.value)
+  };
+}
+
+function applyStylePreview(style) {
+  const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
+  stylePreview.style.setProperty("--designer-bg", merged.backgroundColor);
+  stylePreview.style.setProperty("--designer-bg-opacity", String(merged.backgroundOpacity));
+  stylePreview.style.setProperty("--designer-text", merged.textColor);
+  stylePreview.style.setProperty("--designer-accent", merged.accentColor);
+  stylePreview.style.setProperty("--designer-card", merged.cardColor);
+  stylePreview.style.setProperty("--designer-card-opacity", String(merged.cardOpacity));
+  stylePreview.style.setProperty("--designer-radius", `${merged.borderRadius}px`);
+  stylePreview.classList.toggle("is-transparent", merged.transparentBackground);
+}
+
+function fillForm(style) {
+  const merged = { ...DEFAULT_OVERLAY_STYLE, ...(style || {}) };
+  transparentBackground.checked = merged.transparentBackground;
+  backgroundColor.value = merged.backgroundColor;
+  backgroundOpacity.value = String(merged.backgroundOpacity);
+  textColor.value = merged.textColor;
+  accentColor.value = merged.accentColor;
+  cardColor.value = merged.cardColor;
+  cardOpacity.value = String(merged.cardOpacity);
+  borderRadius.value = String(merged.borderRadius);
+  applyStylePreview(merged);
+}
+
+async function loadExistingTeam(channel) {
+  const existing = await loadTeam(channel);
+  if (!existing) {
+    return null;
+  }
+  return existing;
+}
+
+async function saveStyle() {
+  const channel = channelInput.value.trim();
+  if (!channel) {
+    setStatus("Tu dois entrer un identifiant.", "error");
+    return;
+  }
+
+  try {
+    setStatus("Sauvegarde en cours...", "info");
+    const existing = await loadExistingTeam(channel);
+    const style = collectStyle();
+
+    const payload = existing
+      ? {
+        ...existing,
+        overlayStyle: {
+          ...DEFAULT_OVERLAY_STYLE,
+          ...existing.overlayStyle,
+          ...style
+        },
+        updatedAt: Date.now()
+      }
+      : buildTeamPayload({
+        trainerName: "Dresseur",
+        badgeText: "Équipe Pokémon",
+        nuzlockeMode: false,
+        deathCount: 0,
+        slots: Array.from({ length: 6 }, () => ({ name: "", nickname: "", level: "", item: "", shiny: false })),
+        displayOptions: {
+          showHeader: true,
+          showName: true,
+          showNickname: true,
+          showLevel: true,
+          showItem: true,
+          showShiny: true,
+          showTypes: false
+        },
+        overlayStyle: style
+      });
+
+    await saveTeam(channel, payload);
+    setStatus(`Design sauvegardé. URL overlay: ${getOverlayUrl(channel)}`, "success");
+  } catch (error) {
+    console.error(error);
+    setStatus("Erreur pendant la sauvegarde du design.", "error");
+  }
+}
+
+async function loadStyle() {
+  const channel = channelInput.value.trim();
+  if (!channel) {
+    setStatus("Tu dois entrer un identifiant.", "error");
+    return;
+  }
+
+  try {
+    setStatus("Chargement du style...", "info");
+    const existing = await loadExistingTeam(channel);
+    if (!existing) {
+      fillForm(DEFAULT_OVERLAY_STYLE);
+      setStatus("Aucune donnée trouvée, style par défaut chargé.", "info");
+      return;
+    }
+
+    fillForm(existing.overlayStyle || DEFAULT_OVERLAY_STYLE);
+    setStatus("Style chargé.", "success");
+  } catch (error) {
+    console.error(error);
+    setStatus("Impossible de charger le style.", "error");
+  }
+}
+
+[
+  transparentBackground,
+  backgroundColor,
+  backgroundOpacity,
+  textColor,
+  accentColor,
+  cardColor,
+  cardOpacity,
+  borderRadius
+].forEach((input) => {
+  input.addEventListener("input", () => applyStylePreview(collectStyle()));
+});
+
+saveBtn.addEventListener("click", saveStyle);
+loadBtn.addEventListener("click", loadStyle);
+
+fillForm(DEFAULT_OVERLAY_STYLE);
