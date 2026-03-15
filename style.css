@@ -1,0 +1,17 @@
+body{
+background: transparent;
+font-family: Arial;
+text-align: center;
+}
+
+#team{
+display: flex;
+gap: 20px;
+justify-content: center;
+}
+
+.pokemon{
+width: 96px;
+height: 96px;
+image-rendering: pixelated;
+}
