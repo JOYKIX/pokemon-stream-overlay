@@ -209,6 +209,19 @@ button, .link-btn, .ghost-btn {
 .slot-grid { display: grid; grid-template-columns: 130px 1fr; gap: 10px; align-items: start; }
 .slot-fields { display: grid; gap: 8px; }
 .slot-tools { display: flex; gap: 8px; flex-wrap: wrap; }
+.swap-controls { display: inline-flex; gap: 6px; align-items: center; }
+.swap-controls .custom-select.small { min-height: 34px; padding: 0 10px; }
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .preview-box {
   min-height: 150px;
   border: 1px dashed rgba(255,255,255,.3);

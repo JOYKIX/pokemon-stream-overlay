@@ -108,6 +108,13 @@ function createSlot(index) {
         </label>
         <div class="slot-tools">
           <button type="button" class="secondary-btn small evolution-btn" id="evolutionBtn${index}" disabled>Évolution</button>
+          <div class="swap-controls">
+            <label for="swapTarget${index}" class="visually-hidden">Interchanger avec le slot</label>
+            <select id="swapTarget${index}" class="custom-select small">
+              ${Array.from({ length: 6 }, (_, slot) => `<option value="${slot}" ${slot === index ? "selected" : ""}>Slot ${slot + 1}</option>`).join("")}
+            </select>
+            <button type="button" class="secondary-btn small" id="swapBtn${index}">Interchanger</button>
+          </div>
           <button type="button" class="danger-btn small dead-btn" id="deadBtn${index}" style="display:none;">Mort</button>
         </div>
       </div>
@@ -121,6 +128,8 @@ function createSlot(index) {
   const itemInput = wrapper.querySelector(`#item${index}`);
   const shinyInput = wrapper.querySelector(`#shiny${index}`);
   const evolutionBtn = wrapper.querySelector(`#evolutionBtn${index}`);
+  const swapTarget = wrapper.querySelector(`#swapTarget${index}`);
+  const swapBtn = wrapper.querySelector(`#swapBtn${index}`);
   const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
 
   async function updatePreview() {
@@ -162,14 +171,17 @@ function createSlot(index) {
 
   deadBtn.addEventListener("click", () => {
     if (!nuzlockeModeInput.checked) return;
-    nameInput.value = "";
-    wrapper.querySelector(`#nickname${index}`).value = "";
-    wrapper.querySelector(`#level${index}`).value = "";
-    wrapper.querySelector(`#item${index}`).value = "";
-    shinyInput.checked = false;
+    shiftSlotsLeftFrom(index);
     deathCountInput.value = String(Math.max(0, Number(deathCountInput.value) || 0) + 1);
-    updatePreview();
-    setStatus(`Pokémon ${index + 1} retiré et compteur de morts mis à jour.`, "success");
+    setStatus(`Pokémon ${index + 1} retiré. Les slots suivants ont été remontés.`, "success");
+    queueAutoSave();
+  });
+
+  swapBtn.addEventListener("click", () => {
+    const targetIndex = Number(swapTarget.value);
+    if (Number.isNaN(targetIndex) || targetIndex === index) return;
+    swapSlots(index, targetIndex);
+    setStatus(`Pokémon ${index + 1} interchangé avec le slot ${targetIndex + 1}.`, "success");
     queueAutoSave();
   });
 
@@ -195,6 +207,47 @@ function createSlot(index) {
   nuzlockeModeInput.addEventListener("change", () => {
     deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
   });
+}
+
+function getSlotData(index) {
+  return {
+    name: document.getElementById(`name${index}`).value,
+    nickname: document.getElementById(`nickname${index}`).value,
+    level: document.getElementById(`level${index}`).value,
+    item: document.getElementById(`item${index}`).value,
+    shiny: document.getElementById(`shiny${index}`).checked
+  };
+}
+
+function setSlotData(index, slot) {
+  document.getElementById(`name${index}`).value = slot.name || "";
+  document.getElementById(`nickname${index}`).value = slot.nickname || "";
+  document.getElementById(`level${index}`).value = slot.level || "";
+  document.getElementById(`item${index}`).value = slot.item || "";
+  document.getElementById(`shiny${index}`).checked = Boolean(slot.shiny);
+}
+
+function refreshSlots(start = 0) {
+  for (let i = start; i < 6; i++) {
+    slotPreviewUpdaters[i]?.();
+  }
+  renderEditorCanvas();
+}
+
+function swapSlots(firstIndex, secondIndex) {
+  const first = getSlotData(firstIndex);
+  const second = getSlotData(secondIndex);
+  setSlotData(firstIndex, second);
+  setSlotData(secondIndex, first);
+  refreshSlots(Math.min(firstIndex, secondIndex));
+}
+
+function shiftSlotsLeftFrom(startIndex) {
+  for (let i = startIndex; i < 5; i++) {
+    setSlotData(i, getSlotData(i + 1));
+  }
+  setSlotData(5, { name: "", nickname: "", level: "", item: "", shiny: false });
+  refreshSlots(startIndex);
 }
 
 function updateOverlayLink() {
