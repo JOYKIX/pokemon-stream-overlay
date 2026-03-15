@@ -7,6 +7,7 @@ import {
   loadTeam,
   DEFAULT_OVERLAY_STYLE
 } from "./shared.js";
+import { ensureAuthenticated, clearSession } from "./auth.js";
 
 const teamSlots = document.getElementById("teamSlots");
 const channelInput = document.getElementById("channelInput");
@@ -14,6 +15,7 @@ const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
 const deathCountInput = document.getElementById("deathCountInput");
+const logoutBtn = document.getElementById("logoutBtn");
 
 const showHeader = document.getElementById("showHeader");
 const showName = document.getElementById("showName");
@@ -47,7 +49,7 @@ function createSlot(index) {
         <div class="preview-placeholder">Aperçu</div>
       </div>
       <div class="slot-fields">
-        <input type="text" id="name${index}" placeholder="Nom Pokémon en français ou ID" list="pokemonSuggestions" autocomplete="off" />
+        <input type="text" id="name${index}" placeholder="Nom Pokémon FR ou ID" list="pokemonSuggestions" autocomplete="off" />
         <input type="text" id="nickname${index}" placeholder="Surnom" />
         <div class="inline-fields">
           <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
@@ -94,21 +96,7 @@ function createSlot(index) {
   shinyInput.addEventListener("change", updatePreview);
 }
 
-for (let i = 0; i < 6; i++) {
-  createSlot(i);
-}
-
-async function loadPokemonSuggestions() {
-  try {
-    const entries = await fetchFrenchPokemonIndex();
-    pokemonSuggestions.innerHTML = entries
-      .map(entry => `<option value="${entry.frenchName}"></option>`)
-      .join("");
-    setStatus("Prêt.", "info");
-  } catch {
-    setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
-  }
-}
+for (let i = 0; i < 6; i++) createSlot(i);
 
 function updateOverlayLink() {
   const channel = channelInput.value.trim() || "joykix";
@@ -118,17 +106,13 @@ function updateOverlayLink() {
 }
 
 function collectSlots() {
-  const slots = [];
-  for (let i = 0; i < 6; i++) {
-    slots.push({
-      name: document.getElementById(`name${i}`).value,
-      nickname: document.getElementById(`nickname${i}`).value,
-      level: document.getElementById(`level${i}`).value,
-      item: document.getElementById(`item${i}`).value,
-      shiny: document.getElementById(`shiny${i}`).checked
-    });
-  }
-  return slots;
+  return Array.from({ length: 6 }, (_, i) => ({
+    name: document.getElementById(`name${i}`).value,
+    nickname: document.getElementById(`nickname${i}`).value,
+    level: document.getElementById(`level${i}`).value,
+    item: document.getElementById(`item${i}`).value,
+    shiny: document.getElementById(`shiny${i}`).checked
+  }));
 }
 
 function collectDisplayOptions() {
@@ -170,12 +154,18 @@ function fillForm(data) {
   }
 }
 
+async function loadPokemonSuggestions() {
+  try {
+    const entries = await fetchFrenchPokemonIndex();
+    pokemonSuggestions.innerHTML = entries.map(entry => `<option value="${entry.frenchName}"></option>`).join("");
+    setStatus("Prêt.", "info");
+  } catch {
+    setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
+  }
+}
+
 saveBtn.addEventListener("click", async () => {
   const channel = channelInput.value.trim();
-  if (!channel) {
-    setStatus("Tu dois entrer un identifiant.", "error");
-    return;
-  }
 
   let overlayStyle = DEFAULT_OVERLAY_STYLE;
   try {
@@ -198,7 +188,7 @@ saveBtn.addEventListener("click", async () => {
   try {
     setStatus("Sauvegarde en cours...", "info");
     await saveTeam(channel, payload);
-    setStatus("Team sauvegardée. OBS devrait se mettre à jour.", "success");
+    setStatus("Team sauvegardée. L'overlay OBS est synchronisé.", "success");
     updateOverlayLink();
   } catch (error) {
     console.error(error);
@@ -208,16 +198,11 @@ saveBtn.addEventListener("click", async () => {
 
 loadBtn.addEventListener("click", async () => {
   const channel = channelInput.value.trim();
-  if (!channel) {
-    setStatus("Tu dois entrer un identifiant.", "error");
-    return;
-  }
-
   try {
     setStatus("Chargement...", "info");
     const data = await loadTeam(channel);
     if (!data) {
-      setStatus("Aucune team trouvée.", "error");
+      setStatus("Aucune team trouvée pour cet identifiant.", "error");
       return;
     }
     fillForm(data);
@@ -228,29 +213,7 @@ loadBtn.addEventListener("click", async () => {
   }
 });
 
-clearBtn.addEventListener("click", () => {
-  trainerInput.value = "";
-  badgeInput.value = "";
-  nuzlockeModeInput.checked = false;
-  deathCountInput.value = 0;
-  showHeader.checked = true;
-  showName.checked = true;
-  showNickname.checked = true;
-  showLevel.checked = true;
-  showItem.checked = true;
-  showShiny.checked = true;
-  showTypes.checked = false;
-
-  for (let i = 0; i < 6; i++) {
-    document.getElementById(`name${i}`).value = "";
-    document.getElementById(`nickname${i}`).value = "";
-    document.getElementById(`level${i}`).value = "";
-    document.getElementById(`item${i}`).value = "";
-    document.getElementById(`shiny${i}`).checked = false;
-    document.getElementById(`name${i}`).dispatchEvent(new Event("change"));
-  }
-  setStatus("Formulaire vidé.", "info");
-});
+clearBtn.addEventListener("click", () => fillForm(null));
 
 copyUrlBtn.addEventListener("click", async () => {
   try {
@@ -261,8 +224,20 @@ copyUrlBtn.addEventListener("click", async () => {
   }
 });
 
-channelInput.addEventListener("input", updateOverlayLink);
+logoutBtn.addEventListener("click", () => {
+  clearSession();
+  window.location.href = "login.html";
+});
 
-setStatus("Chargement PokéAPI...", "info");
-loadPokemonSuggestions();
-updateOverlayLink();
+async function init() {
+  const session = await ensureAuthenticated();
+  if (!session) return;
+
+  channelInput.value = session.channel;
+  updateOverlayLink();
+
+  setStatus("Chargement PokéAPI...", "info");
+  await loadPokemonSuggestions();
+}
+
+init();
