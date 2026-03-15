@@ -235,6 +235,12 @@ button, .link-btn, .ghost-btn {
 .overlay-level { color: #ffd54f; font-size: 14px; font-weight: 900; }
 .overlay-image-wrap { min-height: 130px; display: grid; place-items: center; }
 .overlay-image-wrap img { width: 100%; max-height: clamp(120px, calc(190px * var(--slot-scale, 1)), 380px); object-fit: contain; }
+.overlay-card.pixel-sprite-mode .overlay-image-wrap img {
+  width: auto;
+  max-width: 100%;
+  max-height: clamp(96px, 14vh, 170px);
+  image-rendering: pixelated;
+}
 .overlay-name-wrap { text-align: center; }
 .overlay-name { font-size: 20px; margin: 4px 0; font-weight: 800; }
 .overlay-species { font-size: 14px; opacity: .86; }
