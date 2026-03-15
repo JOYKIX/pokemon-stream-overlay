@@ -273,6 +273,16 @@ export function shouldUsePixelRendering(variant = "auto", animated = false) {
   return variant === "auto" && Boolean(animated);
 }
 
+function getSpriteVisualScale(pokemonData) {
+  const referenceHeightDm = 17;
+  const minScale = 0.55;
+  const maxScale = 1.7;
+  const pokemonHeightDm = Number(pokemonData?.height) || referenceHeightDm;
+  const normalizedScale = pokemonHeightDm / referenceHeightDm;
+
+  return Math.max(minScale, Math.min(maxScale, normalizedScale));
+}
+
 export async function fetchPokemonLocalized(inputName, shiny = false, spriteOptions = {}) {
   const index = await fetchFrenchPokemonIndex();
   const apiName = toApiCandidate(inputName, index);
@@ -320,7 +330,8 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
     displayName,
     sprite,
     artwork,
-    types
+    types,
+    spriteScale: getSpriteVisualScale(pokemonData)
   };
 }
 
