@@ -22,6 +22,10 @@ const db = getDatabase(app);
 
 export { db, ref, set, get, onValue };
 
+const POKEAPI_SPECIES_LIMIT = 1025;
+const POKE_INDEX_STORAGE_KEY = "pokeapi-french-index-v1";
+let frenchPokemonIndexPromise = null;
+
 export function cleanText(value) {
   return (value || "").trim();
 }
@@ -51,39 +55,137 @@ export function getOverlayUrl(channel) {
   return url.toString();
 }
 
-export function toApiCandidate(value) {
+async function fetchSpeciesBatch(offset, limit) {
+  const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species?limit=${limit}&offset=${offset}`);
+  if (!response.ok) {
+    throw new Error("Impossible de récupérer la liste Pokémon.");
+  }
+  const data = await response.json();
+  return data.results || [];
+}
+
+async function fetchSpeciesFrenchName(speciesUrl) {
+  const response = await fetch(speciesUrl);
+  if (!response.ok) {
+    throw new Error("Impossible de récupérer les traductions Pokémon.");
+  }
+  const data = await response.json();
+  const frenchName =
+    data.names?.find(entry => entry.language?.name === "fr")?.name ||
+    data.names?.find(entry => entry.language?.name === "en")?.name ||
+    data.name;
+
+  return {
+    id: data.id,
+    frenchName,
+    apiName: data.name
+  };
+}
+
+async function buildFrenchPokemonIndex() {
+  const speciesList = await fetchSpeciesBatch(0, POKEAPI_SPECIES_LIMIT);
+  const entries = [];
+  const chunkSize = 25;
+
+  for (let i = 0; i < speciesList.length; i += chunkSize) {
+    const chunk = speciesList.slice(i, i + chunkSize);
+    const chunkEntries = await Promise.all(chunk.map(species => fetchSpeciesFrenchName(species.url)));
+    entries.push(...chunkEntries);
+  }
+
+  entries.sort((a, b) => a.id - b.id);
+  return entries;
+}
+
+function getCachedFrenchIndex() {
+  try {
+    const raw = localStorage.getItem(POKE_INDEX_STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveFrenchIndexToCache(entries) {
+  try {
+    localStorage.setItem(POKE_INDEX_STORAGE_KEY, JSON.stringify(entries));
+  } catch {
+    // ignore cache issues
+  }
+}
+
+export async function fetchFrenchPokemonIndex() {
+  if (frenchPokemonIndexPromise) return frenchPokemonIndexPromise;
+
+  const cached = getCachedFrenchIndex();
+  if (cached) {
+    frenchPokemonIndexPromise = Promise.resolve(cached);
+    return frenchPokemonIndexPromise;
+  }
+
+  frenchPokemonIndexPromise = buildFrenchPokemonIndex().then((entries) => {
+    saveFrenchIndexToCache(entries);
+    return entries;
+  });
+
+  return frenchPokemonIndexPromise;
+}
+
+function toApiCandidate(value, index = []) {
   const input = cleanText(value);
+  if (!input) return "";
   if (/^\d+$/.test(input)) {
     return input;
   }
+
+  const normalized = normalizeInput(input);
+  const match = index.find(entry =>
+    normalizeInput(entry.frenchName) === normalized ||
+    normalizeInput(entry.apiName) === normalized
+  );
+
+  if (match?.apiName) {
+    return match.apiName;
+  }
+
   return slugifyForApi(input);
 }
 
-function findLocalizedName(speciesData, displayLanguage, fallback) {
-  return (
-    speciesData.names?.find(entry => entry.language?.name === displayLanguage)?.name ||
-    speciesData.names?.find(entry => entry.language?.name === "en")?.name ||
-    fallback
-  );
-}
+export const DEFAULT_OVERLAY_STYLE = {
+  transparentBackground: true,
+  backgroundColor: "#090f1f",
+  backgroundOpacity: 0.75,
+  textColor: "#f3f6ff",
+  accentColor: "#6d5dfc",
+  cardColor: "#101b33",
+  cardOpacity: 0.9,
+  borderRadius: 24
+};
 
-export async function fetchPokemonLocalized(inputName, shiny = false, displayLanguage = "en") {
-  const apiName = toApiCandidate(inputName);
+export async function fetchPokemonLocalized(inputName, shiny = false) {
+  const index = await fetchFrenchPokemonIndex();
+  const apiName = toApiCandidate(inputName, index);
   if (!apiName) return null;
 
   const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
   if (!pokemonResponse.ok) {
-    throw new Error(`Pokémon not found: ${inputName}`);
+    throw new Error(`Pokémon introuvable: ${inputName}`);
   }
   const pokemonData = await pokemonResponse.json();
 
   const speciesResponse = await fetch(pokemonData.species.url);
   if (!speciesResponse.ok) {
-    throw new Error(`Species not found: ${inputName}`);
+    throw new Error(`Espèce introuvable: ${inputName}`);
   }
   const speciesData = await speciesResponse.json();
 
-  const displayName = findLocalizedName(speciesData, displayLanguage, inputName);
+  const displayName =
+    speciesData.names?.find(entry => entry.language?.name === "fr")?.name ||
+    speciesData.names?.find(entry => entry.language?.name === "en")?.name ||
+    inputName;
 
   const artworkDefault =
     pokemonData?.sprites?.other?.home?.front_default ||
@@ -111,79 +213,35 @@ export async function fetchPokemonLocalized(inputName, shiny = false, displayLan
   };
 }
 
-export function translateType(type, language = "en") {
-  const maps = {
-    en: {
-      normal: "Normal",
-      fire: "Fire",
-      water: "Water",
-      electric: "Electric",
-      grass: "Grass",
-      ice: "Ice",
-      fighting: "Fighting",
-      poison: "Poison",
-      ground: "Ground",
-      flying: "Flying",
-      psychic: "Psychic",
-      bug: "Bug",
-      rock: "Rock",
-      ghost: "Ghost",
-      dragon: "Dragon",
-      dark: "Dark",
-      steel: "Steel",
-      fairy: "Fairy"
-    },
-    fr: {
-      normal: "Normal",
-      fire: "Feu",
-      water: "Eau",
-      electric: "Électrik",
-      grass: "Plante",
-      ice: "Glace",
-      fighting: "Combat",
-      poison: "Poison",
-      ground: "Sol",
-      flying: "Vol",
-      psychic: "Psy",
-      bug: "Insecte",
-      rock: "Roche",
-      ghost: "Spectre",
-      dragon: "Dragon",
-      dark: "Ténèbres",
-      steel: "Acier",
-      fairy: "Fée"
-    },
-    es: {
-      normal: "Normal",
-      fire: "Fuego",
-      water: "Agua",
-      electric: "Eléctrico",
-      grass: "Planta",
-      ice: "Hielo",
-      fighting: "Lucha",
-      poison: "Veneno",
-      ground: "Tierra",
-      flying: "Volador",
-      psychic: "Psíquico",
-      bug: "Bicho",
-      rock: "Roca",
-      ghost: "Fantasma",
-      dragon: "Dragón",
-      dark: "Siniestro",
-      steel: "Acero",
-      fairy: "Hada"
-    }
+export function translateType(type) {
+  const map = {
+    normal: "Normal",
+    fire: "Feu",
+    water: "Eau",
+    electric: "Électrik",
+    grass: "Plante",
+    ice: "Glace",
+    fighting: "Combat",
+    poison: "Poison",
+    ground: "Sol",
+    flying: "Vol",
+    psychic: "Psy",
+    bug: "Insecte",
+    rock: "Roche",
+    ghost: "Spectre",
+    dragon: "Dragon",
+    dark: "Ténèbres",
+    steel: "Acier",
+    fairy: "Fée"
   };
 
-  return maps[language]?.[type] || maps.en[type] || type;
+  return map[type] || type;
 }
 
-export function buildTeamPayload({ trainerName, badgeText, pokemonLanguage, siteLanguage, nuzlockeMode, deathCount, slots, displayOptions }) {
+export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCount, slots, displayOptions, overlayStyle }) {
   return {
-    trainerName: cleanText(trainerName) || "Trainer",
-    badgeText: cleanText(badgeText) || "Pokémon Team",
-    pokemonLanguage: cleanText(pokemonLanguage) || "en",
-    siteLanguage: cleanText(siteLanguage) || "en",
+    trainerName: cleanText(trainerName) || "Dresseur",
+    badgeText: cleanText(badgeText) || "Équipe Pokémon",
     updatedAt: Date.now(),
     nuzlockeMode: Boolean(nuzlockeMode),
     deathCount: Math.max(0, Number(deathCount) || 0),
@@ -195,6 +253,10 @@ export function buildTeamPayload({ trainerName, badgeText, pokemonLanguage, site
       showItem: Boolean(displayOptions.showItem),
       showShiny: Boolean(displayOptions.showShiny),
       showTypes: Boolean(displayOptions.showTypes)
+    },
+    overlayStyle: {
+      ...DEFAULT_OVERLAY_STYLE,
+      ...(overlayStyle || {})
     },
     slots: slots.map((slot, index) => ({
       id: index + 1,
