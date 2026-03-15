@@ -28,7 +28,16 @@ function hexToRgb(hex) {
 function applyOverlayStyle(style = {}, options = {}) {
   const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
   const rgb = hexToRgb(merged.backgroundColor);
-  document.body.style.background = merged.transparentBackground ? "transparent" : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity})`;
+  const safeBackgroundImage = (merged.backgroundImage || "").replace(/"/g, "%22");
+  const hasBackgroundImage = Boolean(safeBackgroundImage);
+
+  if (merged.transparentBackground) {
+    document.body.style.background = "transparent";
+  } else if (hasBackgroundImage) {
+    document.body.style.background = `linear-gradient(rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity}), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity})), url("${safeBackgroundImage}") center / cover no-repeat`;
+  } else {
+    document.body.style.background = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity})`;
+  }
 
   overlayRoot.style.setProperty("--overlay-text", merged.textColor);
   overlayRoot.style.setProperty("--overlay-accent", merged.accentColor);

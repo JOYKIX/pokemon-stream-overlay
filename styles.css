@@ -289,7 +289,12 @@ button, .link-btn, .ghost-btn {
   border: 1px solid var(--line-soft);
   min-height: 300px;
   padding: 16px;
-  background: color-mix(in srgb, var(--designer-bg, #0b0b0b) calc(var(--designer-bg-opacity, .76) * 100%), transparent);
+  background:
+    linear-gradient(
+      color-mix(in srgb, var(--designer-bg, #0b0b0b) calc(var(--designer-bg-opacity, .76) * 100%), transparent),
+      color-mix(in srgb, var(--designer-bg, #0b0b0b) calc(var(--designer-bg-opacity, .76) * 100%), transparent)
+    ),
+    var(--designer-bg-image, none) center / cover no-repeat;
   color: var(--designer-text, #fff);
 }
 .designer-preview.is-transparent { background: linear-gradient(135deg, rgba(255,255,255,.12), rgba(227,53,53,.22)); }

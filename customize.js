@@ -11,6 +11,7 @@ const channelInput = document.getElementById("channelInput");
 const transparentBackground = document.getElementById("transparentBackground");
 const backgroundColor = document.getElementById("backgroundColor");
 const backgroundOpacity = document.getElementById("backgroundOpacity");
+const backgroundImage = document.getElementById("backgroundImage");
 const textColor = document.getElementById("textColor");
 const accentColor = document.getElementById("accentColor");
 const cardColor = document.getElementById("cardColor");
@@ -32,6 +33,7 @@ function collectStyle() {
     transparentBackground: transparentBackground.checked,
     backgroundColor: backgroundColor.value,
     backgroundOpacity: Number(backgroundOpacity.value),
+    backgroundImage: backgroundImage.value.trim(),
     textColor: textColor.value,
     accentColor: accentColor.value,
     cardColor: cardColor.value,
@@ -42,8 +44,10 @@ function collectStyle() {
 
 function applyStylePreview(style) {
   const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
+  const safeBackgroundImage = merged.backgroundImage.replace(/"/g, '%22');
   stylePreview.style.setProperty("--designer-bg", merged.backgroundColor);
   stylePreview.style.setProperty("--designer-bg-opacity", String(merged.backgroundOpacity));
+  stylePreview.style.setProperty("--designer-bg-image", safeBackgroundImage ? `url("${safeBackgroundImage}")` : "none");
   stylePreview.style.setProperty("--designer-text", merged.textColor);
   stylePreview.style.setProperty("--designer-accent", merged.accentColor);
   stylePreview.style.setProperty("--designer-card", merged.cardColor);
@@ -57,6 +61,7 @@ function fillForm(style) {
   transparentBackground.checked = merged.transparentBackground;
   backgroundColor.value = merged.backgroundColor;
   backgroundOpacity.value = String(merged.backgroundOpacity);
+  backgroundImage.value = merged.backgroundImage || "";
   textColor.value = merged.textColor;
   accentColor.value = merged.accentColor;
   cardColor.value = merged.cardColor;
@@ -105,7 +110,7 @@ async function loadStyle() {
   }
 }
 
-[transparentBackground, backgroundColor, backgroundOpacity, textColor, accentColor, cardColor, cardOpacity, borderRadius]
+[transparentBackground, backgroundColor, backgroundOpacity, backgroundImage, textColor, accentColor, cardColor, cardOpacity, borderRadius]
   .forEach((input) => input.addEventListener("input", () => applyStylePreview(collectStyle())));
 
 saveBtn.addEventListener("click", saveStyle);
