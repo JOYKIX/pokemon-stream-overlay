@@ -363,6 +363,17 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
       spriteHeightPx: Math.max(48, Number(displayOptions.spriteHeightPx) || 170),
       spriteGapPx: Math.max(0, Number(displayOptions.spriteGapPx) || 12),
+      editorResolution: {
+        width: Math.max(640, Number(displayOptions.editorResolution?.width) || 1920),
+        height: Math.max(360, Number(displayOptions.editorResolution?.height) || 1080)
+      },
+      slotPositions: Array.isArray(displayOptions.slotPositions)
+        ? displayOptions.slotPositions.slice(0, 6).map((position, index) => ({
+            id: index + 1,
+            x: Math.max(0, Math.min(100, Number(position?.x) || 0)),
+            y: Math.max(0, Math.min(100, Number(position?.y) || 0))
+          }))
+        : [],
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
       overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
     },
