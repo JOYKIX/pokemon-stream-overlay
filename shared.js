@@ -229,9 +229,7 @@ function getSpriteFromVariant(pokemonData, variant, shiny, animated) {
     ? sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_shiny
     : sprites?.versions?.["generation-v"]?.["black-white"]?.animated?.front_default;
 
-  const scarletViolet = shiny
-    ? sprites?.versions?.["generation-ix"]?.["scarlet-violet"]?.front_shiny
-    : sprites?.versions?.["generation-ix"]?.["scarlet-violet"]?.front_default;
+  const scarletViolet = sprites?.versions?.["generation-ix"]?.["scarlet-violet"]?.front_default;
 
   if (variant === "showdown") {
     return showdown || officialArtwork || home || frontDefault || "";
@@ -407,7 +405,7 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
-      spriteScale: Math.max(0.5, Math.min(2, Number(displayOptions.spriteScale) || 1)),
+      spriteScale: Math.max(0.5, Math.min(10, Number(displayOptions.spriteScale) || 1)),
       editorResolution: {
         width: Math.max(640, Number(displayOptions.editorResolution?.width) || 1920),
         height: Math.max(360, Number(displayOptions.editorResolution?.height) || 1080)
