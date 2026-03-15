@@ -13,6 +13,7 @@ const badgeInput = document.getElementById("badgeInput");
 
 const showHeader = document.getElementById("showHeader");
 const showName = document.getElementById("showName");
+const showNickname = document.getElementById("showNickname");
 const showLevel = document.getElementById("showLevel");
 const showItem = document.getElementById("showItem");
 const showShiny = document.getElementById("showShiny");
@@ -42,6 +43,7 @@ function createSlot(index) {
       </div>
       <div class="slot-fields">
         <input type="text" id="name${index}" placeholder="Nom du Pokémon en français" />
+        <input type="text" id="nickname${index}" placeholder="Surnom (optionnel)" />
         <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
         <input type="text" id="item${index}" placeholder="Objet (optionnel)" />
         <label class="checkbox-row">
@@ -101,6 +103,7 @@ function collectSlots() {
   for (let i = 0; i < 6; i++) {
     slots.push({
       name: document.getElementById(`name${i}`).value,
+      nickname: document.getElementById(`nickname${i}`).value,
       level: document.getElementById(`level${i}`).value,
       item: document.getElementById(`item${i}`).value,
       shiny: document.getElementById(`shiny${i}`).checked
@@ -113,6 +116,7 @@ function collectDisplayOptions() {
   return {
     showHeader: showHeader.checked,
     showName: showName.checked,
+    showNickname: showNickname.checked,
     showLevel: showLevel.checked,
     showItem: showItem.checked,
     showShiny: showShiny.checked,
@@ -127,6 +131,7 @@ function fillForm(data) {
   const opts = data?.displayOptions || {};
   showHeader.checked = opts.showHeader ?? true;
   showName.checked = opts.showName ?? true;
+  showNickname.checked = opts.showNickname ?? true;
   showLevel.checked = opts.showLevel ?? true;
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
@@ -136,6 +141,7 @@ function fillForm(data) {
   for (let i = 0; i < 6; i++) {
     const slot = slots[i] || {};
     document.getElementById(`name${i}`).value = slot.name || "";
+    document.getElementById(`nickname${i}`).value = slot.nickname || "";
     document.getElementById(`level${i}`).value = slot.level || "";
     document.getElementById(`item${i}`).value = slot.item || "";
     document.getElementById(`shiny${i}`).checked = Boolean(slot.shiny);
@@ -195,6 +201,7 @@ clearBtn.addEventListener("click", () => {
   badgeInput.value = "";
   showHeader.checked = true;
   showName.checked = true;
+  showNickname.checked = true;
   showLevel.checked = true;
   showItem.checked = true;
   showShiny.checked = true;
@@ -202,6 +209,7 @@ clearBtn.addEventListener("click", () => {
 
   for (let i = 0; i < 6; i++) {
     document.getElementById(`name${i}`).value = "";
+    document.getElementById(`nickname${i}`).value = "";
     document.getElementById(`level${i}`).value = "";
     document.getElementById(`item${i}`).value = "";
     document.getElementById(`shiny${i}`).checked = false;
