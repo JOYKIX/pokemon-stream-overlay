@@ -267,6 +267,14 @@ function getSpriteFromVariant(pokemonData, variant, shiny, animated) {
   return officialArtwork || home || frontDefault || "";
 }
 
+export function shouldUsePixelRendering(variant = "auto", animated = false) {
+  if (variant === "pixel" || variant === "showdown") {
+    return true;
+  }
+
+  return variant === "auto" && Boolean(animated);
+}
+
 export async function fetchPokemonLocalized(inputName, shiny = false, spriteOptions = {}) {
   const index = await fetchFrenchPokemonIndex();
   const apiName = toApiCandidate(inputName, index);
