@@ -132,7 +132,10 @@ async function renderTeam(data) {
 
     const pos = getPosition(options, index);
     const sprite = pokemon?.sprite || pokemon?.artwork || "";
-    const cardClass = options.spriteOnlyMode ? "overlay-card cardless" : "overlay-card";
+    const pixelSpriteClass = options.spriteVariant === "pixel" ? "pixel-sprite-mode" : "";
+    const cardClass = options.spriteOnlyMode
+      ? `overlay-card cardless ${pixelSpriteClass}`.trim()
+      : `overlay-card ${pixelSpriteClass}`.trim();
     const scale = Math.max(0.6, Math.min(2, Number(options.slotScales?.[index]) || 1));
     const nickname = slot.nickname?.trim();
     const hasNickname = Boolean(nickname);
