@@ -3,16 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PokéOverlay Live — Overlay</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css" />
+  <title>Pokémon Stream Overlay</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="page page-overlay">
-  <main id="overlayMount" class="overlay-root" aria-live="polite"></main>
+<body class="overlay-page">
+  <div id="overlayRoot" class="overlay-root">
+    <div class="overlay-header">
+      <div>
+        <p id="overlayBadge" class="overlay-badge">Chargement...</p>
+        <h2 id="overlayTrainer" class="overlay-trainer">Dresseur</h2>
+      </div>
+    </div>
 
-  <script src="./config.js"></script>
-  <script type="module" src="./overlay.js"></script>
+    <div id="overlayTeam" class="overlay-team"></div>
+  </div>
+
+  <script type="module" src="overlay.js"></script>
 </body>
 </html>
