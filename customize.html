@@ -4,47 +4,34 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon Stream Overlay - Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
   <div class="app-shell">
     <header class="topbar">
-      <div>
-        <p class="eyebrow">Design system</p>
-        <h1>Éditeur visuel complet</h1>
-      </div>
+      <div><p class="eyebrow">Direction artistique</p><h1>Thème visuel</h1></div>
       <nav class="topbar-actions nav-tabs">
-        <a class="ghost-btn" href="index.html">Éditeur</a>
-        <a class="ghost-btn active" href="customize.html">Design</a>
-        <a class="ghost-btn" href="options.html">Profil</a>
-        <button id="logoutBtn" class="ghost-btn" type="button">Déconnexion</button>
+        <a class="ghost-btn" href="index.html"><span class="material-symbols-rounded">dashboard</span>Éditeur</a>
+        <a class="ghost-btn active" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
+        <a class="ghost-btn" href="options.html"><span class="material-symbols-rounded">settings</span>Profil</a>
+        <button id="logoutBtn" class="ghost-btn" type="button"><span class="material-symbols-rounded">logout</span>Déconnexion</button>
       </nav>
     </header>
 
     <main class="builder-layout">
       <aside class="panel config-sidebar">
-        <div class="panel-head">
-          <h2>Canal actif</h2>
-        </div>
-        <div class="field">
-          <label for="channelInput">Identifiant</label>
-          <input id="channelInput" type="text" readonly />
-        </div>
-
+        <div class="field"><label for="channelInput">Identifiant</label><input id="channelInput" type="text" readonly /></div>
         <div class="toggle-panel">
           <h3>Fond global</h3>
           <label class="checkbox-chip wide"><input type="checkbox" id="transparentBackground" checked><span>Fond transparent</span></label>
           <div class="field"><label for="backgroundColor">Couleur</label><input id="backgroundColor" type="color" value="#090f1f" /></div>
           <div class="field"><label for="backgroundOpacity">Opacité</label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75" /></div>
-          <div class="field">
-            <label for="backgroundImageInput">Image de fond (.png)</label>
-            <input id="backgroundImageInput" type="file" accept="image/png" />
-          </div>
-          <div class="actions">
-            <button id="clearBackgroundImageBtn" class="secondary-btn" type="button">Retirer l'image</button>
-          </div>
+          <div class="field"><label for="backgroundImageInput">Image de fond (.png)</label><input id="backgroundImageInput" type="file" accept="image/png" /></div>
+          <button id="clearBackgroundImageBtn" class="secondary-btn" type="button">Retirer l'image</button>
         </div>
-
         <div class="toggle-panel">
           <h3>Cartes</h3>
           <div class="field"><label for="textColor">Texte</label><input id="textColor" type="color" value="#f3f6ff" /></div>
@@ -53,30 +40,22 @@
           <div class="field"><label for="cardOpacity">Opacité cartes</label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9" /></div>
           <div class="field"><label for="borderRadius">Arrondis</label><input id="borderRadius" type="range" min="0" max="50" step="1" value="24" /></div>
         </div>
-
         <div class="actions vertical">
-          <button id="loadBtn" class="secondary-btn">Charger le style</button>
-          <button id="saveBtn" class="primary-btn">Sauvegarder le design</button>
+          <button id="loadBtn" class="secondary-btn"><span class="material-symbols-rounded">download</span>Charger le style</button>
+          <button id="saveBtn" class="primary-btn"><span class="material-symbols-rounded">save</span>Sauvegarder le design</button>
         </div>
         <div id="statusBox" class="status-box info">Prêt.</div>
       </aside>
 
       <section class="panel team-panel">
-        <div class="panel-head">
-          <h2>Aperçu instantané</h2>
-        </div>
+        <div class="panel-head"><h2>Aperçu instantané</h2></div>
         <div id="stylePreview" class="designer-preview">
           <div class="designer-preview-card"><h3>Header overlay</h3><p>Dresseur • Badge • Compteur</p></div>
-          <div class="designer-preview-grid">
-            <div class="designer-preview-slot">Slot 1</div>
-            <div class="designer-preview-slot">Slot 2</div>
-            <div class="designer-preview-slot">Slot 3</div>
-          </div>
+          <div class="designer-preview-grid"><div class="designer-preview-slot">Slot 1</div><div class="designer-preview-slot">Slot 2</div><div class="designer-preview-slot">Slot 3</div></div>
         </div>
       </section>
     </main>
   </div>
-
   <script type="module" src="customize.js"></script>
 </body>
 </html>

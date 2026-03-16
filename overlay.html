@@ -4,27 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon Stream Overlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="overlay-page">
   <div id="overlayRoot" class="overlay-root">
-    <div class="overlay-header">
-      <div>
-        <p id="overlayBadge" class="overlay-badge">Chargement...</p>
-        <h2 id="overlayTrainer" class="overlay-trainer">Dresseur</h2>
-      </div>
-    </div>
+    <div class="overlay-header"><div><p id="overlayBadge" class="overlay-badge">Chargement...</p><h2 id="overlayTrainer" class="overlay-trainer">Dresseur</h2></div></div>
     <div id="overlayTeam" class="overlay-team"></div>
     <div id="overlayNuzlockeTag" class="overlay-floating-nuzlocke">
       <span class="run-tag">Nuzlocke</span>
-      <div class="death-counter">
-        <span class="death-counter-icon" aria-hidden="true">☠</span>
-        <span id="overlayDeathsLabel" class="death-counter-label">Morts</span>
-        <strong id="overlayDeathCount" class="death-counter-value">0</strong>
-      </div>
+      <div class="death-counter"><span class="death-counter-icon material-symbols-rounded" aria-hidden="true">skull</span><span id="overlayDeathsLabel" class="death-counter-label">Morts</span><strong id="overlayDeathCount" class="death-counter-value">0</strong></div>
     </div>
   </div>
-
   <script type="module" src="overlay.js"></script>
 </body>
 </html>
