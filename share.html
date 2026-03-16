@@ -12,40 +12,40 @@
 <body class="app-page">
   <div class="dashboard-shell">
     <aside class="sidebar">
-      <div><p class="sidebar-kicker">Pokemon Stream Overlay for OBS</p><h1 class="sidebar-title">Partage</h1></div>
+      <div><p class="sidebar-kicker" data-i18n="pokemon_stream_overlay_for_obs"></p><h1 class="sidebar-title" data-i18n="share"></h1></div>
       <nav class="sidebar-nav">
-        <p class="nav-group-label">GENERAL</p>
-        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span>Studio</a>
-        <a class="nav-item" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
-        <a class="nav-item active" href="share.html"><span class="material-symbols-rounded">share</span>Partage</a>
-        <p class="nav-group-label">ACCOUNT</p>
-        <a class="nav-item" href="options.html"><span class="material-symbols-rounded">person</span>Profile</a>
-        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span>Logout</button>
+        <p class="nav-group-label" data-i18n="general"></p>
+        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span><span data-i18n="studio"></span></a>
+        <a class="nav-item" href="customize.html"><span class="material-symbols-rounded">palette</span><span data-i18n="design"></span></a>
+        <a class="nav-item active" href="share.html"><span class="material-symbols-rounded">share</span><span data-i18n="share"></span></a>
+        <p class="nav-group-label" data-i18n="account"></p>
+        <a class="nav-item" href="options.html"><span class="material-symbols-rounded">person</span><span data-i18n="profile"></span></a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span><span data-i18n="logout"></span></button>
       </nav>
     </aside>
     <main class="dashboard-main">
-      <header class="topbar"><h2 class="page-title">Partage des données</h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span>UI language</span><select id="languageSelect"><option value="en">English</option><option value="fr">Français</option></select></label></div></header>
+      <header class="topbar"><h2 class="page-title" data-i18n="data_sharing"></h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span data-i18n="ui_language"></span><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option></select></label></div></header>
       <section class="studio-grid design-grid">
         <section class="card">
-          <div class="section-header"><h3>Générer un code de partage</h3></div>
-          <div class="field"><label for="shareCodeOutput">Code actuel</label><input id="shareCodeOutput" type="password" readonly placeholder="Aucun code généré"></div>
-          <label class="checkbox-chip"><input id="autoRotateOnUse" type="checkbox"><span>Régénérer automatiquement après utilisation</span></label>
+          <div class="section-header"><h3 data-i18n="generate_share_code"></h3></div>
+          <div class="field"><label for="shareCodeOutput" data-i18n="current_code"></label><input id="shareCodeOutput" type="password" readonly data-i18n-placeholder="no_code_generated" placeholder="Aucun code généré"></div>
+          <label class="checkbox-chip"><input id="autoRotateOnUse" type="checkbox"><span data-i18n="auto_regenerate_after_use"></span></label>
           <div class="actions">
-            <button id="generateShareBtn" class="primary-btn" type="button"><span class="material-symbols-rounded">autorenew</span>Générer (24h)</button>
-            <button id="toggleShareBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">visibility</span>Afficher / masquer</button>
-            <button id="copyShareBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">content_copy</span>Copier</button>
+            <button id="generateShareBtn" class="primary-btn" type="button"><span class="material-symbols-rounded">autorenew</span><span data-i18n="generate_24h"></span></button>
+            <button id="toggleShareBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">visibility</span><span data-i18n="show_hide"></span></button>
+            <button id="copyShareBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">content_copy</span><span data-i18n="copy"></span></button>
           </div>
-          <p class="auth-note">Le code est chiffré en base. Validité: 24h.</p>
+          <p class="auth-note" data-i18n="code_encrypted_validity"></p>
         </section>
 
         <section class="card">
-          <div class="section-header"><h3>Importer les données d'un autre compte</h3></div>
-          <div class="field"><label for="sourceChannelInput">Identifiant source</label><input id="sourceChannelInput" type="text" placeholder="compte-source"></div>
-          <div class="field"><label for="sourceShareCodeInput">Code de partage</label><input id="sourceShareCodeInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
+          <div class="section-header"><h3 data-i18n="import_data_from_other_account"></h3></div>
+          <div class="field"><label for="sourceChannelInput" data-i18n="source_identifier"></label><input id="sourceChannelInput" type="text" data-i18n-placeholder="source_account_placeholder" placeholder="compte-source"></div>
+          <div class="field"><label for="sourceShareCodeInput" data-i18n="share_code"></label><input id="sourceShareCodeInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
           <div class="actions">
-            <button id="importShareBtn" class="primary-btn" type="button"><span class="material-symbols-rounded">download</span>Importer team + design</button>
+            <button id="importShareBtn" class="primary-btn" type="button"><span class="material-symbols-rounded">download</span><span data-i18n="import_team_design"></span></button>
           </div>
-          <div id="statusBox" class="status-box info">Prêt.</div>
+          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
         </section>
       </section>
     </main>

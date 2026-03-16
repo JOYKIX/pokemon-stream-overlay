@@ -12,49 +12,49 @@
 <body class="app-page">
   <div class="dashboard-shell">
     <aside class="sidebar">
-      <div><p class="sidebar-kicker">Pokemon Stream Overlay for OBS</p><h1 class="sidebar-title">Design</h1></div>
+      <div><p class="sidebar-kicker" data-i18n="pokemon_stream_overlay_for_obs"></p><h1 class="sidebar-title" data-i18n="design"></h1></div>
       <nav class="sidebar-nav">
-        <p class="nav-group-label">GENERAL</p>
-        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span>Studio</a>
-        <a class="nav-item active" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
-        <a class="nav-item" href="share.html"><span class="material-symbols-rounded">share</span>Partage</a>
-        <p class="nav-group-label">ACCOUNT</p>
-        <a class="nav-item" href="options.html"><span class="material-symbols-rounded">person</span>Profile</a>
-        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span>Logout</button>
+        <p class="nav-group-label" data-i18n="general"></p>
+        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span><span data-i18n="studio"></span></a>
+        <a class="nav-item active" href="customize.html"><span class="material-symbols-rounded">palette</span><span data-i18n="design"></span></a>
+        <a class="nav-item" href="share.html"><span class="material-symbols-rounded">share</span><span data-i18n="share"></span></a>
+        <p class="nav-group-label" data-i18n="account"></p>
+        <a class="nav-item" href="options.html"><span class="material-symbols-rounded">person</span><span data-i18n="profile"></span></a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span><span data-i18n="logout"></span></button>
       </nav>
     </aside>
     <main class="dashboard-main">
-      <header class="topbar"><h2 class="page-title">Overlay Theme Editor</h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span>UI language</span><select id="languageSelect"><option value="en">English</option><option value="fr">Français</option></select></label></div></header>
+      <header class="topbar"><h2 class="page-title" data-i18n="overlay_theme_editor"></h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span data-i18n="ui_language"></span><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option></select></label></div></header>
       <section class="studio-grid design-grid">
         <section class="card">
-          <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly></div>
-          <div class="section-header"><h3>Theme editor</h3></div>
-          <div class="field"><label for="backgroundColor">Background color</label><input id="backgroundColor" type="color" value="#0f172a"></div>
-          <div class="field"><label for="cardColor">Card color</label><input id="cardColor" type="color" value="#1e293b"></div>
-          <div class="field"><label for="accentColor">Accent color</label><input id="accentColor" type="color" value="#6366f1"></div>
-          <div class="field"><label for="textColor">Text color</label><input id="textColor" type="color" value="#f1f5f9"></div>
-          <div class="field"><label for="borderRadius">Border radius</label><input id="borderRadius" type="range" min="0" max="50" value="16"></div>
-          <div class="field"><label for="backgroundOpacity">Background opacity</label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75"></div>
-          <div class="field"><label for="cardOpacity">Card opacity</label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></div>
-          <label class="checkbox-chip"><input id="transparentBackground" type="checkbox" checked><span>Transparent background</span></label>
-          <div class="field"><label for="fontSelector">Font selector</label><select id="fontSelector"><option>Inter</option><option>Roboto</option><option>Montserrat</option></select></div>
-          <div class="field"><label for="themePreset">Theme preset</label><select id="themePreset"><option value="dark">Dark</option><option value="pokemon-red">Pokemon red</option><option value="pokemon-blue">Pokemon blue</option><option value="neon">Neon</option></select></div>
-          <div class="field"><label for="backgroundImageInput">Background image PNG</label><input id="backgroundImageInput" type="file" accept="image/png"></div>
+          <div class="field"><label for="channelInput" data-i18n="channel_id"></label><input id="channelInput" type="text" readonly></div>
+          <div class="section-header"><h3 data-i18n="theme_editor"></h3></div>
+          <div class="field"><label for="backgroundColor" data-i18n="background_color"></label><input id="backgroundColor" type="color" value="#0f172a"></div>
+          <div class="field"><label for="cardColor" data-i18n="card_color"></label><input id="cardColor" type="color" value="#1e293b"></div>
+          <div class="field"><label for="accentColor" data-i18n="accent_color"></label><input id="accentColor" type="color" value="#6366f1"></div>
+          <div class="field"><label for="textColor" data-i18n="text_color"></label><input id="textColor" type="color" value="#f1f5f9"></div>
+          <div class="field"><label for="borderRadius" data-i18n="border_radius"></label><input id="borderRadius" type="range" min="0" max="50" value="16"></div>
+          <div class="field"><label for="backgroundOpacity" data-i18n="background_opacity"></label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75"></div>
+          <div class="field"><label for="cardOpacity" data-i18n="card_opacity"></label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></div>
+          <label class="checkbox-chip"><input id="transparentBackground" type="checkbox" checked><span data-i18n="transparent_background"></span></label>
+          <div class="field"><label for="fontSelector" data-i18n="font_selector"></label><select id="fontSelector"><option data-i18n="font_inter"></option><option data-i18n="font_roboto"></option><option data-i18n="font_montserrat"></option></select></div>
+          <div class="field"><label for="themePreset" data-i18n="theme_preset"></label><select id="themePreset"><option value="dark" data-i18n="dark"></option><option value="pokemon-red" data-i18n="pokemon_red"></option><option value="pokemon-blue" data-i18n="pokemon_blue"></option><option value="neon" data-i18n="neon"></option></select></div>
+          <div class="field"><label for="backgroundImageInput" data-i18n="background_image_png"></label><input id="backgroundImageInput" type="file" accept="image/png"></div>
           <div class="actions">
-            <button id="clearBackgroundImageBtn" class="secondary-btn" type="button">Clear image</button>
-            <button id="exportThemeBtn" class="secondary-btn" type="button">Export theme JSON</button>
+            <button id="clearBackgroundImageBtn" class="secondary-btn" type="button" data-i18n="clear_image"></button>
+            <button id="exportThemeBtn" class="secondary-btn" type="button" data-i18n="export_theme_json"></button>
           </div>
           <div class="actions">
-            <button id="loadBtn" class="secondary-btn" type="button">Load theme</button>
-            <button id="saveBtn" class="primary-btn" type="button">Save theme</button>
+            <button id="loadBtn" class="secondary-btn" type="button" data-i18n="load_theme"></button>
+            <button id="saveBtn" class="primary-btn" type="button" data-i18n="save_theme"></button>
           </div>
-          <div id="statusBox" class="status-box info">Ready.</div>
+          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
         </section>
         <section class="card">
-          <div class="section-header"><h3>Live overlay preview</h3></div>
+          <div class="section-header"><h3 data-i18n="live_overlay_preview"></h3></div>
           <div id="stylePreview" class="designer-preview">
-            <div class="designer-preview-card"><h3>TRAINER HUD</h3><p>Name • Badge • Death counter</p></div>
-            <div class="designer-preview-grid"><div class="designer-preview-slot">Slot 1</div><div class="designer-preview-slot">Slot 2</div><div class="designer-preview-slot">Slot 3</div></div>
+            <div class="designer-preview-card"><h3 data-i18n="trainer_hud"></h3><p data-i18n="name_badge_death_counter"></p></div>
+            <div class="designer-preview-grid"><div class="designer-preview-slot" data-i18n="slot_1"></div><div class="designer-preview-slot" data-i18n="slot_2"></div><div class="designer-preview-slot" data-i18n="slot_3"></div></div>
           </div>
         </section>
       </section>
