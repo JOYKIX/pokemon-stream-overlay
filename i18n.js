@@ -1,15 +1,20 @@
 const UI_LANG_KEY = "pokemonOverlayUiLang";
+const SUPPORTED_UI_LANGUAGES = new Set(["en", "fr", "es", "ja"]);
 
 let translations = {};
 let loadedLanguage = null;
 
+function normalizeLanguage(language) {
+  return SUPPORTED_UI_LANGUAGES.has(language) ? language : "en";
+}
+
 export function getCurrentLanguage() {
   const saved = localStorage.getItem(UI_LANG_KEY);
-  return saved === "fr" ? "fr" : "en";
+  return normalizeLanguage(saved);
 }
 
 export function setCurrentLanguage(language) {
-  const next = language === "fr" ? "fr" : "en";
+  const next = normalizeLanguage(language);
   localStorage.setItem(UI_LANG_KEY, next);
   document.documentElement.lang = next;
   window.dispatchEvent(new CustomEvent("app-language-changed", { detail: { language: next } }));
@@ -17,15 +22,29 @@ export function setCurrentLanguage(language) {
 }
 
 export async function loadTranslations(language = getCurrentLanguage()) {
-  const next = language === "fr" ? "fr" : "en";
+  const next = normalizeLanguage(language);
   if (loadedLanguage === next && Object.keys(translations).length) return translations;
+
+  const fallbackResponse = await fetch("./lang/en.json");
+  if (!fallbackResponse.ok) {
+    throw new Error("Unable to load fallback translation file for en");
+  }
+
+  const fallbackTranslations = await fallbackResponse.json();
+  if (next === "en") {
+    translations = fallbackTranslations;
+    loadedLanguage = next;
+    return translations;
+  }
 
   const response = await fetch(`./lang/${next}.json`);
   if (!response.ok) {
-    throw new Error(`Unable to load translation file for ${next}`);
+    translations = fallbackTranslations;
+    loadedLanguage = "en";
+    return translations;
   }
 
-  translations = await response.json();
+  translations = { ...fallbackTranslations, ...(await response.json()) };
   loadedLanguage = next;
   return translations;
 }
