@@ -5,6 +5,7 @@ import {
   buildTeamPayload,
   getOverlayUrl
 } from "./shared.js";
+import { initLanguageSelector } from "./i18n.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 
 const channelInput = document.getElementById("channelInput");
@@ -203,6 +204,7 @@ logoutBtn.addEventListener("click", () => {
 });
 
 async function init() {
+  initLanguageSelector();
   const session = await ensureAuthenticated();
   if (!session) return;
   channelInput.value = session.channel;

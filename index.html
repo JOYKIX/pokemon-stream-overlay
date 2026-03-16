@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -33,6 +33,7 @@
         <div class="topbar-controls">
           <label class="switch-chip" for="snapToGrid"><span>Drag</span><input id="snapToGrid" type="checkbox" checked><span class="toggle-slider" aria-hidden="true"></span></label>
           <label class="switch-chip" for="transitionToggle"><span>Transition</span><input id="transitionToggle" type="checkbox" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+          <label class="switch-chip" for="languageSelect"><span>UI language</span><select id="languageSelect"><option value="en">English</option><option value="fr">Français</option></select></label>
           <button id="exportObsBtn" class="primary-btn" type="button">OBS export</button>
         </div>
       </header>
@@ -41,7 +42,7 @@
 
       <section class="studio-grid">
         <section class="card left-column">
-          <div class="segment-control" role="tablist" aria-label="Panneau gauche">
+          <div class="segment-control" role="tablist" aria-label="Left panel">
             <button class="segment-btn active" type="button" data-left-view-btn="stream" aria-selected="true">Stream settings</button>
             <button class="segment-btn" type="button" data-left-view-btn="sprite" aria-selected="false">Sprite display</button>
           </div>
@@ -59,7 +60,7 @@
 
             <div class="section-header"><h3>RUN MODE</h3></div>
             <label class="switch-chip" for="nuzlockeMode"><span>Nuzlocke mode</span><input type="checkbox" id="nuzlockeMode"><span class="toggle-slider" aria-hidden="true"></span></label>
-            <label class="switch-chip" for="showNuzlockeLabel"><span>Afficher le texte "Nuzlocke"</span><input type="checkbox" id="showNuzlockeLabel" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+            <label class="switch-chip" for="showNuzlockeLabel"><span>Show "Nuzlocke" label</span><input type="checkbox" id="showNuzlockeLabel" checked><span class="toggle-slider" aria-hidden="true"></span></label>
             <div class="field" id="deathCountField"><label for="deathCountInput">Death counter</label><input id="deathCountInput" type="number" min="0" value="0"></div>
             <label class="switch-chip" for="autoSave"><span>Auto save</span><input type="checkbox" id="autoSave" checked><span class="toggle-slider" aria-hidden="true"></span></label>
 
@@ -87,13 +88,14 @@
             <div class="section-header"><h3>SPRITE STYLE</h3></div>
             <div class="field"><label for="spriteVariant">Sprite style</label><select id="spriteVariant"><option value="auto">Auto</option><option value="official-artwork">Official</option><option value="home">Home</option><option value="pixel">Pixel</option><option value="dream-world">Dream</option><option value="showdown">Showdown</option><option value="scarlet-violet">Scarlet/Violet</option></select></div>
             <div class="field"><label for="spriteScale">Sprite size <span id="spriteScaleValue">100%</span></label><input id="spriteScale" type="range" min="50" max="1000" value="100"></div>
+            <div class="field"><label for="pokemonNameLanguage">Pokémon name language</label><select id="pokemonNameLanguage"><option value="auto">Auto (UI language)</option><option value="en">English</option><option value="fr">Français</option></select></div>
             <label class="switch-chip" for="preferAnimatedSprite"><span>Animated toggle</span><input type="checkbox" id="preferAnimatedSprite"><span class="toggle-slider" aria-hidden="true"></span></label>
             <label class="switch-chip" for="spriteOnlyMode"><span>Remove background</span><input type="checkbox" id="spriteOnlyMode"><span class="toggle-slider" aria-hidden="true"></span></label>
           </div>
         </section>
 
         <section class="card right-column">
-          <div class="segment-control" role="tablist" aria-label="Panneau droit">
+          <div class="segment-control" role="tablist" aria-label="Right panel">
             <button class="segment-btn active" type="button" data-team-view-btn="builder" aria-selected="true">Team builder</button>
             <button class="segment-btn" type="button" data-team-view-btn="canvas" aria-selected="false">Canvas</button>
           </div>

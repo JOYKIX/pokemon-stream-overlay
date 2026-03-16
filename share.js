@@ -1,5 +1,6 @@
 import { ensureAuthenticated, clearSession } from "./auth.js";
 import { generateShareCode, importSharedData } from "./shared.js";
+import { initLanguageSelector } from "./i18n.js";
 
 const shareCodeOutput = document.getElementById("shareCodeOutput");
 const autoRotateOnUse = document.getElementById("autoRotateOnUse");
@@ -76,6 +77,7 @@ logoutBtn?.addEventListener("click", () => {
 });
 
 async function init() {
+  initLanguageSelector();
   session = await ensureAuthenticated();
 }
 

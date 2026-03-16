@@ -6,6 +6,7 @@ import {
   DEFAULT_OVERLAY_STYLE,
   shouldUsePixelRendering
 } from "./shared.js";
+import { getCurrentLanguage } from "./i18n.js";
 
 const overlayRoot = document.getElementById("overlayRoot");
 const overlayTrainer = document.getElementById("overlayTrainer");
@@ -108,7 +109,8 @@ async function renderTeam(data) {
     editorResolution: data.displayOptions?.editorResolution || { width: 1920, height: 1080 },
     slotPositions: data.displayOptions?.slotPositions || [],
     slotScales: data.displayOptions?.slotScales || [],
-    showNuzlockeLabel: data.displayOptions?.showNuzlockeLabel ?? true
+    showNuzlockeLabel: data.displayOptions?.showNuzlockeLabel ?? true,
+    pokemonNameLanguage: data.displayOptions?.pokemonNameLanguage || "auto"
   };
 
   applyOverlayStyle(data.overlayStyle, options);
@@ -146,7 +148,8 @@ async function renderTeam(data) {
     try {
       pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, {
         variant: options.spriteVariant,
-        animated: options.preferAnimatedSprite
+        animated: options.preferAnimatedSprite,
+        nameLanguage: options.pokemonNameLanguage === "auto" ? getCurrentLanguage() : options.pokemonNameLanguage
       });
     } catch {
       pokemon = null;

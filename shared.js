@@ -24,8 +24,8 @@ const db = getDatabase(app);
 export { db, ref, set, get, onValue };
 
 const POKEAPI_SPECIES_LIMIT = 1025;
-const POKE_INDEX_STORAGE_KEY = "pokeapi-french-index-v1";
-let frenchPokemonIndexPromise = null;
+const POKE_INDEX_STORAGE_KEY = "pokeapi-species-index-v2";
+let pokemonIndexPromise = null;
 
 export function cleanText(value) {
   return (value || "").trim();
@@ -131,32 +131,31 @@ async function fetchSpeciesBatch(offset, limit) {
   return data.results || [];
 }
 
-async function fetchSpeciesFrenchName(speciesUrl) {
+async function fetchSpeciesLocalizedNames(speciesUrl) {
   const response = await fetch(speciesUrl);
   if (!response.ok) {
     throw new Error("Impossible de récupérer les traductions Pokémon.");
   }
   const data = await response.json();
-  const frenchName =
-    data.names?.find(entry => entry.language?.name === "fr")?.name ||
-    data.names?.find(entry => entry.language?.name === "en")?.name ||
-    data.name;
+  const frenchName = data.names?.find(entry => entry.language?.name === "fr")?.name || "";
+  const englishName = data.names?.find(entry => entry.language?.name === "en")?.name || data.name;
 
   return {
     id: data.id,
+    englishName,
     frenchName,
     apiName: data.name
   };
 }
 
-async function buildFrenchPokemonIndex() {
+async function buildPokemonIndex() {
   const speciesList = await fetchSpeciesBatch(0, POKEAPI_SPECIES_LIMIT);
   const entries = [];
   const chunkSize = 25;
 
   for (let i = 0; i < speciesList.length; i += chunkSize) {
     const chunk = speciesList.slice(i, i + chunkSize);
-    const chunkEntries = await Promise.all(chunk.map(species => fetchSpeciesFrenchName(species.url)));
+    const chunkEntries = await Promise.all(chunk.map(species => fetchSpeciesLocalizedNames(species.url)));
     entries.push(...chunkEntries);
   }
 
@@ -164,7 +163,7 @@ async function buildFrenchPokemonIndex() {
   return entries;
 }
 
-function getCachedFrenchIndex() {
+function getCachedPokemonIndex() {
   try {
     const raw = localStorage.getItem(POKE_INDEX_STORAGE_KEY);
     if (!raw) return null;
@@ -176,7 +175,7 @@ function getCachedFrenchIndex() {
   }
 }
 
-function saveFrenchIndexToCache(entries) {
+function savePokemonIndexToCache(entries) {
   try {
     localStorage.setItem(POKE_INDEX_STORAGE_KEY, JSON.stringify(entries));
   } catch {
@@ -184,21 +183,25 @@ function saveFrenchIndexToCache(entries) {
   }
 }
 
-export async function fetchFrenchPokemonIndex() {
-  if (frenchPokemonIndexPromise) return frenchPokemonIndexPromise;
+export async function fetchPokemonIndex() {
+  if (pokemonIndexPromise) return pokemonIndexPromise;
 
-  const cached = getCachedFrenchIndex();
+  const cached = getCachedPokemonIndex();
   if (cached) {
-    frenchPokemonIndexPromise = Promise.resolve(cached);
-    return frenchPokemonIndexPromise;
+    pokemonIndexPromise = Promise.resolve(cached);
+    return pokemonIndexPromise;
   }
 
-  frenchPokemonIndexPromise = buildFrenchPokemonIndex().then((entries) => {
-    saveFrenchIndexToCache(entries);
+  pokemonIndexPromise = buildPokemonIndex().then((entries) => {
+    savePokemonIndexToCache(entries);
     return entries;
   });
 
-  return frenchPokemonIndexPromise;
+  return pokemonIndexPromise;
+}
+
+export async function fetchFrenchPokemonIndex() {
+  return fetchPokemonIndex();
 }
 
 function toApiCandidate(value, index = []) {
@@ -305,8 +308,15 @@ function getSpriteVisualScale(pokemonData) {
   return Math.max(minScale, Math.min(maxScale, normalizedScale));
 }
 
+function getLocalizedSpeciesName(speciesData, language = "fr", fallback = "") {
+  const requested = speciesData.names?.find(entry => entry.language?.name === language)?.name;
+  const english = speciesData.names?.find(entry => entry.language?.name === "en")?.name;
+  const french = speciesData.names?.find(entry => entry.language?.name === "fr")?.name;
+  return requested || english || french || fallback;
+}
+
 export async function fetchPokemonLocalized(inputName, shiny = false, spriteOptions = {}) {
-  const index = await fetchFrenchPokemonIndex();
+  const index = await fetchPokemonIndex();
   const apiName = toApiCandidate(inputName, index);
   if (!apiName) return null;
 
@@ -322,10 +332,8 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
   }
   const speciesData = await speciesResponse.json();
 
-  const displayName =
-    speciesData.names?.find(entry => entry.language?.name === "fr")?.name ||
-    speciesData.names?.find(entry => entry.language?.name === "en")?.name ||
-    inputName;
+  const nameLanguage = cleanText(spriteOptions.nameLanguage) || "fr";
+  const displayName = getLocalizedSpeciesName(speciesData, nameLanguage, inputName);
 
   const artworkDefault =
     pokemonData?.sprites?.other?.["official-artwork"]?.front_default ||
@@ -358,7 +366,7 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
 }
 
 export async function getNextEvolutionName(inputName) {
-  const index = await fetchFrenchPokemonIndex();
+  const index = await fetchPokemonIndex();
   const apiName = toApiCandidate(inputName, index);
   if (!apiName) return null;
 
