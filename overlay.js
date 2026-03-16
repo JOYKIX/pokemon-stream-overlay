@@ -160,7 +160,7 @@ async function renderTeam(data) {
       : "";
 
     const levelHtml = options.showLevel && slot.level ? `<div class="overlay-level">Lv.${slot.level}</div>` : "";
-    const shinyHtml = options.showShiny && slot.shiny ? '<span class="meta-pill shiny">Shiny ✨</span>' : "";
+    const shinyHtml = options.showShiny && slot.shiny ? '<span class="meta-pill shiny"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>Shiny</span>' : "";
     const itemHtml = options.showItem && slot.item ? `<span class="meta-pill item">${slot.item}</span>` : "";
     const typesHtml = options.showTypes && pokemon?.types?.length ? `<div class="overlay-types">${pokemon.types.map(renderTypeBadge).join("")}</div>` : "";
 

@@ -55,6 +55,26 @@ let slotScales = Array.from({ length: 6 }, () => 1);
 const slotPreviewUpdaters = [];
 let autoSaveTimer = null;
 
+const viewButtons = document.querySelectorAll(".segment-btn");
+const viewPanels = document.querySelectorAll(".team-canvas-view");
+
+function switchTeamView(view) {
+  viewButtons.forEach((btn) => {
+    const active = btn.dataset.view === view;
+    btn.classList.toggle("active", active);
+    btn.setAttribute("aria-selected", String(active));
+  });
+
+  viewPanels.forEach((panel) => {
+    panel.classList.toggle("active", panel.dataset.panel === view);
+  });
+}
+
+viewButtons.forEach((btn) => {
+  btn.addEventListener("click", () => switchTeamView(btn.dataset.view));
+});
+
+
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
   statusBox.className = `status-box ${type}`;
