@@ -24,8 +24,10 @@ const db = getDatabase(app);
 export { db, ref, set, get, onValue };
 
 const POKEAPI_SPECIES_LIMIT = 1025;
-const POKE_INDEX_STORAGE_KEY = "pokeapi-species-index-v2";
+const POKE_INDEX_STORAGE_KEY = "pokeapi-species-index-v3";
+const POKE_LANGUAGES_STORAGE_KEY = "pokeapi-languages-v1";
 let pokemonIndexPromise = null;
+let pokemonLanguagesPromise = null;
 
 export function cleanText(value) {
   return (value || "").trim();
@@ -139,13 +141,37 @@ async function fetchSpeciesLocalizedNames(speciesUrl) {
   const data = await response.json();
   const frenchName = data.names?.find(entry => entry.language?.name === "fr")?.name || "";
   const englishName = data.names?.find(entry => entry.language?.name === "en")?.name || data.name;
+  const localizedNames = Object.fromEntries(
+    (data.names || [])
+      .filter((entry) => entry?.language?.name && entry?.name)
+      .map((entry) => [entry.language.name, entry.name])
+  );
 
   return {
     id: data.id,
     englishName,
     frenchName,
-    apiName: data.name
+    apiName: data.name,
+    localizedNames
   };
+}
+
+function getCachedJson(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedJson(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // ignore cache issues
+  }
 }
 
 async function buildPokemonIndex() {
@@ -164,23 +190,13 @@ async function buildPokemonIndex() {
 }
 
 function getCachedPokemonIndex() {
-  try {
-    const raw = localStorage.getItem(POKE_INDEX_STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
+  const parsed = getCachedJson(POKE_INDEX_STORAGE_KEY);
+  if (!Array.isArray(parsed) || parsed.length === 0) return null;
+  return parsed;
 }
 
 function savePokemonIndexToCache(entries) {
-  try {
-    localStorage.setItem(POKE_INDEX_STORAGE_KEY, JSON.stringify(entries));
-  } catch {
-    // ignore cache issues
-  }
+  saveCachedJson(POKE_INDEX_STORAGE_KEY, entries);
 }
 
 export async function fetchPokemonIndex() {
@@ -204,6 +220,60 @@ export async function fetchFrenchPokemonIndex() {
   return fetchPokemonIndex();
 }
 
+function mapLanguageDisplayName(language) {
+  const name = cleanText(language?.name);
+  const localName = cleanText(language?.names?.find((entry) => entry.language?.name === "en")?.name);
+  return localName || name || language?.id;
+}
+
+export async function fetchPokemonLanguages() {
+  if (pokemonLanguagesPromise) return pokemonLanguagesPromise;
+
+  const cached = getCachedJson(POKE_LANGUAGES_STORAGE_KEY);
+  if (Array.isArray(cached) && cached.length > 0) {
+    pokemonLanguagesPromise = Promise.resolve(cached);
+    return pokemonLanguagesPromise;
+  }
+
+  pokemonLanguagesPromise = fetch("https://pokeapi.co/api/v2/language?limit=1000")
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Impossible de récupérer les langues PokéAPI.");
+      }
+      return response.json();
+    })
+    .then((payload) => {
+      const results = Array.isArray(payload?.results) ? payload.results : [];
+      return Promise.all(results.map(async (entry) => {
+        try {
+          const detailsResponse = await fetch(entry.url);
+          if (!detailsResponse.ok) throw new Error("Language details unavailable");
+          const details = await detailsResponse.json();
+          return {
+            id: details.id,
+            code: details.name,
+            displayName: mapLanguageDisplayName(details)
+          };
+        } catch {
+          return {
+            id: Number.MAX_SAFE_INTEGER,
+            code: entry.name,
+            displayName: entry.name
+          };
+        }
+      }));
+    })
+    .then((languages) => {
+      const normalized = languages
+        .filter((language) => language.code)
+        .sort((a, b) => (a.id - b.id) || a.code.localeCompare(b.code));
+      saveCachedJson(POKE_LANGUAGES_STORAGE_KEY, normalized);
+      return normalized;
+    });
+
+  return pokemonLanguagesPromise;
+}
+
 function toApiCandidate(value, index = []) {
   const input = cleanText(value);
   if (!input) return "";
@@ -214,7 +284,9 @@ function toApiCandidate(value, index = []) {
   const normalized = normalizeInput(input);
   const match = index.find(entry =>
     normalizeInput(entry.frenchName) === normalized ||
-    normalizeInput(entry.apiName) === normalized
+    normalizeInput(entry.englishName) === normalized ||
+    normalizeInput(entry.apiName) === normalized ||
+    Object.values(entry.localizedNames || {}).some((localizedName) => normalizeInput(localizedName) === normalized)
   );
 
   if (match?.apiName) {

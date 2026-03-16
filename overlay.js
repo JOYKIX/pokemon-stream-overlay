@@ -20,6 +20,8 @@ const TYPE_COLORS = {
   normal: "#b9b27a", fire: "#ff6b2c", water: "#2c8dff", electric: "#f5c400", grass: "#38c259", ice: "#29d3ff", fighting: "#e84a4a", poison: "#bb59ff", ground: "#d99f3a", flying: "#6da8ff", psychic: "#ff4ea4", bug: "#7fcf23", rock: "#c49326", ghost: "#8f74ff", dragon: "#5f6dff", dark: "#5f4a44", steel: "#7093b5", fairy: "#ff77c8"
 };
 
+let latestTeamData = null;
+
 function hexToRgb(hex) {
   const normalized = hex.replace("#", "");
   if (normalized.length !== 6) return { r: 10, g: 10, b: 10 };
@@ -189,5 +191,15 @@ async function renderTeam(data) {
 
 const channel = getChannelFromUrl("joykix");
 subscribeToTeam(channel, (data) => {
+  latestTeamData = data;
   renderTeam(data);
+});
+
+window.addEventListener("app-language-changed", () => {
+  renderTeam(latestTeamData);
+});
+
+window.addEventListener("storage", (event) => {
+  if (event.key !== "pokemonOverlayUiLang") return;
+  renderTeam(latestTeamData);
 });
