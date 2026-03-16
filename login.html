@@ -14,10 +14,21 @@
     <p class="eyebrow">Connexion sécurisée</p>
     <h1>Identifiant + clé d’édition</h1>
     <p class="auth-note">Simple, rapide, privé.</p>
+
     <div class="field"><label for="channelInput">Identifiant unique</label><input id="channelInput" type="text" placeholder="ex: joykix" /></div>
     <div class="field"><label for="editKeyInput">Clé d’édition</label><input id="editKeyInput" type="password" placeholder="Ta clé privée" /></div>
     <label class="checkbox-chip wide"><input type="checkbox" id="createMode"><span>Créer un nouvel identifiant</span></label>
     <button id="submitBtn" class="primary-btn"><span class="material-symbols-rounded">login</span>Continuer</button>
+
+    <section class="card">
+      <div class="section-header"><h3>Mot de passe oublié</h3></div>
+      <div class="field"><label for="recoveryChannelInput">Identifiant</label><input id="recoveryChannelInput" type="text" placeholder="ex: joykix"></div>
+      <div class="field"><label for="recoveryKeyInput">Clé de récupération</label><input id="recoveryKeyInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
+      <div class="field"><label for="newPasswordInput">Nouvelle clé d’édition</label><input id="newPasswordInput" type="password" placeholder="Nouvelle clé"></div>
+      <button id="recoverBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">key</span>Réinitialiser la clé</button>
+    </section>
+
+    <div id="recoveryKeyBox" class="status-box info" style="display:none"></div>
     <div id="statusBox" class="status-box info">Prêt.</div>
   </main>
   <script type="module" src="login.js"></script>
