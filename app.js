@@ -60,25 +60,29 @@ let slotScales = Array.from({ length: 6 }, () => 1);
 const slotPreviewUpdaters = [];
 let autoSaveTimer = null;
 
-const viewButtons = document.querySelectorAll(".segment-btn");
-const viewPanels = document.querySelectorAll(".team-canvas-view");
+const teamViewButtons = document.querySelectorAll("[data-team-view-btn]");
+const teamViewPanels = document.querySelectorAll("[data-team-panel]");
+const leftViewButtons = document.querySelectorAll("[data-left-view-btn]");
+const leftViewPanels = document.querySelectorAll("[data-left-panel]");
 
-function switchTeamView(view) {
-  viewButtons.forEach((btn) => {
-    const active = btn.dataset.view === view;
-    btn.classList.toggle("active", active);
-    btn.setAttribute("aria-selected", String(active));
-  });
-
-  viewPanels.forEach((panel) => {
-    panel.classList.toggle("active", panel.dataset.panel === view);
+function bindSegmentSwitch(buttons, panels, buttonKey, panelKey) {
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const currentView = btn.dataset[buttonKey];
+      buttons.forEach((candidate) => {
+        const active = candidate.dataset[buttonKey] === currentView;
+        candidate.classList.toggle("active", active);
+        candidate.setAttribute("aria-selected", String(active));
+      });
+      panels.forEach((panel) => {
+        panel.classList.toggle("active", panel.dataset[panelKey] === currentView);
+      });
+    });
   });
 }
 
-viewButtons.forEach((btn) => {
-  btn.addEventListener("click", () => switchTeamView(btn.dataset.view));
-});
-
+bindSegmentSwitch(teamViewButtons, teamViewPanels, "teamView", "teamPanel");
+bindSegmentSwitch(leftViewButtons, leftViewPanels, "leftView", "leftPanel");
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
@@ -141,8 +145,8 @@ function createSlot(index) {
           <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
           <input type="text" id="item${index}" placeholder="Objet" />
         </div>
-        <label class="checkbox-chip custom-check" for="shiny${index}">
-          <input type="checkbox" id="shiny${index}" /><span>Shiny</span>
+        <label class="switch-chip custom-check" for="shiny${index}">
+          <span>Shiny</span><input type="checkbox" id="shiny${index}" /><span class="toggle-slider" aria-hidden="true"></span>
         </label>
         <div class="slot-tools">
           <button type="button" class="secondary-btn small evolution-btn" id="evolutionBtn${index}" disabled>Évolution</button>
