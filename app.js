@@ -10,6 +10,7 @@ import {
   getNextEvolutionName
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
+import { getCurrentLanguage, initLanguageSelector } from "./i18n.js";
 
 const teamSlots = document.getElementById("teamSlots");
 const editorCanvas = document.getElementById("editorCanvas");
@@ -38,6 +39,7 @@ const spriteVariant = document.getElementById("spriteVariant");
 const preferAnimatedSprite = document.getElementById("preferAnimatedSprite");
 const spriteOnlyMode = document.getElementById("spriteOnlyMode");
 const spriteScale = document.getElementById("spriteScale");
+const pokemonNameLanguageInput = document.getElementById("pokemonNameLanguage");
 const spriteScaleValue = document.getElementById("spriteScaleValue");
 const snapToGridInput = document.getElementById("snapToGrid");
 const autoSaveInput = document.getElementById("autoSave");
@@ -55,6 +57,12 @@ const transitionToggle = document.getElementById("transitionToggle");
 const exportObsBtn = document.getElementById("exportObsBtn");
 const testOverlayBtn = document.getElementById("testOverlayBtn");
 const autosaveIndicator = document.getElementById("autosaveIndicator");
+
+function resolvePokemonNameLanguage() {
+  const selected = pokemonNameLanguageInput?.value || "auto";
+  if (selected === "auto") return getCurrentLanguage();
+  return selected === "fr" ? "fr" : "en";
+}
 
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
@@ -188,7 +196,8 @@ function createSlot(index) {
     try {
       const pokemon = await fetchPokemonLocalized(name, shinyInput.checked, {
         variant: spriteVariant.value,
-        animated: preferAnimatedSprite.checked
+        animated: preferAnimatedSprite.checked,
+        nameLanguage: resolvePokemonNameLanguage()
       });
       const nextEvolution = await getNextEvolutionName(name);
       evolutionBtn.disabled = !nextEvolution;
@@ -347,7 +356,8 @@ function collectDisplayOptions() {
     },
     slotPositions,
     slotScales,
-    showNuzlockeLabel: showNuzlockeLabelInput.checked
+    showNuzlockeLabel: showNuzlockeLabelInput.checked,
+    pokemonNameLanguage: pokemonNameLanguageInput?.value || "auto"
   };
 }
 
@@ -473,6 +483,7 @@ function fillForm(data) {
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
   const normalizedSpriteScale = Math.max(0.5, Math.min(10, Number(opts.spriteScale) || 1));
+  if (pokemonNameLanguageInput) pokemonNameLanguageInput.value = opts.pokemonNameLanguage || "auto";
   spriteScale.value = String(Math.round(normalizedSpriteScale * 100));
   spriteScaleValue.textContent = `${Math.round(normalizedSpriteScale * 100)}%`;
   streamWidth.value = String(Math.max(640, Number(opts.editorResolution?.width) || 1920));
@@ -551,7 +562,11 @@ function queueAutoSave() {
 async function loadPokemonSuggestions() {
   try {
     const entries = await fetchFrenchPokemonIndex();
-    pokemonSuggestions.innerHTML = entries.map((entry) => `<option value="${entry.frenchName}"></option>`).join("");
+    const language = getCurrentLanguage();
+    pokemonSuggestions.innerHTML = entries
+      .map((entry) => language === "fr" ? (entry.frenchName || entry.englishName || entry.apiName) : (entry.englishName || entry.frenchName || entry.apiName))
+      .map((name) => `<option value="${name}"></option>`)
+      .join("");
     setStatus("Prêt.", "info");
   } catch {
     setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
@@ -617,7 +632,7 @@ autoSaveInput?.addEventListener("change", () => {
   setStatus("Sauvegarde auto désactivée.", "info");
 });
 
-[spriteVariant, preferAnimatedSprite].forEach((input) => {
+[spriteVariant, preferAnimatedSprite, pokemonNameLanguageInput].filter(Boolean).forEach((input) => {
   input.addEventListener("change", () => {
     syncShinyAvailability();
     slotPreviewUpdaters.forEach((update) => update?.());
@@ -679,6 +694,7 @@ logoutBtn.addEventListener("click", () => {
 });
 
 async function init() {
+  initLanguageSelector();
   const session = await ensureAuthenticated();
   if (!session) return;
   channelInput.value = session.channel;
@@ -690,6 +706,12 @@ async function init() {
   await loadCurrentChannelTeam({ silentIfMissing: true });
   setStatus("Chargement PokéAPI...", "info");
   await loadPokemonSuggestions();
+
+  window.addEventListener("app-language-changed", () => {
+    loadPokemonSuggestions();
+    slotPreviewUpdaters.forEach((update) => update?.());
+    queueAutoSave();
+  });
 }
 
 async function loadCurrentChannelTeam({ silentIfMissing = false } = {}) {

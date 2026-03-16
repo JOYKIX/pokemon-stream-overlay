@@ -1,5 +1,6 @@
 import { createProfile, verifyProfile, hashEditKey, resetEditKeyWithRecovery } from "./shared.js";
 import { saveSession, loadSession } from "./auth.js";
+import { initLanguageSelector } from "./i18n.js";
 
 const channelInput = document.getElementById("channelInput");
 const editKeyInput = document.getElementById("editKeyInput");
@@ -91,3 +92,5 @@ const existing = loadSession();
 if (existing?.channel) {
   channelInput.value = existing.channel;
 }
+
+initLanguageSelector();

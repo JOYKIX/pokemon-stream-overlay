@@ -1,5 +1,6 @@
 import { ensureAuthenticated, saveSession, clearSession } from "./auth.js";
 import { updateEditKey, renameIdentifier, hashEditKey, regenerateRecoveryKey, deleteAccount } from "./shared.js";
+import { initLanguageSelector } from "./i18n.js";
 
 const currentChannel = document.getElementById("currentChannel");
 const currentKey = document.getElementById("currentKey");
@@ -168,6 +169,7 @@ logoutBtn?.addEventListener("click", () => {
 });
 
 async function init() {
+  initLanguageSelector();
   session = await ensureAuthenticated();
   if (!session) return;
   currentChannel.value = session.channel;
