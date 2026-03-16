@@ -3,6 +3,7 @@ import {
   buildTeamPayload,
   fetchPokemonLocalized,
   fetchFrenchPokemonIndex,
+  fetchPokemonLanguages,
   saveTeam,
   loadTeam,
   DEFAULT_OVERLAY_STYLE,
@@ -61,7 +62,31 @@ const autosaveIndicator = document.getElementById("autosaveIndicator");
 function resolvePokemonNameLanguage() {
   const selected = pokemonNameLanguageInput?.value || "auto";
   if (selected === "auto") return getCurrentLanguage();
-  return selected === "fr" ? "fr" : "en";
+  return selected;
+}
+
+function getSuggestionLabel(entry, language) {
+  if (language === "auto") {
+    const uiLanguage = getCurrentLanguage();
+    return uiLanguage === "fr"
+      ? (entry.frenchName || entry.englishName || entry.apiName)
+      : (entry.englishName || entry.frenchName || entry.apiName);
+  }
+
+  return entry.localizedNames?.[language] || entry.englishName || entry.frenchName || entry.apiName;
+}
+
+function renderPokemonNameLanguageOptions(languages = []) {
+  if (!pokemonNameLanguageInput) return;
+  const current = pokemonNameLanguageInput.value || "auto";
+  const options = [
+    '<option value="auto">Auto (UI language)</option>',
+    ...languages.map((language) => `<option value="${language.code}">${language.displayName} (${language.code})</option>`)
+  ];
+  pokemonNameLanguageInput.innerHTML = options.join("");
+
+  const languageCodes = new Set(["auto", ...languages.map((language) => language.code)]);
+  pokemonNameLanguageInput.value = languageCodes.has(current) ? current : "auto";
 }
 
 let slotPositions = defaultSlotPositions();
@@ -562,9 +587,9 @@ function queueAutoSave() {
 async function loadPokemonSuggestions() {
   try {
     const entries = await fetchFrenchPokemonIndex();
-    const language = getCurrentLanguage();
+    const language = pokemonNameLanguageInput?.value || "auto";
     pokemonSuggestions.innerHTML = entries
-      .map((entry) => language === "fr" ? (entry.frenchName || entry.englishName || entry.apiName) : (entry.englishName || entry.frenchName || entry.apiName))
+      .map((entry) => getSuggestionLabel(entry, language))
       .map((name) => `<option value="${name}"></option>`)
       .join("");
     setStatus("Prêt.", "info");
@@ -695,6 +720,12 @@ logoutBtn.addEventListener("click", () => {
 
 async function init() {
   initLanguageSelector();
+  try {
+    const languages = await fetchPokemonLanguages();
+    renderPokemonNameLanguageOptions(languages);
+  } catch {
+    renderPokemonNameLanguageOptions([]);
+  }
   const session = await ensureAuthenticated();
   if (!session) return;
   channelInput.value = session.channel;
