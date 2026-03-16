@@ -11,7 +11,7 @@ import {
   getNextEvolutionName
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
-import { getCurrentLanguage, initLanguageSelector } from "./i18n.js";
+import { getCurrentLanguage, initPageI18n, t } from "./i18n.js";
 
 const teamSlots = document.getElementById("teamSlots");
 const editorCanvas = document.getElementById("editorCanvas");
@@ -80,7 +80,7 @@ function renderPokemonNameLanguageOptions(languages = []) {
   if (!pokemonNameLanguageInput) return;
   const current = pokemonNameLanguageInput.value || "auto";
   const options = [
-    '<option value="auto">Auto (UI language)</option>',
+    `<option value="auto">${t("common.auto_ui_language")}</option>`,
     ...languages.map((language) => `<option value="${language.code}">${language.displayName} (${language.code})</option>`)
   ];
   pokemonNameLanguageInput.innerHTML = options.join("");
@@ -169,29 +169,29 @@ function createSlot(index) {
   wrapper.dataset.slotIndex = String(index);
   wrapper.tabIndex = 0;
   wrapper.innerHTML = `
-    <h3>Pokémon ${index + 1}</h3>
+    <h3>${t("app.slot_title", { index: index + 1 })}</h3>
     <div class="slot-grid">
-      <div class="preview-box" id="previewBox${index}"><div class="preview-placeholder">Aperçu</div></div>
+      <div class="preview-box" id="previewBox${index}"><div class="preview-placeholder">${t("app.preview")}</div></div>
       <div class="slot-fields">
-        <input type="text" id="name${index}" placeholder="Nom Pokémon FR ou ID" list="pokemonSuggestions" autocomplete="off" />
-        <input type="text" id="nickname${index}" placeholder="Surnom" />
+        <input type="text" id="name${index}" placeholder="${t("app.pokemon_name_placeholder")}" list="pokemonSuggestions" autocomplete="off" />
+        <input type="text" id="nickname${index}" placeholder="${t("app.nickname")}" />
         <div class="inline-fields">
-          <input type="number" id="level${index}" placeholder="Niveau" min="1" max="100" />
-          <input type="text" id="item${index}" placeholder="Objet" />
+          <input type="number" id="level${index}" placeholder="${t("app.level")}" min="1" max="100" />
+          <input type="text" id="item${index}" placeholder="${t("app.item")}" />
         </div>
         <label class="switch-chip custom-check" for="shiny${index}">
           <span>Shiny</span><input type="checkbox" id="shiny${index}" /><span class="toggle-slider" aria-hidden="true"></span>
         </label>
         <div class="slot-tools">
-          <button type="button" class="secondary-btn small evolution-btn" id="evolutionBtn${index}" disabled>Évolution</button>
+          <button type="button" class="secondary-btn small evolution-btn" id="evolutionBtn${index}" disabled>${t("app.evolution")}</button>
           <div class="swap-controls">
-            <label for="swapTarget${index}" class="visually-hidden">Interchanger avec le slot</label>
+            <label for="swapTarget${index}" class="visually-hidden">${t("app.swap_with_slot")}</label>
             <select id="swapTarget${index}" class="custom-select small">
               ${Array.from({ length: 6 }, (_, slot) => `<option value="${slot}" ${slot === index ? "selected" : ""}>Slot ${slot + 1}</option>`).join("")}
             </select>
-            <button type="button" class="secondary-btn small" id="swapBtn${index}">Interchanger</button>
+            <button type="button" class="secondary-btn small" id="swapBtn${index}">${t("app.swap")}</button>
           </div>
-          <button type="button" class="danger-btn small dead-btn" id="deadBtn${index}" style="display:none;">Mort</button>
+          <button type="button" class="danger-btn small dead-btn" id="deadBtn${index}" style="display:none;">${t("app.dead")}</button>
         </div>
       </div>
     </div>
@@ -213,11 +213,11 @@ function createSlot(index) {
     const previewBox = wrapper.querySelector(`#previewBox${index}`);
     const name = nameInput.value.trim();
     if (!name) {
-      previewBox.innerHTML = '<div class="preview-placeholder">Aperçu</div>';
+      previewBox.innerHTML = `<div class="preview-placeholder">${t("app.preview")}</div>`;
       evolutionBtn.disabled = true;
       return;
     }
-    previewBox.innerHTML = '<div class="preview-placeholder">Chargement...</div>';
+    previewBox.innerHTML = `<div class="preview-placeholder">${t("common.loading")}</div>`;
     try {
       const pokemon = await fetchPokemonLocalized(name, shinyInput.checked, {
         variant: spriteVariant.value,
@@ -243,7 +243,7 @@ function createSlot(index) {
     if (!nextEvolution) return;
     nameInput.value = nextEvolution;
     await updatePreview();
-    setStatus(`Pokémon ${index + 1} évolué en ${nextEvolution}.`, "success");
+    setStatus(t("app.status.evolved", { index: index + 1, pokemon: nextEvolution }), "success");
     queueAutoSave();
   });
 
@@ -251,7 +251,7 @@ function createSlot(index) {
     if (!nuzlockeModeInput.checked) return;
     shiftSlotsLeftFrom(index);
     deathCountInput.value = String(Math.max(0, Number(deathCountInput.value) || 0) + 1);
-    setStatus(`Pokémon ${index + 1} retiré. Les slots suivants ont été remontés.`, "success");
+    setStatus(t("app.status.removed", { index: index + 1 }), "success");
     queueAutoSave();
   });
 
@@ -259,7 +259,7 @@ function createSlot(index) {
     const targetIndex = Number(swapTarget.value);
     if (Number.isNaN(targetIndex) || targetIndex === index) return;
     swapSlots(index, targetIndex);
-    setStatus(`Pokémon ${index + 1} interchangé avec le slot ${targetIndex + 1}.`, "success");
+    setStatus(t("app.status.swapped", { index: index + 1, target: targetIndex + 1 }), "success");
     queueAutoSave();
   });
 
@@ -299,7 +299,7 @@ function wireSlotDnD(wrapper, index) {
     swapSlots(dragSlotIndex, index);
     refreshSlots(Math.min(dragSlotIndex, index));
     queueAutoSave();
-    setStatus(`Slots ${dragSlotIndex + 1} et ${index + 1} réorganisés.`, "success");
+    setStatus(t("app.status.reordered", { first: dragSlotIndex + 1, second: index + 1 }), "success");
     dragSlotIndex = null;
   });
 }
@@ -422,7 +422,7 @@ function renderEditorCanvas() {
     token.dataset.index = String(index);
     token.style.left = `${pos.x}%`;
     token.style.top = `${pos.y}%`;
-    token.innerHTML = `<strong>${slot.nickname || slot.name || `Slot ${index + 1}`}</strong><span>${slot.name ? "Glisser pour placer" : "Ajoute un Pokémon"}</span>`;
+    token.innerHTML = `<strong>${slot.nickname || slot.name || `Slot ${index + 1}`}</strong><span>${slot.name ? t("app.drag_to_place") : t("app.add_pokemon")}</span>`;
     const scale = Math.max(0.6, Math.min(2, Number(slotScales[index]) || 1));
     token.style.width = `${Math.round((slot.name ? 170 : 150) * scale)}px`;
     enableDrag(token, index);
@@ -561,10 +561,10 @@ async function saveCurrentTeam() {
   });
 
   try {
-    setStatus("Sauvegarde en cours...", "info");
+    setStatus(t("common.status.saving"), "info");
     if (autosaveIndicator) autosaveIndicator.textContent = "Saving…";
     await saveTeam(channel, payload);
-    setStatus("Team sauvegardée. L'overlay OBS est synchronisé.", "success");
+    setStatus(t("app.status.team_saved"), "success");
     if (autosaveIndicator) autosaveIndicator.textContent = "Synced";
     updateOverlayLink();
   } catch (error) {
@@ -592,9 +592,9 @@ async function loadPokemonSuggestions() {
       .map((entry) => getSuggestionLabel(entry, language))
       .map((name) => `<option value="${name}"></option>`)
       .join("");
-    setStatus("Prêt.", "info");
+    setStatus(t("common.status.ready"), "info");
   } catch {
-    setStatus("Impossible de charger l’autocomplétion PokéAPI.", "error");
+    setStatus(t("app.status.autocomplete_error"), "error");
   }
 }
 
@@ -649,12 +649,12 @@ resolutionPreset.addEventListener("change", () => {
 
 autoSaveInput?.addEventListener("change", () => {
   if (autoSaveInput.checked) {
-    setStatus("Sauvegarde auto activée.", "info");
+    setStatus(t("app.status.autosave_on"), "info");
     queueAutoSave();
     return;
   }
   clearTimeout(autoSaveTimer);
-  setStatus("Sauvegarde auto désactivée.", "info");
+  setStatus(t("app.status.autosave_off"), "info");
 });
 
 [spriteVariant, preferAnimatedSprite, pokemonNameLanguageInput].filter(Boolean).forEach((input) => {
@@ -686,15 +686,15 @@ autoSaveInput?.addEventListener("change", () => {
 copyUrlBtn.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(overlayUrlInput.value);
-    setStatus("URL OBS copiée.", "success");
+    setStatus(t("app.status.obs_url_copied"), "success");
   } catch {
-    setStatus("Impossible de copier l’URL.", "error");
+    setStatus(t("app.status.obs_url_copy_error"), "error");
   }
 });
 
 transitionToggle?.addEventListener("change", () => {
   document.body.classList.toggle("reduced-transitions", !transitionToggle.checked);
-  setStatus(`Transitions ${transitionToggle.checked ? "activées" : "désactivées"}.`, "info");
+  setStatus(t(transitionToggle.checked ? "app.status.transitions_on" : "app.status.transitions_off"), "info");
 });
 
 exportObsBtn?.addEventListener("click", () => {
@@ -704,13 +704,13 @@ exportObsBtn?.addEventListener("click", () => {
     height: Number(streamHeight.value) || 1080
   };
   navigator.clipboard.writeText(JSON.stringify(obsConfig, null, 2))
-    .then(() => setStatus("Configuration OBS exportée dans le presse-papiers.", "success"))
-    .catch(() => setStatus("Impossible d'exporter la configuration OBS.", "error"));
+    .then(() => setStatus(t("app.status.obs_exported"), "success"))
+    .catch(() => setStatus(t("app.status.obs_export_error"), "error"));
 });
 
 testOverlayBtn?.addEventListener("click", () => {
   window.open(openOverlayBtn.href, "_blank", "noopener");
-  setStatus("Aperçu overlay ouvert.", "info");
+  setStatus(t("app.status.overlay_preview_opened"), "info");
 });
 
 logoutBtn.addEventListener("click", () => {
@@ -719,7 +719,7 @@ logoutBtn.addEventListener("click", () => {
 });
 
 async function init() {
-  initLanguageSelector();
+  await initPageI18n();
   try {
     const languages = await fetchPokemonLanguages();
     renderPokemonNameLanguageOptions(languages);
@@ -735,7 +735,7 @@ async function init() {
   syncShinyAvailability();
   renderEditorCanvas();
   await loadCurrentChannelTeam({ silentIfMissing: true });
-  setStatus("Chargement PokéAPI...", "info");
+  setStatus(t("app.status.pokeapi_loading"), "info");
   await loadPokemonSuggestions();
 
   window.addEventListener("app-language-changed", () => {
@@ -748,24 +748,24 @@ async function init() {
 async function loadCurrentChannelTeam({ silentIfMissing = false } = {}) {
   const channel = channelInput.value.trim();
   if (!channel) {
-    setStatus("Identifiant manquant.", "error");
+    setStatus(t("app.status.missing_identifier"), "error");
     return;
   }
 
   try {
-    setStatus("Chargement depuis la base de données...", "info");
+    setStatus(t("app.status.loading_db"), "info");
     const data = await loadTeam(channel);
     if (!data) {
       if (!silentIfMissing) {
-        setStatus("Aucune team trouvée pour cet identifiant.", "error");
+        setStatus(t("app.status.no_team_found"), "error");
       }
       return;
     }
     fillForm(data);
-    setStatus("Team chargée automatiquement depuis Firebase.", "success");
+    setStatus(t("app.status.team_loaded"), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de charger la team.", "error");
+    setStatus(t("app.status.team_load_error"), "error");
   }
 }
 

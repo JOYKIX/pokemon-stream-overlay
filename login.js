@@ -1,6 +1,6 @@
 import { createProfile, verifyProfile, hashEditKey, resetEditKeyWithRecovery } from "./shared.js";
 import { saveSession, loadSession } from "./auth.js";
-import { initLanguageSelector } from "./i18n.js";
+import { initPageI18n, t } from "./i18n.js";
 
 const channelInput = document.getElementById("channelInput");
 const editKeyInput = document.getElementById("editKeyInput");
@@ -27,7 +27,7 @@ function showRecoveryKey(recoveryKey) {
   if (!recoveryKeyBox) return;
   recoveryKeyBox.style.display = "block";
   recoveryKeyBox.className = "status-box success";
-  recoveryKeyBox.innerHTML = `<strong>Clé de récupération :</strong> ${recoveryKey}<br>⚠️ Conserve-la, elle sert à réinitialiser la clé d'édition.`;
+  recoveryKeyBox.innerHTML = `<strong>${t("login.recovery_key_label")}</strong> ${recoveryKey}<br>${t("login.recovery_key_warning")}`;
 }
 
 submitBtn.addEventListener("click", async () => {
@@ -35,7 +35,7 @@ submitBtn.addEventListener("click", async () => {
   const editKey = editKeyInput.value.trim();
 
   if (!channel || !editKey) {
-    setStatus("Identifiant et clé requis.", "error");
+    setStatus(t("login.status.identifier_key_required"), "error");
     return;
   }
 
@@ -44,14 +44,14 @@ submitBtn.addEventListener("click", async () => {
       const { recoveryKey } = await createProfile(channel, editKey);
       storeRecoveryKey(channel, recoveryKey);
       showRecoveryKey(recoveryKey);
-      setStatus("Identifiant créé et verrouillé.", "success");
+      setStatus(t("login.status.identifier_created"), "success");
     } else {
       const valid = await verifyProfile(channel, editKey);
       if (!valid) {
-        setStatus("Identifiant introuvable ou clé incorrecte.", "error");
+        setStatus(t("login.status.identifier_or_key_invalid"), "error");
         return;
       }
-      setStatus("Connexion réussie.", "success");
+      setStatus(t("login.status.login_success"), "success");
     }
 
     const editKeyHash = await hashEditKey(channel, editKey);
@@ -59,11 +59,11 @@ submitBtn.addEventListener("click", async () => {
     window.location.href = "index.html";
   } catch (error) {
     if (error.message === "IDENTIFIER_TAKEN") {
-      setStatus("Identifiant déjà pris dans la base de données.", "error");
+      setStatus(t("login.status.identifier_taken"), "error");
       return;
     }
     console.error(error);
-    setStatus("Erreur pendant la connexion.", "error");
+    setStatus(t("login.status.login_error"), "error");
   }
 });
 
@@ -73,18 +73,18 @@ recoverBtn?.addEventListener("click", async () => {
   const nextEditKey = newPasswordInput.value.trim();
 
   if (!channel || !recoveryKey || !nextEditKey) {
-    setStatus("Identifiant + clé de récupération + nouvelle clé requis.", "error");
+    setStatus(t("login.status.recovery_fields_required"), "error");
     return;
   }
 
   try {
     await resetEditKeyWithRecovery(channel, recoveryKey, nextEditKey);
-    setStatus("Clé d'édition réinitialisée. Connecte-toi avec la nouvelle clé.", "success");
+    setStatus(t("login.status.edit_key_reset"), "success");
     channelInput.value = channel;
     editKeyInput.value = nextEditKey;
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de réinitialiser la clé (clé de récupération invalide).", "error");
+    setStatus(t("login.status.recovery_invalid"), "error");
   }
 });
 
@@ -93,4 +93,4 @@ if (existing?.channel) {
   channelInput.value = existing.channel;
 }
 
-initLanguageSelector();
+initPageI18n();
