@@ -107,7 +107,8 @@ async function renderTeam(data) {
     spriteScale: Math.max(0.5, Math.min(10, Number(data.displayOptions?.spriteScale) || 1)),
     editorResolution: data.displayOptions?.editorResolution || { width: 1920, height: 1080 },
     slotPositions: data.displayOptions?.slotPositions || [],
-    slotScales: data.displayOptions?.slotScales || []
+    slotScales: data.displayOptions?.slotScales || [],
+    showNuzlockeLabel: data.displayOptions?.showNuzlockeLabel ?? true
   };
 
   applyOverlayStyle(data.overlayStyle, options);
@@ -124,6 +125,7 @@ async function renderTeam(data) {
   overlayDeathsLabel.textContent = "Morts";
   overlayDeathCount.textContent = String(deathCount);
   overlayNuzlockeTag.dataset.deathTier = deathTier;
+  overlayNuzlockeTag.classList.toggle("hide-run-label", !options.showNuzlockeLabel);
   if (nuzlockeOn) {
     const nPos = getPosition(options, 6);
     overlayNuzlockeTag.style.display = "inline-flex";
