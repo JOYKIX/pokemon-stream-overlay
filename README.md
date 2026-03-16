@@ -1,6 +1,6 @@
-# PokéOverlay Live
+# PokeOverlay
 
-Overlay Pokémon en direct pour OBS, hébergé sur GitHub Pages.
+Pokemon Stream Overlay for OBS, hébergé sur GitHub Pages.
 
 ## Pourquoi l'ancienne version ne marchait pas
 
