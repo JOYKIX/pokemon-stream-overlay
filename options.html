@@ -3,41 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Stream Overlay - Options</title>
+  <title>Pokemon Stream Overlay Studio - Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
-  <div class="app-shell app-shell-narrow">
-    <header class="topbar">
-      <div><p class="eyebrow">Sécurité</p><h1>Profil & accès</h1></div>
-      <nav class="topbar-actions nav-tabs">
-        <a class="ghost-btn" href="index.html"><span class="material-symbols-rounded">dashboard</span>Éditeur</a>
-        <a class="ghost-btn" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
-        <a class="ghost-btn active" href="options.html"><span class="material-symbols-rounded">settings</span>Profil</a>
-        <button id="logoutBtn" class="ghost-btn" type="button"><span class="material-symbols-rounded">logout</span>Déconnexion</button>
+  <div class="dashboard-shell">
+    <aside class="sidebar">
+      <div><p class="sidebar-kicker">Pokemon Stream Overlay</p><h1 class="sidebar-title">Profile</h1></div>
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">GENERAL</p>
+        <a class="nav-item" href="index.html">Studio</a>
+        <a class="nav-item" href="customize.html">Design</a>
+        <p class="nav-group-label">ACCOUNT</p>
+        <a class="nav-item active" href="options.html">Profile</a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button">Logout</button>
       </nav>
-    </header>
-
-    <main class="single-column">
-      <section class="panel">
-        <div class="panel-head"><h2>Changer la clé d'édition</h2></div>
-        <div class="field"><label for="currentChannel">Identifiant actuel</label><input id="currentChannel" type="text" readonly></div>
-        <div class="field"><label for="currentKey">Clé actuelle</label><input id="currentKey" type="password"></div>
-        <div class="field"><label for="nextKey">Nouvelle clé</label><input id="nextKey" type="password"></div>
-        <button id="updateKeyBtn" class="primary-btn"><span class="material-symbols-rounded">key</span>Mettre à jour la clé</button>
+    </aside>
+    <main class="dashboard-main">
+      <header class="topbar"><h2 class="page-title">Profile</h2></header>
+      <section class="studio-grid design-grid">
+        <section class="card">
+          <div class="section-header"><h3>Account settings</h3></div>
+          <div class="field"><label for="currentChannel">Username</label><input id="currentChannel" type="text" readonly></div>
+          <div class="field"><label for="nextChannel">Email / new id</label><input id="nextChannel" type="text" placeholder="new-id"></div>
+          <div class="field"><label for="renameKey">Edit key</label><input id="renameKey" type="password"></div>
+          <button id="renameBtn" class="primary-btn" type="button">Update profile</button>
+        </section>
+        <section class="card">
+          <div class="section-header"><h3>Security</h3></div>
+          <div class="field"><label for="currentKey">Current key</label><input id="currentKey" type="password"></div>
+          <div class="field"><label for="nextKey">Change edit key</label><input id="nextKey" type="password"></div>
+          <div class="actions">
+            <button id="updateKeyBtn" class="primary-btn" type="button">Change edit key</button>
+            <button id="regenerateKeyBtn" class="secondary-btn" type="button">Regenerate key</button>
+            <button id="copyKeyBtn" class="secondary-btn" type="button">Copy key</button>
+            <button id="toggleKeyBtn" class="secondary-btn" type="button">Show / hide key</button>
+          </div>
+          <div id="statusBox" class="status-box info">Ready.</div>
+        </section>
       </section>
-      <section class="panel">
-        <div class="panel-head"><h2>Changer l'identifiant</h2><p>L'ancien identifiant sera supprimé.</p></div>
-        <div class="field"><label for="nextChannel">Nouvel identifiant unique</label><input id="nextChannel" type="text" placeholder="nouvel-id"></div>
-        <div class="field"><label for="renameKey">Clé d'édition</label><input id="renameKey" type="password"></div>
-        <button id="renameBtn" class="danger-btn"><span class="material-symbols-rounded">drive_file_rename_outline</span>Renommer l'identifiant</button>
-      </section>
-      <div id="statusBox" class="status-box info">Prêt.</div>
     </main>
   </div>
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
   <script type="module" src="options.js"></script>
 </body>
 </html>

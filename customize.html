@@ -3,59 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Stream Overlay - Design</title>
+  <title>Pokemon Stream Overlay Studio - Design</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body class="app-page">
-  <div class="app-shell">
-    <header class="topbar">
-      <div><p class="eyebrow">Direction artistique</p><h1>Thème visuel</h1></div>
-      <nav class="topbar-actions nav-tabs">
-        <a class="ghost-btn" href="index.html"><span class="material-symbols-rounded">dashboard</span>Éditeur</a>
-        <a class="ghost-btn active" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
-        <a class="ghost-btn" href="options.html"><span class="material-symbols-rounded">settings</span>Profil</a>
-        <button id="logoutBtn" class="ghost-btn" type="button"><span class="material-symbols-rounded">logout</span>Déconnexion</button>
+  <div class="dashboard-shell">
+    <aside class="sidebar">
+      <div><p class="sidebar-kicker">Pokemon Stream Overlay</p><h1 class="sidebar-title">Design</h1></div>
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">GENERAL</p>
+        <a class="nav-item" href="index.html">Studio</a>
+        <a class="nav-item active" href="customize.html">Design</a>
+        <p class="nav-group-label">ACCOUNT</p>
+        <a class="nav-item" href="options.html">Profile</a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button">Logout</button>
       </nav>
-    </header>
-
-    <main class="builder-layout">
-      <aside class="panel config-sidebar">
-        <div class="field"><label for="channelInput">Identifiant</label><input id="channelInput" type="text" readonly /></div>
-        <div class="toggle-panel">
-          <h3>Fond global</h3>
-          <label class="checkbox-chip wide"><input type="checkbox" id="transparentBackground" checked><span>Fond transparent</span></label>
-          <div class="field"><label for="backgroundColor">Couleur</label><input id="backgroundColor" type="color" value="#090f1f" /></div>
-          <div class="field"><label for="backgroundOpacity">Opacité</label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75" /></div>
-          <div class="field"><label for="backgroundImageInput">Image de fond (.png)</label><input id="backgroundImageInput" type="file" accept="image/png" /></div>
-          <button id="clearBackgroundImageBtn" class="secondary-btn" type="button">Retirer l'image</button>
-        </div>
-        <div class="toggle-panel">
-          <h3>Cartes</h3>
-          <div class="field"><label for="textColor">Texte</label><input id="textColor" type="color" value="#f3f6ff" /></div>
-          <div class="field"><label for="accentColor">Accent</label><input id="accentColor" type="color" value="#6d5dfc" /></div>
-          <div class="field"><label for="cardColor">Fond des cartes</label><input id="cardColor" type="color" value="#101b33" /></div>
-          <div class="field"><label for="cardOpacity">Opacité cartes</label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9" /></div>
-          <div class="field"><label for="borderRadius">Arrondis</label><input id="borderRadius" type="range" min="0" max="50" step="1" value="24" /></div>
-        </div>
-        <div class="actions vertical">
-          <button id="loadBtn" class="secondary-btn"><span class="material-symbols-rounded">download</span>Charger le style</button>
-          <button id="saveBtn" class="primary-btn"><span class="material-symbols-rounded">save</span>Sauvegarder le design</button>
-        </div>
-        <div id="statusBox" class="status-box info">Prêt.</div>
-      </aside>
-
-      <section class="panel team-panel">
-        <div class="panel-head"><h2>Aperçu instantané</h2></div>
-        <div id="stylePreview" class="designer-preview">
-          <div class="designer-preview-card"><h3>Header overlay</h3><p>Dresseur • Badge • Compteur</p></div>
-          <div class="designer-preview-grid"><div class="designer-preview-slot">Slot 1</div><div class="designer-preview-slot">Slot 2</div><div class="designer-preview-slot">Slot 3</div></div>
-        </div>
+    </aside>
+    <main class="dashboard-main">
+      <header class="topbar"><h2 class="page-title">Overlay Theme Editor</h2></header>
+      <section class="studio-grid design-grid">
+        <section class="card">
+          <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly></div>
+          <div class="section-header"><h3>Theme editor</h3></div>
+          <div class="field"><label for="backgroundColor">Background color</label><input id="backgroundColor" type="color" value="#0f172a"></div>
+          <div class="field"><label for="cardColor">Card color</label><input id="cardColor" type="color" value="#1e293b"></div>
+          <div class="field"><label for="accentColor">Accent color</label><input id="accentColor" type="color" value="#6366f1"></div>
+          <div class="field"><label for="textColor">Text color</label><input id="textColor" type="color" value="#f1f5f9"></div>
+          <div class="field"><label for="borderRadius">Border radius</label><input id="borderRadius" type="range" min="0" max="50" value="16"></div>
+          <div class="field"><label for="backgroundOpacity">Background opacity</label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75"></div>
+          <div class="field"><label for="cardOpacity">Card opacity</label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></div>
+          <label class="checkbox-chip"><input id="transparentBackground" type="checkbox" checked><span>Transparent background</span></label>
+          <div class="field"><label for="fontSelector">Font selector</label><select id="fontSelector"><option>Inter</option><option>Roboto</option><option>Montserrat</option></select></div>
+          <div class="field"><label for="themePreset">Theme preset</label><select id="themePreset"><option value="dark">Dark</option><option value="pokemon-red">Pokemon red</option><option value="pokemon-blue">Pokemon blue</option><option value="neon">Neon</option></select></div>
+          <div class="field"><label for="backgroundImageInput">Background image PNG</label><input id="backgroundImageInput" type="file" accept="image/png"></div>
+          <div class="actions">
+            <button id="clearBackgroundImageBtn" class="secondary-btn" type="button">Clear image</button>
+            <button id="exportThemeBtn" class="secondary-btn" type="button">Export theme JSON</button>
+          </div>
+          <div class="actions">
+            <button id="loadBtn" class="secondary-btn" type="button">Load theme</button>
+            <button id="saveBtn" class="primary-btn" type="button">Save theme</button>
+          </div>
+          <div id="statusBox" class="status-box info">Ready.</div>
+        </section>
+        <section class="card">
+          <div class="section-header"><h3>Live overlay preview</h3></div>
+          <div id="stylePreview" class="designer-preview">
+            <div class="designer-preview-card"><h3>TRAINER HUD</h3><p>Name • Badge • Death counter</p></div>
+            <div class="designer-preview-grid"><div class="designer-preview-slot">Slot 1</div><div class="designer-preview-slot">Slot 2</div><div class="designer-preview-slot">Slot 3</div></div>
+          </div>
+        </section>
       </section>
     </main>
   </div>
+  <div id="toastStack" class="toast-stack" aria-live="polite"></div>
   <script type="module" src="customize.js"></script>
 </body>
 </html>

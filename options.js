@@ -10,12 +10,26 @@ const renameKey = document.getElementById("renameKey");
 const renameBtn = document.getElementById("renameBtn");
 const statusBox = document.getElementById("statusBox");
 const logoutBtn = document.getElementById("logoutBtn");
+const regenerateKeyBtn = document.getElementById("regenerateKeyBtn");
+const copyKeyBtn = document.getElementById("copyKeyBtn");
+const toggleKeyBtn = document.getElementById("toggleKeyBtn");
+const toastStack = document.getElementById("toastStack");
 
 let session = null;
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
   statusBox.className = `status-box ${type}`;
+  pushToast(message, type);
+}
+
+function pushToast(message, type = "info") {
+  if (!toastStack) return;
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toastStack.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
 }
 
 updateKeyBtn.addEventListener("click", async () => {
@@ -73,6 +87,34 @@ async function init() {
 }
 
 init();
+
+regenerateKeyBtn?.addEventListener("click", () => {
+  const generated = Math.random().toString(36).slice(2, 14);
+  nextKey.value = generated;
+  setStatus("Nouvelle clé générée localement.", "success");
+});
+
+copyKeyBtn?.addEventListener("click", async () => {
+  const value = nextKey.value || currentKey.value;
+  if (!value) {
+    setStatus("Aucune clé à copier.", "error");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(value);
+    setStatus("Clé copiée.", "success");
+  } catch {
+    setStatus("Impossible de copier la clé.", "error");
+  }
+});
+
+toggleKeyBtn?.addEventListener("click", () => {
+  const show = currentKey.type === "password";
+  currentKey.type = show ? "text" : "password";
+  nextKey.type = show ? "text" : "password";
+  renameKey.type = show ? "text" : "password";
+  setStatus(`Clés ${show ? "visibles" : "masquées"}.`, "info");
+});
 
 
 logoutBtn?.addEventListener("click", () => {
