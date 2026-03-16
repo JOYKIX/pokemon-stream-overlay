@@ -1,5 +1,5 @@
 import { ensureAuthenticated, saveSession, clearSession } from "./auth.js";
-import { updateEditKey, renameIdentifier, hashEditKey } from "./shared.js";
+import { updateEditKey, renameIdentifier, hashEditKey, regenerateRecoveryKey, deleteAccount } from "./shared.js";
 
 const currentChannel = document.getElementById("currentChannel");
 const currentKey = document.getElementById("currentKey");
@@ -14,6 +14,12 @@ const regenerateKeyBtn = document.getElementById("regenerateKeyBtn");
 const copyKeyBtn = document.getElementById("copyKeyBtn");
 const toggleKeyBtn = document.getElementById("toggleKeyBtn");
 const toastStack = document.getElementById("toastStack");
+
+const recoveryKeyDisplay = document.getElementById("recoveryKeyDisplay");
+const toggleRecoveryBtn = document.getElementById("toggleRecoveryBtn");
+const regenerateRecoveryBtn = document.getElementById("regenerateRecoveryBtn");
+const copyRecoveryBtn = document.getElementById("copyRecoveryBtn");
+const deleteAccountBtn = document.getElementById("deleteAccountBtn");
 
 let session = null;
 
@@ -64,6 +70,11 @@ renameBtn.addEventListener("click", async () => {
 
   try {
     const renamed = await renameIdentifier(session.channel, newId, key);
+    const cachedRecovery = localStorage.getItem(`pokemonOverlayRecovery:${session.channel}`);
+    if (cachedRecovery) {
+      localStorage.setItem(`pokemonOverlayRecovery:${renamed}`, cachedRecovery);
+      localStorage.removeItem(`pokemonOverlayRecovery:${session.channel}`);
+    }
     const editKeyHash = await hashEditKey(renamed, key);
     session = { ...session, channel: renamed, editKeyHash };
     saveSession(session);
@@ -79,14 +90,6 @@ renameBtn.addEventListener("click", async () => {
     setStatus("Impossible de renommer (clé invalide).", "error");
   }
 });
-
-async function init() {
-  session = await ensureAuthenticated();
-  if (!session) return;
-  currentChannel.value = session.channel;
-}
-
-init();
 
 regenerateKeyBtn?.addEventListener("click", () => {
   const generated = Math.random().toString(36).slice(2, 14);
@@ -116,8 +119,62 @@ toggleKeyBtn?.addEventListener("click", () => {
   setStatus(`Clés ${show ? "visibles" : "masquées"}.`, "info");
 });
 
+regenerateRecoveryBtn?.addEventListener("click", async () => {
+  try {
+    const recoveryKey = await regenerateRecoveryKey(session.channel, session.editKeyHash, { preHashed: true });
+    recoveryKeyDisplay.value = recoveryKey;
+    localStorage.setItem(`pokemonOverlayRecovery:${session.channel}`, recoveryKey);
+    recoveryKeyDisplay.type = "password";
+    setStatus("Nouvelle clé de récupération générée. Conserve-la !", "success");
+  } catch (error) {
+    console.error(error);
+    setStatus("Impossible de régénérer la clé de récupération.", "error");
+  }
+});
+
+toggleRecoveryBtn?.addEventListener("click", () => {
+  recoveryKeyDisplay.type = recoveryKeyDisplay.type === "password" ? "text" : "password";
+});
+
+copyRecoveryBtn?.addEventListener("click", async () => {
+  if (!recoveryKeyDisplay.value) {
+    setStatus("Aucune clé de récupération à copier.", "error");
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(recoveryKeyDisplay.value);
+    setStatus("Clé de récupération copiée.", "success");
+  } catch {
+    setStatus("Impossible de copier la clé de récupération.", "error");
+  }
+});
+
+deleteAccountBtn?.addEventListener("click", async () => {
+  if (!confirm("Supprimer définitivement le compte et toutes les données ?")) return;
+  try {
+    await deleteAccount(session.channel, session.editKeyHash, { preHashed: true });
+    localStorage.removeItem(`pokemonOverlayRecovery:${session.channel}`);
+    clearSession();
+    window.location.href = "login.html";
+  } catch (error) {
+    console.error(error);
+    setStatus("Suppression impossible (session invalide).", "error");
+  }
+});
 
 logoutBtn?.addEventListener("click", () => {
   clearSession();
   window.location.href = "login.html";
 });
+
+async function init() {
+  session = await ensureAuthenticated();
+  if (!session) return;
+  currentChannel.value = session.channel;
+  const cachedRecovery = localStorage.getItem(`pokemonOverlayRecovery:${session.channel}`);
+  if (cachedRecovery) {
+    recoveryKeyDisplay.value = cachedRecovery;
+  }
+}
+
+init();

@@ -59,6 +59,27 @@ function normalizeChannel(channel) {
   return cleanText(channel).toLowerCase();
 }
 
+function normalizeRecoveryKey(value) {
+  return cleanText(value).replace(/-/g, "").toUpperCase();
+}
+
+function bytesToHex(bytes) {
+  return Array.from(bytes)
+    .map(byte => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export function generateRecoveryKey() {
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
+  const raw = bytesToHex(bytes).toUpperCase();
+  return raw.match(/.{1,4}/g)?.join("-") || "";
+}
+
+async function hashRecoveryKey(recoveryKey) {
+  return sha256Hex(`recovery::${normalizeRecoveryKey(recoveryKey)}`);
+}
+
 export async function hashEditKey(channel, editKey) {
   const normalizedChannel = normalizeChannel(channel);
   const sanitizedKey = cleanText(editKey);
@@ -480,13 +501,18 @@ export async function createProfile(channel, editKey) {
   }
 
   const editKeyHash = await hashEditKey(normalized, editKey);
+  const recoveryKey = generateRecoveryKey();
+  const recoveryKeyHash = await hashRecoveryKey(recoveryKey);
 
   await set(ref(db, `profiles/${normalized}`), {
     channel: normalized,
     editKeyHash,
+    recoveryKeyHash,
     createdAt: Date.now(),
     updatedAt: Date.now()
   });
+
+  return { recoveryKey };
 }
 
 export async function verifyProfile(channel, editKeyOrHash, options = {}) {
@@ -519,6 +545,140 @@ export async function updateEditKey(channel, currentEditKey, nextEditKey) {
   });
 }
 
+export async function resetEditKeyWithRecovery(channel, recoveryKey, nextEditKey) {
+  const normalized = normalizeChannel(channel);
+  const profile = await getProfile(normalized);
+  if (!profile?.recoveryKeyHash) {
+    throw new Error("RECOVERY_UNAVAILABLE");
+  }
+
+  const providedHash = await hashRecoveryKey(recoveryKey);
+  if (providedHash !== profile.recoveryKeyHash) {
+    throw new Error("INVALID_RECOVERY_KEY");
+  }
+
+  const nextHash = await hashEditKey(normalized, nextEditKey);
+  const { editKey: _legacyEditKey, ...safeProfile } = profile;
+  await set(ref(db, `profiles/${normalized}`), {
+    ...safeProfile,
+    channel: normalized,
+    editKeyHash: nextHash,
+    updatedAt: Date.now()
+  });
+}
+
+export async function regenerateRecoveryKey(channel, editKeyOrHash, options = {}) {
+  const normalized = normalizeChannel(channel);
+  const profile = await getProfile(normalized);
+  const isValid = await isProfileKeyValid(profile, normalized, editKeyOrHash, options);
+  if (!isValid) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  const recoveryKey = generateRecoveryKey();
+  const recoveryKeyHash = await hashRecoveryKey(recoveryKey);
+  const { editKey: _legacyEditKey, ...safeProfile } = profile || {};
+  await set(ref(db, `profiles/${normalized}`), {
+    ...safeProfile,
+    channel: normalized,
+    recoveryKeyHash,
+    updatedAt: Date.now()
+  });
+
+  return recoveryKey;
+}
+
+export async function deleteAccount(channel, editKeyOrHash, options = {}) {
+  const normalized = normalizeChannel(channel);
+  const profile = await getProfile(normalized);
+  const isValid = await isProfileKeyValid(profile, normalized, editKeyOrHash, options);
+  if (!isValid) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  await remove(ref(db, `profiles/${normalized}`));
+  await remove(ref(db, `teams/${normalized}`));
+}
+
+export async function generateShareCode(channel, editKeyOrHash, {
+  autoRotateOnUse = false,
+  expiresInHours = 24,
+  preHashed = false
+} = {}) {
+  const normalized = normalizeChannel(channel);
+  const profile = await getProfile(normalized);
+  const isValid = await isProfileKeyValid(profile, normalized, editKeyOrHash, { preHashed });
+  if (!isValid) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  const rawCode = crypto.randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
+  const shareCode = rawCode.match(/.{1,4}/g)?.join("-") || rawCode;
+  const shareCodeHash = await sha256Hex(`share::${normalizeRecoveryKey(shareCode)}`);
+  const now = Date.now();
+
+  await set(ref(db, `profiles/${normalized}/shareConfig`), {
+    shareCodeHash,
+    autoRotateOnUse: Boolean(autoRotateOnUse),
+    expiresAt: now + (Math.max(1, Number(expiresInHours) || 24) * 60 * 60 * 1000),
+    lastRegeneratedAt: now,
+    updatedAt: now
+  });
+
+  return shareCode;
+}
+
+export async function importSharedData(targetChannel, targetEditKey, sourceChannel, shareCode, options = {}) {
+  const targetId = normalizeChannel(targetChannel);
+  const sourceId = normalizeChannel(sourceChannel);
+  const sourceProfile = await getProfile(sourceId);
+  const targetProfile = await getProfile(targetId);
+
+  const targetValid = await isProfileKeyValid(targetProfile, targetId, targetEditKey, options);
+  if (!targetValid) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  const shareConfig = sourceProfile?.shareConfig;
+  if (!shareConfig?.shareCodeHash) {
+    throw new Error("SHARE_NOT_CONFIGURED");
+  }
+  if (shareConfig.expiresAt && shareConfig.expiresAt < Date.now()) {
+    throw new Error("SHARE_CODE_EXPIRED");
+  }
+
+  const providedHash = await sha256Hex(`share::${normalizeRecoveryKey(shareCode)}`);
+  if (providedHash !== shareConfig.shareCodeHash) {
+    throw new Error("SHARE_CODE_INVALID");
+  }
+
+  const sourceTeam = await loadTeam(sourceId);
+  if (!sourceTeam) {
+    throw new Error("SOURCE_DATA_EMPTY");
+  }
+
+  await set(ref(db, `teams/${targetId}`), {
+    ...sourceTeam,
+    updatedAt: Date.now(),
+    importedFrom: sourceId
+  });
+
+  if (shareConfig.autoRotateOnUse) {
+    await set(ref(db, `profiles/${sourceId}/shareConfig`), {
+      ...shareConfig,
+      shareCodeHash: null,
+      updatedAt: Date.now(),
+      lastUsedAt: Date.now()
+    });
+  } else {
+    await set(ref(db, `profiles/${sourceId}/shareConfig`), {
+      ...shareConfig,
+      updatedAt: Date.now(),
+      lastUsedAt: Date.now()
+    });
+  }
+}
+
 export async function renameIdentifier(oldChannel, newChannel, editKey) {
   const oldId = normalizeChannel(oldChannel);
   const newId = normalizeChannel(newChannel);
@@ -542,6 +702,7 @@ export async function renameIdentifier(oldChannel, newChannel, editKey) {
   const editKeyHash = await hashEditKey(newId, sanitizedKey);
 
   await set(ref(db, `profiles/${newId}`), {
+    ...oldProfile,
     channel: newId,
     editKeyHash,
     createdAt: oldProfile.createdAt || Date.now(),
