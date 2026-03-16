@@ -1,6 +1,6 @@
 import { ensureAuthenticated, saveSession, clearSession } from "./auth.js";
 import { updateEditKey, renameIdentifier, hashEditKey, regenerateRecoveryKey, deleteAccount } from "./shared.js";
-import { initLanguageSelector } from "./i18n.js";
+import { initPageI18n, t } from "./i18n.js";
 
 const currentChannel = document.getElementById("currentChannel");
 const currentKey = document.getElementById("currentKey");
@@ -43,7 +43,7 @@ updateKeyBtn.addEventListener("click", async () => {
   const current = currentKey.value.trim();
   const next = nextKey.value.trim();
   if (!current || !next) {
-    setStatus("Renseigne la clé actuelle et la nouvelle.", "error");
+    setStatus(t("options.status.current_and_next_required"), "error");
     return;
   }
 
@@ -54,10 +54,10 @@ updateKeyBtn.addEventListener("click", async () => {
     saveSession(session);
     currentKey.value = "";
     nextKey.value = "";
-    setStatus("Clé d'édition mise à jour.", "success");
+    setStatus(t("options.status.edit_key_updated"), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Clé actuelle invalide.", "error");
+    setStatus(t("options.status.current_key_invalid"), "error");
   }
 });
 
@@ -65,7 +65,7 @@ renameBtn.addEventListener("click", async () => {
   const newId = nextChannel.value.trim().toLowerCase();
   const key = renameKey.value.trim();
   if (!newId || !key) {
-    setStatus("Renseigne un nouvel identifiant et ta clé.", "error");
+    setStatus(t("options.status.new_identifier_and_key_required"), "error");
     return;
   }
 
@@ -82,33 +82,33 @@ renameBtn.addEventListener("click", async () => {
     currentChannel.value = renamed;
     nextChannel.value = "";
     renameKey.value = "";
-    setStatus("Identifiant renommé. L'ancien ID a été supprimé.", "success");
+    setStatus(t("options.status.identifier_renamed"), "success");
   } catch (error) {
     if (error.message === "IDENTIFIER_TAKEN") {
-      setStatus("Le nouvel identifiant est déjà pris.", "error");
+      setStatus(t("options.status.new_identifier_taken"), "error");
       return;
     }
-    setStatus("Impossible de renommer (clé invalide).", "error");
+    setStatus(t("options.status.rename_invalid_key"), "error");
   }
 });
 
 regenerateKeyBtn?.addEventListener("click", () => {
   const generated = Math.random().toString(36).slice(2, 14);
   nextKey.value = generated;
-  setStatus("Nouvelle clé générée localement.", "success");
+  setStatus(t("options.status.new_key_generated"), "success");
 });
 
 copyKeyBtn?.addEventListener("click", async () => {
   const value = nextKey.value || currentKey.value;
   if (!value) {
-    setStatus("Aucune clé à copier.", "error");
+    setStatus(t("options.status.no_key_to_copy"), "error");
     return;
   }
   try {
     await navigator.clipboard.writeText(value);
-    setStatus("Clé copiée.", "success");
+    setStatus(t("options.status.key_copied"), "success");
   } catch {
-    setStatus("Impossible de copier la clé.", "error");
+    setStatus(t("options.status.key_copy_error"), "error");
   }
 });
 
@@ -117,7 +117,7 @@ toggleKeyBtn?.addEventListener("click", () => {
   currentKey.type = show ? "text" : "password";
   nextKey.type = show ? "text" : "password";
   renameKey.type = show ? "text" : "password";
-  setStatus(`Clés ${show ? "visibles" : "masquées"}.`, "info");
+  setStatus(t(show ? "options.status.keys_visible" : "options.status.keys_hidden"), "info");
 });
 
 regenerateRecoveryBtn?.addEventListener("click", async () => {
@@ -126,10 +126,10 @@ regenerateRecoveryBtn?.addEventListener("click", async () => {
     recoveryKeyDisplay.value = recoveryKey;
     localStorage.setItem(`pokemonOverlayRecovery:${session.channel}`, recoveryKey);
     recoveryKeyDisplay.type = "password";
-    setStatus("Nouvelle clé de récupération générée. Conserve-la !", "success");
+    setStatus(t("options.status.recovery_generated"), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de régénérer la clé de récupération.", "error");
+    setStatus(t("options.status.recovery_regenerate_error"), "error");
   }
 });
 
@@ -139,19 +139,19 @@ toggleRecoveryBtn?.addEventListener("click", () => {
 
 copyRecoveryBtn?.addEventListener("click", async () => {
   if (!recoveryKeyDisplay.value) {
-    setStatus("Aucune clé de récupération à copier.", "error");
+    setStatus(t("options.status.no_recovery_to_copy"), "error");
     return;
   }
   try {
     await navigator.clipboard.writeText(recoveryKeyDisplay.value);
-    setStatus("Clé de récupération copiée.", "success");
+    setStatus(t("options.status.recovery_copied"), "success");
   } catch {
-    setStatus("Impossible de copier la clé de récupération.", "error");
+    setStatus(t("options.status.recovery_copy_error"), "error");
   }
 });
 
 deleteAccountBtn?.addEventListener("click", async () => {
-  if (!confirm("Supprimer définitivement le compte et toutes les données ?")) return;
+  if (!confirm(t("options.confirm_delete"))) return;
   try {
     await deleteAccount(session.channel, session.editKeyHash, { preHashed: true });
     localStorage.removeItem(`pokemonOverlayRecovery:${session.channel}`);
@@ -159,7 +159,7 @@ deleteAccountBtn?.addEventListener("click", async () => {
     window.location.href = "login.html";
   } catch (error) {
     console.error(error);
-    setStatus("Suppression impossible (session invalide).", "error");
+    setStatus(t("options.status.delete_error"), "error");
   }
 });
 
@@ -169,7 +169,7 @@ logoutBtn?.addEventListener("click", () => {
 });
 
 async function init() {
-  initLanguageSelector();
+  await initPageI18n();
   session = await ensureAuthenticated();
   if (!session) return;
   currentChannel.value = session.channel;
