@@ -30,8 +30,8 @@
       <header class="topbar">
         <h2 class="page-title">Studio</h2>
         <div class="topbar-controls">
-          <label class="toggle-control" for="snapToGrid"><span>Drag</span><input id="snapToGrid" type="checkbox" checked></label>
-          <label class="toggle-control" for="transitionToggle"><span>Transition</span><input id="transitionToggle" type="checkbox" checked></label>
+          <label class="switch-chip" for="snapToGrid"><span>Drag</span><input id="snapToGrid" type="checkbox" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+          <label class="switch-chip" for="transitionToggle"><span>Transition</span><input id="transitionToggle" type="checkbox" checked><span class="toggle-slider" aria-hidden="true"></span></label>
           <button id="exportObsBtn" class="primary-btn" type="button">OBS export</button>
         </div>
       </header>
@@ -40,57 +40,74 @@
 
       <section class="studio-grid">
         <section class="card left-column">
-          <div class="section-header"><h3>STREAM SETTINGS</h3></div>
-          <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly /></div>
-          <div class="field"><label for="trainerInput">Trainer name</label><input id="trainerInput" type="text" /></div>
-          <div class="field"><label for="badgeInput">Team label</label><input id="badgeInput" type="text" /></div>
-          <div class="inline-fields">
-            <div class="field"><label for="streamWidth">Resolution width</label><input id="streamWidth" type="number" value="1920" /></div>
-            <div class="field"><label for="streamHeight">Resolution height</label><input id="streamHeight" type="number" value="1080" /></div>
+          <div class="segment-control" role="tablist" aria-label="Panneau gauche">
+            <button class="segment-btn active" type="button" data-left-view-btn="stream" aria-selected="true">Stream settings</button>
+            <button class="segment-btn" type="button" data-left-view-btn="sprite" aria-selected="false">Sprite display</button>
           </div>
-          <div class="field"><label for="resolutionPreset">Preset</label><select id="resolutionPreset"><option value="custom">Custom</option><option value="1920x1080">1920x1080</option><option value="2560x1440">2560x1440</option><option value="1280x720">1280x720</option></select></div>
 
-          <div class="section-header"><h3>RUN MODE</h3></div>
-          <label class="checkbox-chip"><input type="checkbox" id="nuzlockeMode"><span>Nuzlocke mode</span></label>
-          <div class="field" id="deathCountField"><label for="deathCountInput">Death counter</label><input id="deathCountInput" type="number" min="0" value="0"></div>
-          <label class="checkbox-chip"><input type="checkbox" id="autoSave"><span>Auto death count</span></label>
+          <div class="segment-panel active" data-left-panel="stream">
+            <div class="section-header"><h3>STREAM SETTINGS</h3></div>
+            <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly /></div>
+            <div class="field"><label for="trainerInput">Trainer name</label><input id="trainerInput" type="text" /></div>
+            <div class="field"><label for="badgeInput">Team label</label><input id="badgeInput" type="text" /></div>
+            <div class="inline-fields">
+              <div class="field"><label for="streamWidth">Resolution width</label><input id="streamWidth" type="number" value="1920" /></div>
+              <div class="field"><label for="streamHeight">Resolution height</label><input id="streamHeight" type="number" value="1080" /></div>
+            </div>
+            <div class="field"><label for="resolutionPreset">Preset</label><select id="resolutionPreset"><option value="custom">Custom</option><option value="1920x1080">1920x1080</option><option value="2560x1440">2560x1440</option><option value="1280x720">1280x720</option></select></div>
 
-          <div class="section-header"><h3>OBS INTEGRATION</h3></div>
-          <div class="field"><label for="overlayUrl">Overlay URL</label><input id="overlayUrl" type="text" readonly /></div>
-          <div class="actions">
-            <button id="copyUrlBtn" class="secondary-btn" type="button">Copy browser source</button>
-            <a id="openOverlayBtn" class="secondary-btn link-btn" target="_blank">Open overlay</a>
-            <button id="testOverlayBtn" class="secondary-btn" type="button">Test overlay</button>
+            <div class="section-header"><h3>RUN MODE</h3></div>
+            <label class="switch-chip" for="nuzlockeMode"><span>Nuzlocke mode</span><input type="checkbox" id="nuzlockeMode"><span class="toggle-slider" aria-hidden="true"></span></label>
+            <div class="field" id="deathCountField"><label for="deathCountInput">Death counter</label><input id="deathCountInput" type="number" min="0" value="0"></div>
+            <label class="switch-chip" for="autoSave"><span>Auto save</span><input type="checkbox" id="autoSave" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+
+            <div class="section-header"><h3>OBS INTEGRATION</h3></div>
+            <div class="field"><label for="overlayUrl">Overlay URL</label><input id="overlayUrl" type="text" readonly /></div>
+            <div class="actions">
+              <button id="copyUrlBtn" class="secondary-btn" type="button">Copy browser source</button>
+              <a id="openOverlayBtn" class="secondary-btn link-btn" target="_blank">Open overlay</a>
+              <button id="testOverlayBtn" class="secondary-btn" type="button">Test overlay</button>
+            </div>
           </div>
-        </section>
 
-        <section class="card center-column">
-          <div class="section-header"><h3>TEAM BUILDER</h3><p>Drag and drop to reorder slots.</p></div>
-          <datalist id="pokemonSuggestions"></datalist>
-          <div class="slots" id="teamSlots" aria-live="polite"></div>
-          <div class="editor-canvas-wrap">
-            <div class="editor-toolbar"><strong>Layout canvas</strong><button id="resetPositionsBtn" class="secondary-btn small" type="button">Reset positions</button></div>
-            <div id="editorCanvas" class="editor-canvas"></div>
+          <div class="segment-panel" data-left-panel="sprite">
+            <div class="section-header"><h3>SPRITE DISPLAY</h3></div>
+            <div class="toggle-grid">
+              <label class="switch-chip" for="showHeader"><span>Header</span><input type="checkbox" id="showHeader" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showName"><span>Name</span><input type="checkbox" id="showName" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showNickname"><span>Nickname</span><input type="checkbox" id="showNickname" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showLevel"><span>Level</span><input type="checkbox" id="showLevel" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showItem"><span>Item</span><input type="checkbox" id="showItem" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showTypes"><span>Types</span><input type="checkbox" id="showTypes" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+              <label class="switch-chip" for="showShiny"><span>Visibility</span><input type="checkbox" id="showShiny" checked><span class="toggle-slider" aria-hidden="true"></span></label>
+            </div>
+
+            <div class="section-header"><h3>SPRITE STYLE</h3></div>
+            <div class="field"><label for="spriteVariant">Sprite style</label><select id="spriteVariant"><option value="auto">Auto</option><option value="official-artwork">Official</option><option value="home">Home</option><option value="pixel">Pixel</option><option value="dream-world">Dream</option><option value="showdown">Showdown</option><option value="scarlet-violet">Scarlet/Violet</option></select></div>
+            <div class="field"><label for="spriteScale">Sprite size <span id="spriteScaleValue">100%</span></label><input id="spriteScale" type="range" min="50" max="1000" value="100"></div>
+            <label class="switch-chip" for="preferAnimatedSprite"><span>Animated toggle</span><input type="checkbox" id="preferAnimatedSprite"><span class="toggle-slider" aria-hidden="true"></span></label>
+            <label class="switch-chip" for="spriteOnlyMode"><span>Remove background</span><input type="checkbox" id="spriteOnlyMode"><span class="toggle-slider" aria-hidden="true"></span></label>
           </div>
         </section>
 
         <section class="card right-column">
-          <div class="section-header"><h3>SPRITE DISPLAY</h3></div>
-          <div class="toggle-grid">
-            <label class="checkbox-chip"><input type="checkbox" id="showHeader" checked><span>Header</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Name</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showNickname" checked><span>Nickname</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showLevel" checked><span>Level</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showItem" checked><span>Item</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showTypes" checked><span>Types</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showShiny" checked><span>Visibility</span></label>
+          <div class="segment-control" role="tablist" aria-label="Panneau droit">
+            <button class="segment-btn active" type="button" data-team-view-btn="builder" aria-selected="true">Team builder</button>
+            <button class="segment-btn" type="button" data-team-view-btn="canvas" aria-selected="false">Canvas</button>
           </div>
 
-          <div class="section-header"><h3>SPRITE STYLE</h3></div>
-          <div class="field"><label for="spriteVariant">Sprite style</label><select id="spriteVariant"><option value="auto">Auto</option><option value="official-artwork">Official</option><option value="home">Home</option><option value="pixel">Pixel</option><option value="dream-world">Dream</option><option value="showdown">Showdown</option><option value="scarlet-violet">Scarlet/Violet</option></select></div>
-          <div class="field"><label for="spriteScale">Sprite size <span id="spriteScaleValue">100%</span></label><input id="spriteScale" type="range" min="50" max="1000" value="100"></div>
-          <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Animated toggle</span></label>
-          <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Remove background</span></label>
+          <div class="segment-panel active" data-team-panel="builder">
+            <div class="section-header"><h3>TEAM BUILDER</h3><p>Drag and drop to reorder slots.</p></div>
+            <datalist id="pokemonSuggestions"></datalist>
+            <div class="slots" id="teamSlots" aria-live="polite"></div>
+          </div>
+
+          <div class="segment-panel" data-team-panel="canvas">
+            <div class="editor-canvas-wrap">
+              <div class="editor-toolbar"><strong>Layout canvas</strong><button id="resetPositionsBtn" class="secondary-btn small" type="button">Reset positions</button></div>
+              <div id="editorCanvas" class="editor-canvas"></div>
+            </div>
+          </div>
 
           <div class="section-header"><h3>DATA</h3></div>
           <div class="actions vertical">
