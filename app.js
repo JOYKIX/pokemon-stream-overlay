@@ -11,7 +11,7 @@ import {
   getNextEvolutionName
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
-import { getCurrentLanguage, initPageI18n, t } from "./i18n.js";
+import { getCurrentLanguage, initPageI18n, loadTranslations, t } from "./i18n.js";
 
 const teamSlots = document.getElementById("teamSlots");
 const editorCanvas = document.getElementById("editorCanvas");
@@ -327,6 +327,9 @@ function refreshSlotTranslations() {
     if (emptyPreview) emptyPreview.textContent = t("app.preview");
 
     const nicknameInput = wrapper.querySelector(`#nickname${index}`);
+    const nameInput = wrapper.querySelector(`#name${index}`);
+    if (nameInput) nameInput.placeholder = t("app.pokemon_name_placeholder");
+
     if (nicknameInput) nicknameInput.placeholder = t("app.nickname");
 
     const levelInput = wrapper.querySelector(`#level${index}`);
@@ -794,7 +797,8 @@ async function init() {
   }
   refreshSlotTranslations();
 
-  const handleLanguageChange = () => {
+  const handleLanguageChange = async (event) => {
+    await loadTranslations(event.detail?.language || getCurrentLanguage());
     refreshSlotTranslations();
     loadPokemonSuggestions();
     slotPreviewUpdaters.forEach((update) => update?.());
