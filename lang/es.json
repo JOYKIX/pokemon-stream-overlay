@@ -253,5 +253,10 @@
   "nuzlocke": "Nuzlocke",
   "deaths": "Deaths",
   "spanish": "Español",
-  "japanese": "日本語"
+  "japanese": "日本語",
+  "app.not_found": "No encontrado",
+  "app.synced": "Sincronizado",
+  "app.queued": "En cola",
+  "app.status.save_error": "Error al guardar en Firebase.",
+  "slot_label": "Espacio {index}"
 }
