@@ -1,0 +1,155 @@
+body.overlay-page {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.overlay-page h1,
+.overlay-page h2,
+.overlay-page h3,
+.overlay-page p {
+  margin: 0;
+}
+
+.overlay-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  color: var(--overlay-text, #f8f8f8);
+  font-family: Inter, system-ui, sans-serif;
+  --overlay-sprite-scale: 1;
+}
+
+.overlay-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.overlay-root.has-bg-image::before {
+  background-image: var(--overlay-bg-image);
+  background-size: cover;
+  opacity: 0.35;
+}
+
+.overlay-root.overlay-transparent-bg::before {
+  background: transparent;
+}
+
+.overlay-root.overlay-transparent-bg.has-bg-image::before {
+  background-image: none;
+  opacity: 0;
+}
+
+.overlay-header {
+  position: absolute;
+  left: 2%;
+  top: 3%;
+  z-index: 2;
+  padding: 14px 18px;
+  border-radius: var(--overlay-radius, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.23);
+  background: color-mix(in srgb, var(--overlay-card, #1f1f1f) calc(var(--overlay-card-opacity, 0.82) * 100%), transparent);
+}
+
+.overlay-root.hide-header .overlay-header {
+  display: none;
+}
+
+.overlay-team {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay-floating-nuzlocke {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.88), rgba(42, 42, 42, 0.7));
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.overlay-floating-nuzlocke .run-tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #ff8ea2;
+}
+
+.overlay-floating-nuzlocke.hide-run-label .run-tag {
+  display: none;
+}
+
+.death-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.death-counter-icon {
+  font-size: 1rem;
+  color: #ffd3dc;
+}
+
+.death-counter-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.05em;
+}
+
+.death-counter-value {
+  min-width: 2ch;
+  text-align: right;
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.overlay-floating-nuzlocke[data-death-tier="warning"] .death-counter-value {
+  color: #ffd166;
+}
+
+.overlay-floating-nuzlocke[data-death-tier="critical"] .death-counter-value {
+  color: #ff6b6b;
+}
+
+.overlay-card {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(var(--slot-scale, 1));
+  transform-origin: center;
+  width: clamp(170px, 12vw, 260px);
+  border-radius: var(--overlay-radius, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: color-mix(in srgb, var(--overlay-card, #1f1f1f) calc(var(--overlay-card-opacity, 0.9) * 100%), transparent);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  box-shadow: 0 16px 28px rgba(0, 0, 0, 0.33);
+}
+
+.overlay-card.cardless {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.overlay-image-wrap img {
+  width: calc(100px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  height: calc(100px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  object-fit: contain;
+}
+
+.overlay-card.pixel-sprite-mode img {
+  image-rendering: pixelated;
+}
