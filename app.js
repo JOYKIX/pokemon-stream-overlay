@@ -58,11 +58,38 @@ const transitionToggle = document.getElementById("transitionToggle");
 const exportObsBtn = document.getElementById("exportObsBtn");
 const testOverlayBtn = document.getElementById("testOverlayBtn");
 const autosaveIndicator = document.getElementById("autosaveIndicator");
+const LOCAL_STORAGE_KEYS = {
+  pokemonNameLanguage: "pokemonOverlayPokemonNameLanguage",
+  autoSaveEnabled: "pokemonOverlayAutoSaveEnabled"
+};
 
 function resolvePokemonNameLanguage() {
   const selected = pokemonNameLanguageInput?.value || "auto";
   if (selected === "auto") return getCurrentLanguage();
   return selected;
+}
+
+function loadLocalPreferences() {
+  if (pokemonNameLanguageInput) {
+    const savedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.pokemonNameLanguage);
+    if (savedLanguage) {
+      pokemonNameLanguageInput.value = savedLanguage;
+    }
+  }
+
+  if (autoSaveInput) {
+    autoSaveInput.checked = localStorage.getItem(LOCAL_STORAGE_KEYS.autoSaveEnabled) === "true";
+  }
+}
+
+function savePokemonNameLanguagePreference() {
+  if (!pokemonNameLanguageInput) return;
+  localStorage.setItem(LOCAL_STORAGE_KEYS.pokemonNameLanguage, pokemonNameLanguageInput.value || "auto");
+}
+
+function saveAutoSavePreference() {
+  if (!autoSaveInput) return;
+  localStorage.setItem(LOCAL_STORAGE_KEYS.autoSaveEnabled, String(autoSaveInput.checked));
 }
 
 function getSuggestionLabel(entry, language) {
@@ -86,7 +113,8 @@ function renderPokemonNameLanguageOptions(languages = []) {
   pokemonNameLanguageInput.innerHTML = options.join("");
 
   const languageCodes = new Set(["auto", ...languages.map((language) => language.code)]);
-  pokemonNameLanguageInput.value = languageCodes.has(current) ? current : "auto";
+  const savedLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.pokemonNameLanguage) || current;
+  pokemonNameLanguageInput.value = languageCodes.has(savedLanguage) ? savedLanguage : "auto";
 }
 
 let slotPositions = defaultSlotPositions();
@@ -232,7 +260,7 @@ function createSlot(index) {
     } catch {
       evolutionBtn.disabled = true;
       evolutionBtn.dataset.nextEvolution = "";
-      previewBox.innerHTML = '<div class="preview-placeholder">Introuvable</div>';
+      previewBox.innerHTML = `<div class="preview-placeholder">${t("app.not_found")}</div>`;
     }
     deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
     renderEditorCanvas();
@@ -456,7 +484,7 @@ function renderEditorCanvas() {
     token.dataset.index = String(index);
     token.style.left = `${pos.x}%`;
     token.style.top = `${pos.y}%`;
-    token.innerHTML = `<strong>${slot.nickname || slot.name || `Slot ${index + 1}`}</strong><span>${slot.name ? t("app.drag_to_place") : t("app.add_pokemon")}</span>`;
+    token.innerHTML = `<strong>${slot.nickname || slot.name || t("slot_label", { index: index + 1 })}</strong><span>${slot.name ? t("app.drag_to_place") : t("app.add_pokemon")}</span>`;
     const scale = Math.max(0.6, Math.min(2, Number(slotScales[index]) || 1));
     token.style.width = `${Math.round((slot.name ? 170 : 150) * scale)}px`;
     enableDrag(token, index);
@@ -472,8 +500,8 @@ function renderEditorCanvas() {
     const nPos = slotPositions[6] || { x: 88, y: 12 };
     deathToken.style.left = `${nPos.x}%`;
     deathToken.style.top = `${nPos.y}%`;
-    const nuzlockeLabel = showNuzlockeLabelInput.checked ? "Nuzlocke" : "Compteur";
-    deathToken.innerHTML = `<strong>${nuzlockeLabel}</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} morts</span>`;
+    const nuzlockeLabel = showNuzlockeLabelInput.checked ? t("nuzlocke_mode") : t("death_counter");
+    deathToken.innerHTML = `<strong>${nuzlockeLabel}</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} ${t("overlay.deaths").toLowerCase()}</span>`;
     enableDrag(deathToken, 6);
     editorCanvas.appendChild(deathToken);
   }
@@ -542,7 +570,10 @@ function fillForm(data) {
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
   const normalizedSpriteScale = Math.max(0.5, Math.min(10, Number(opts.spriteScale) || 1));
-  if (pokemonNameLanguageInput) pokemonNameLanguageInput.value = opts.pokemonNameLanguage || "auto";
+  if (pokemonNameLanguageInput) {
+    const localPokemonLanguage = localStorage.getItem(LOCAL_STORAGE_KEYS.pokemonNameLanguage);
+    pokemonNameLanguageInput.value = localPokemonLanguage || opts.pokemonNameLanguage || "auto";
+  }
   spriteScale.value = String(Math.round(normalizedSpriteScale * 100));
   spriteScaleValue.textContent = `${Math.round(normalizedSpriteScale * 100)}%`;
   streamWidth.value = String(Math.max(640, Number(opts.editorResolution?.width) || 1920));
@@ -596,14 +627,14 @@ async function saveCurrentTeam() {
 
   try {
     setStatus(t("common.status.saving"), "info");
-    if (autosaveIndicator) autosaveIndicator.textContent = "Saving…";
+    if (autosaveIndicator) autosaveIndicator.textContent = t("common.status.saving");
     await saveTeam(channel, payload);
     setStatus(t("app.status.team_saved"), "success");
-    if (autosaveIndicator) autosaveIndicator.textContent = "Synced";
+    if (autosaveIndicator) autosaveIndicator.textContent = t("app.synced");
     updateOverlayLink();
   } catch (error) {
     console.error(error);
-    setStatus("Erreur lors de la sauvegarde Firebase.", "error");
+    setStatus(t("app.status.save_error"), "error");
   } finally {
     saveBtn.disabled = false;
   }
@@ -611,7 +642,7 @@ async function saveCurrentTeam() {
 
 function queueAutoSave() {
   if (!autoSaveInput?.checked) return;
-  if (autosaveIndicator) autosaveIndicator.textContent = "Queued";
+  if (autosaveIndicator) autosaveIndicator.textContent = t("app.queued");
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveCurrentTeam();
@@ -680,6 +711,7 @@ resolutionPreset.addEventListener("change", () => {
 });
 
 autoSaveInput?.addEventListener("change", () => {
+  saveAutoSavePreference();
   if (autoSaveInput.checked) {
     setStatus(t("app.status.autosave_on"), "info");
     queueAutoSave();
@@ -694,6 +726,7 @@ autoSaveInput?.addEventListener("change", () => {
     syncShinyAvailability();
     slotPreviewUpdaters.forEach((update) => update?.());
     if (input === pokemonNameLanguageInput) {
+      savePokemonNameLanguagePreference();
       loadPokemonSuggestions();
     }
     queueAutoSave();
@@ -755,6 +788,7 @@ logoutBtn.addEventListener("click", () => {
 
 async function init() {
   await initPageI18n();
+  loadLocalPreferences();
   if (!teamSlots.childElementCount) {
     for (let i = 0; i < 6; i++) createSlot(i);
   }
@@ -764,7 +798,6 @@ async function init() {
     refreshSlotTranslations();
     loadPokemonSuggestions();
     slotPreviewUpdaters.forEach((update) => update?.());
-    queueAutoSave();
   };
   window.addEventListener("app-language-changed", handleLanguageChange);
 
