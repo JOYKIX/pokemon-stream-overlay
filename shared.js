@@ -432,6 +432,7 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       slotScales: Array.isArray(displayOptions.slotScales)
         ? displayOptions.slotScales.slice(0, 6).map((value) => Math.max(0.6, Math.min(2, Number(value) || 1)))
         : Array.from({ length: 6 }, () => 1),
+      showNuzlockeLabel: displayOptions.showNuzlockeLabel ?? true,
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
       overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
     },

@@ -626,7 +626,7 @@ button,
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(150deg, color-mix(in srgb, var(--overlay-bg, #0e0e0e) calc(var(--overlay-bg-opacity, 0.72) * 100%), transparent), transparent 62%);
+  background: transparent;
 }
 
 .overlay-root.has-bg-image::before {
@@ -657,6 +657,69 @@ button,
 
 .overlay-root.hide-header .overlay-header { display: none; }
 .overlay-team { position: absolute; inset: 0; }
+
+
+.overlay-floating-nuzlocke {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(10, 10, 10, 0.88), rgba(42, 42, 42, 0.7));
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.overlay-floating-nuzlocke .run-tag {
+  font-size: 0.75rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: #ff8ea2;
+}
+
+.overlay-floating-nuzlocke.hide-run-label .run-tag {
+  display: none;
+}
+
+.death-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.death-counter-icon {
+  font-size: 1rem;
+  color: #ffd3dc;
+}
+
+.death-counter-label {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+  letter-spacing: 0.05em;
+}
+
+.death-counter-value {
+  min-width: 2ch;
+  text-align: right;
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.overlay-floating-nuzlocke[data-death-tier="warning"] .death-counter-value {
+  color: #ffd166;
+}
+
+.overlay-floating-nuzlocke[data-death-tier="critical"] .death-counter-value {
+  color: #ff6b6b;
+}
 
 .overlay-card {
   position: absolute;

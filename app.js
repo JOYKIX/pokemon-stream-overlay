@@ -22,6 +22,7 @@ const channelInput = document.getElementById("channelInput");
 const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
+const showNuzlockeLabelInput = document.getElementById("showNuzlockeLabel");
 const deathCountInput = document.getElementById("deathCountInput");
 const deathCountField = document.getElementById("deathCountField");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -345,7 +346,8 @@ function collectDisplayOptions() {
       height: Math.max(360, Number(streamHeight.value) || 1080)
     },
     slotPositions,
-    slotScales
+    slotScales,
+    showNuzlockeLabel: showNuzlockeLabelInput.checked
   };
 }
 
@@ -401,7 +403,8 @@ function renderEditorCanvas() {
     const nPos = slotPositions[6] || { x: 88, y: 12 };
     deathToken.style.left = `${nPos.x}%`;
     deathToken.style.top = `${nPos.y}%`;
-    deathToken.innerHTML = `<strong>Nuzlocke</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} morts</span>`;
+    const nuzlockeLabel = showNuzlockeLabelInput.checked ? "Nuzlocke" : "Compteur";
+    deathToken.innerHTML = `<strong>${nuzlockeLabel}</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} morts</span>`;
     enableDrag(deathToken, 6);
     editorCanvas.appendChild(deathToken);
   }
@@ -465,6 +468,7 @@ function fillForm(data) {
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
   showTypes.checked = opts.showTypes ?? true;
+  showNuzlockeLabelInput.checked = opts.showNuzlockeLabel ?? true;
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);
   spriteOnlyMode.checked = Boolean(opts.spriteOnlyMode);
@@ -583,6 +587,10 @@ deathCountInput.addEventListener("input", () => {
   renderEditorCanvas();
   queueAutoSave();
 });
+showNuzlockeLabelInput.addEventListener("change", () => {
+  renderEditorCanvas();
+  queueAutoSave();
+});
 snapToGridInput?.addEventListener("change", () => {
   renderEditorCanvas();
   queueAutoSave();
@@ -628,6 +636,7 @@ autoSaveInput?.addEventListener("change", () => {
   showItem,
   showShiny,
   showTypes,
+  showNuzlockeLabelInput,
   spriteOnlyMode
 ].forEach((input) => {
   const eventName = input.type === "checkbox" ? "change" : "input";
