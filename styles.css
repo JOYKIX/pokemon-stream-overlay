@@ -125,6 +125,7 @@ button,
 .app-page {
   min-height: 100vh;
   padding: 18px;
+  overflow-x: clip;
 }
 
 .dashboard-shell {
@@ -133,6 +134,10 @@ button,
   display: grid;
   grid-template-columns: 270px 1fr;
   gap: 18px;
+}
+
+.dashboard-shell > * {
+  min-width: 0;
 }
 
 .sidebar {
