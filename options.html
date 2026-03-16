@@ -12,51 +12,51 @@
 <body class="app-page">
   <div class="dashboard-shell">
     <aside class="sidebar">
-      <div><p class="sidebar-kicker">Pokemon Stream Overlay for OBS</p><h1 class="sidebar-title">Profile</h1></div>
+      <div><p class="sidebar-kicker" data-i18n="pokemon_stream_overlay_for_obs"></p><h1 class="sidebar-title" data-i18n="profile"></h1></div>
       <nav class="sidebar-nav">
-        <p class="nav-group-label">GENERAL</p>
-        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span>Studio</a>
-        <a class="nav-item" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
-        <a class="nav-item" href="share.html"><span class="material-symbols-rounded">share</span>Partage</a>
-        <p class="nav-group-label">ACCOUNT</p>
-        <a class="nav-item active" href="options.html"><span class="material-symbols-rounded">person</span>Profile</a>
-        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span>Logout</button>
+        <p class="nav-group-label" data-i18n="general"></p>
+        <a class="nav-item" href="index.html"><span class="material-symbols-rounded">dashboard</span><span data-i18n="studio"></span></a>
+        <a class="nav-item" href="customize.html"><span class="material-symbols-rounded">palette</span><span data-i18n="design"></span></a>
+        <a class="nav-item" href="share.html"><span class="material-symbols-rounded">share</span><span data-i18n="share"></span></a>
+        <p class="nav-group-label" data-i18n="account"></p>
+        <a class="nav-item active" href="options.html"><span class="material-symbols-rounded">person</span><span data-i18n="profile"></span></a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span><span data-i18n="logout"></span></button>
       </nav>
     </aside>
     <main class="dashboard-main">
-      <header class="topbar"><h2 class="page-title">Profile</h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span>UI language</span><select id="languageSelect"><option value="en">English</option><option value="fr">Français</option></select></label></div></header>
+      <header class="topbar"><h2 class="page-title" data-i18n="profile"></h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span data-i18n="ui_language"></span><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option></select></label></div></header>
       <section class="studio-grid design-grid">
         <section class="card">
-          <div class="section-header"><h3>Account settings</h3></div>
-          <div class="field"><label for="currentChannel">Username</label><input id="currentChannel" type="text" readonly></div>
-          <div class="field"><label for="nextChannel">Email / new id</label><input id="nextChannel" type="text" placeholder="new-id"></div>
-          <div class="field"><label for="renameKey">Edit key</label><input id="renameKey" type="password"></div>
-          <button id="renameBtn" class="primary-btn" type="button">Update profile</button>
+          <div class="section-header"><h3 data-i18n="account_settings"></h3></div>
+          <div class="field"><label for="currentChannel" data-i18n="username"></label><input id="currentChannel" type="text" readonly></div>
+          <div class="field"><label for="nextChannel" data-i18n="email_new_id"></label><input id="nextChannel" type="text" data-i18n-placeholder="new_id_placeholder" placeholder="new-id"></div>
+          <div class="field"><label for="renameKey" data-i18n="edit_key"></label><input id="renameKey" type="password"></div>
+          <button id="renameBtn" class="primary-btn" type="button" data-i18n="update_profile"></button>
 
-          <div class="section-header"><h3>Clé de récupération</h3></div>
-          <div class="field"><label for="recoveryKeyDisplay">Recovery key</label><input id="recoveryKeyDisplay" type="password" readonly placeholder="Clique sur régénérer"></div>
+          <div class="section-header"><h3 data-i18n="recovery_key_section"></h3></div>
+          <div class="field"><label for="recoveryKeyDisplay" data-i18n="recovery_key"></label><input id="recoveryKeyDisplay" type="password" readonly data-i18n-placeholder="click_regenerate" placeholder="Clique sur régénérer"></div>
           <div class="actions">
-            <button id="toggleRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">visibility</span>Afficher</button>
-            <button id="regenerateRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">autorenew</span>Régénérer</button>
-            <button id="copyRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">content_copy</span>Copier</button>
+            <button id="toggleRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">visibility</span><span data-i18n="show"></span></button>
+            <button id="regenerateRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">autorenew</span><span data-i18n="regenerate"></span></button>
+            <button id="copyRecoveryBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">content_copy</span><span data-i18n="copy"></span></button>
           </div>
         </section>
 
         <section class="card">
-          <div class="section-header"><h3>Security</h3></div>
-          <div class="field"><label for="currentKey">Current key</label><input id="currentKey" type="password"></div>
-          <div class="field"><label for="nextKey">Change edit key</label><input id="nextKey" type="password"></div>
+          <div class="section-header"><h3 data-i18n="security"></h3></div>
+          <div class="field"><label for="currentKey" data-i18n="current_key"></label><input id="currentKey" type="password"></div>
+          <div class="field"><label for="nextKey" data-i18n="change_edit_key"></label><input id="nextKey" type="password"></div>
           <div class="actions">
-            <button id="updateKeyBtn" class="primary-btn" type="button">Change edit key</button>
-            <button id="regenerateKeyBtn" class="secondary-btn" type="button">Regenerate key</button>
-            <button id="copyKeyBtn" class="secondary-btn" type="button">Copy key</button>
-            <button id="toggleKeyBtn" class="secondary-btn" type="button">Show / hide key</button>
+            <button id="updateKeyBtn" class="primary-btn" type="button" data-i18n="change_edit_key"></button>
+            <button id="regenerateKeyBtn" class="secondary-btn" type="button" data-i18n="regenerate_key"></button>
+            <button id="copyKeyBtn" class="secondary-btn" type="button" data-i18n="copy_key"></button>
+            <button id="toggleKeyBtn" class="secondary-btn" type="button" data-i18n="show_hide_key"></button>
           </div>
 
-          <div class="section-header"><h3>Danger zone</h3></div>
-          <button id="deleteAccountBtn" class="danger-btn" type="button"><span class="material-symbols-rounded">delete</span>Supprimer le compte</button>
+          <div class="section-header"><h3 data-i18n="danger_zone"></h3></div>
+          <button id="deleteAccountBtn" class="danger-btn" type="button"><span class="material-symbols-rounded">delete</span><span data-i18n="delete_account"></span></button>
 
-          <div id="statusBox" class="status-box info">Ready.</div>
+          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
         </section>
       </section>
     </main>
