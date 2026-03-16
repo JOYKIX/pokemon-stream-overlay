@@ -33,11 +33,16 @@ function applyOverlayStyle(style = {}, options = {}) {
   document.body.style.backgroundColor = merged.transparentBackground
     ? "transparent"
     : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${merged.backgroundOpacity})`;
-  document.body.style.backgroundImage = hasBackgroundImage ? `url("${merged.backgroundImage}")` : "none";
+  document.body.style.backgroundImage = "none";
   document.body.style.backgroundPosition = "center center";
   document.body.style.backgroundSize = "cover";
   document.body.style.backgroundRepeat = "no-repeat";
 
+  overlayRoot.classList.toggle("overlay-transparent-bg", Boolean(merged.transparentBackground));
+  overlayRoot.classList.toggle("has-bg-image", hasBackgroundImage && !merged.transparentBackground);
+  overlayRoot.style.setProperty("--overlay-bg", merged.backgroundColor);
+  overlayRoot.style.setProperty("--overlay-bg-opacity", String(merged.transparentBackground ? 0 : merged.backgroundOpacity));
+  overlayRoot.style.setProperty("--overlay-bg-image", hasBackgroundImage ? `url("${merged.backgroundImage}")` : "none");
   overlayRoot.style.setProperty("--overlay-text", merged.textColor);
   overlayRoot.style.setProperty("--overlay-accent", merged.accentColor);
   overlayRoot.style.setProperty("--overlay-card", merged.cardColor);

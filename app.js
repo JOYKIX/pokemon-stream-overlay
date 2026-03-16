@@ -81,8 +81,8 @@ function bindSegmentSwitch(buttons, panels, buttonKey, panelKey) {
   });
 }
 
-bindSegmentSwitch(teamViewButtons, teamViewPanels, "teamView", "teamPanel");
-bindSegmentSwitch(leftViewButtons, leftViewPanels, "leftView", "leftPanel");
+bindSegmentSwitch(teamViewButtons, teamViewPanels, "teamViewBtn", "teamPanel");
+bindSegmentSwitch(leftViewButtons, leftViewPanels, "leftViewBtn", "leftPanel");
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;

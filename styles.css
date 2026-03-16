@@ -261,6 +261,10 @@ button,
   gap: 12px;
 }
 
+.studio-page .studio-grid {
+  grid-template-columns: 1fr;
+}
+
 .design-grid {
   grid-template-columns: 1fr 1.2fr;
 }
@@ -629,6 +633,15 @@ button,
   background-image: var(--overlay-bg-image);
   background-size: cover;
   opacity: 0.35;
+}
+
+.overlay-root.overlay-transparent-bg::before {
+  background: transparent;
+}
+
+.overlay-root.overlay-transparent-bg.has-bg-image::before {
+  background-image: none;
+  opacity: 0;
 }
 
 .overlay-header {
