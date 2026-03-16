@@ -287,6 +287,40 @@ function createSlot(index) {
   });
 }
 
+function refreshSlotTranslations() {
+  for (let index = 0; index < 6; index++) {
+    const wrapper = teamSlots.querySelector(`[data-slot-index="${index}"]`);
+    if (!wrapper) continue;
+
+    const title = wrapper.querySelector("h3");
+    if (title) title.textContent = t("app.slot_title", { index: index + 1 });
+
+    const emptyPreview = wrapper.querySelector(".preview-placeholder");
+    if (emptyPreview) emptyPreview.textContent = t("app.preview");
+
+    const nicknameInput = wrapper.querySelector(`#nickname${index}`);
+    if (nicknameInput) nicknameInput.placeholder = t("app.nickname");
+
+    const levelInput = wrapper.querySelector(`#level${index}`);
+    if (levelInput) levelInput.placeholder = t("app.level");
+
+    const itemInput = wrapper.querySelector(`#item${index}`);
+    if (itemInput) itemInput.placeholder = t("app.item");
+
+    const evolutionBtn = wrapper.querySelector(`#evolutionBtn${index}`);
+    if (evolutionBtn) evolutionBtn.textContent = t("app.evolution");
+
+    const swapLabel = wrapper.querySelector(`label[for="swapTarget${index}"]`);
+    if (swapLabel) swapLabel.textContent = t("app.swap_with_slot");
+
+    const swapBtn = wrapper.querySelector(`#swapBtn${index}`);
+    if (swapBtn) swapBtn.textContent = t("app.swap");
+
+    const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
+    if (deadBtn) deadBtn.textContent = t("app.dead");
+  }
+}
+
 let dragSlotIndex = null;
 function wireSlotDnD(wrapper, index) {
   wrapper.addEventListener("dragstart", () => {
@@ -598,8 +632,6 @@ async function loadPokemonSuggestions() {
   }
 }
 
-for (let i = 0; i < 6; i++) createSlot(i);
-
 saveBtn.addEventListener("click", saveCurrentTeam);
 
 loadBtn.addEventListener("click", async () => {
@@ -720,6 +752,10 @@ logoutBtn.addEventListener("click", () => {
 
 async function init() {
   await initPageI18n();
+  if (!teamSlots.childElementCount) {
+    for (let i = 0; i < 6; i++) createSlot(i);
+  }
+  refreshSlotTranslations();
   try {
     const languages = await fetchPokemonLanguages();
     renderPokemonNameLanguageOptions(languages);
@@ -739,6 +775,7 @@ async function init() {
   await loadPokemonSuggestions();
 
   window.addEventListener("app-language-changed", () => {
+    refreshSlotTranslations();
     loadPokemonSuggestions();
     slotPreviewUpdaters.forEach((update) => update?.());
     queueAutoSave();
