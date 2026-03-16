@@ -6,7 +6,7 @@ import {
   DEFAULT_OVERLAY_STYLE,
   shouldUsePixelRendering
 } from "./shared.js";
-import { getCurrentLanguage } from "./i18n.js";
+import { getCurrentLanguage, loadTranslations, t } from "./i18n.js";
 
 const overlayRoot = document.getElementById("overlayRoot");
 const overlayTrainer = document.getElementById("overlayTrainer");
@@ -85,12 +85,13 @@ function getPosition(options, index) {
 }
 
 async function renderTeam(data) {
+  await loadTranslations(getCurrentLanguage());
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
     overlayRoot.classList.remove("sprite-only-mode", "hide-header");
     overlayRoot.style.setProperty("--overlay-sprite-scale", "1");
-    overlayTrainer.textContent = "Aucune team";
-    overlayBadge.textContent = "En attente de données";
+    overlayTrainer.textContent = t("overlay.no_team");
+    overlayBadge.textContent = t("overlay.waiting_data");
     overlayNuzlockeTag.style.display = "none";
     overlayTeam.innerHTML = "";
     return;
@@ -120,13 +121,13 @@ async function renderTeam(data) {
   overlayRoot.style.setProperty("--overlay-sprite-scale", String(options.spriteScale));
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
 
-  overlayTrainer.textContent = data.trainerName || "Dresseur";
-  overlayBadge.textContent = data.badgeText || "Équipe Pokémon";
+  overlayTrainer.textContent = data.trainerName || t("common.default_trainer");
+  overlayBadge.textContent = data.badgeText || t("common.default_badge");
 
   const nuzlockeOn = Boolean(data.nuzlockeMode);
   const deathCount = Math.max(0, Number(data.deathCount) || 0);
   const deathTier = deathCount >= 10 ? "critical" : deathCount >= 5 ? "warning" : "normal";
-  overlayDeathsLabel.textContent = "Morts";
+  overlayDeathsLabel.textContent = t("overlay.deaths");
   overlayDeathCount.textContent = String(deathCount);
   overlayNuzlockeTag.dataset.deathTier = deathTier;
   overlayNuzlockeTag.classList.toggle("hide-run-label", !options.showNuzlockeLabel);

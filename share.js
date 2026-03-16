@@ -1,6 +1,6 @@
 import { ensureAuthenticated, clearSession } from "./auth.js";
 import { generateShareCode, importSharedData } from "./shared.js";
-import { initLanguageSelector } from "./i18n.js";
+import { initPageI18n, t } from "./i18n.js";
 
 const shareCodeOutput = document.getElementById("shareCodeOutput");
 const autoRotateOnUse = document.getElementById("autoRotateOnUse");
@@ -29,10 +29,10 @@ generateShareBtn?.addEventListener("click", async () => {
     });
     shareCodeOutput.value = shareCode;
     shareCodeOutput.type = "password";
-    setStatus("Code de partage généré (validité 24h).", "success");
+    setStatus(t("share.status.code_generated"), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de générer le code de partage.", "error");
+    setStatus(t("share.status.code_generate_error"), "error");
   }
 });
 
@@ -42,14 +42,14 @@ toggleShareBtn?.addEventListener("click", () => {
 
 copyShareBtn?.addEventListener("click", async () => {
   if (!shareCodeOutput.value) {
-    setStatus("Aucun code à copier.", "error");
+    setStatus(t("share.status.no_code_to_copy"), "error");
     return;
   }
   try {
     await navigator.clipboard.writeText(shareCodeOutput.value);
-    setStatus("Code copié.", "success");
+    setStatus(t("share.status.code_copied"), "success");
   } catch {
-    setStatus("Impossible de copier le code.", "error");
+    setStatus(t("share.status.code_copy_error"), "error");
   }
 });
 
@@ -58,16 +58,16 @@ importShareBtn?.addEventListener("click", async () => {
   const shareCode = sourceShareCodeInput.value.trim();
 
   if (!sourceChannel || !shareCode) {
-    setStatus("Identifiant source et code requis.", "error");
+    setStatus(t("share.status.source_and_code_required"), "error");
     return;
   }
 
   try {
     await importSharedData(session.channel, session.editKeyHash, sourceChannel, shareCode, { preHashed: true });
-    setStatus("Données importées (team/design). Recharge le studio si besoin.", "success");
+    setStatus(t("share.status.import_success"), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Import impossible (code invalide/expiré ou source vide).", "error");
+    setStatus(t("share.status.import_error"), "error");
   }
 });
 
@@ -77,7 +77,7 @@ logoutBtn?.addEventListener("click", () => {
 });
 
 async function init() {
-  initLanguageSelector();
+  await initPageI18n();
   session = await ensureAuthenticated();
 }
 

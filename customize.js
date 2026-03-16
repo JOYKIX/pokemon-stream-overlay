@@ -5,7 +5,7 @@ import {
   buildTeamPayload,
   getOverlayUrl
 } from "./shared.js";
-import { initLanguageSelector } from "./i18n.js";
+import { initPageI18n, t } from "./i18n.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 
 const channelInput = document.getElementById("channelInput");
@@ -88,7 +88,7 @@ function applyPreset(preset) {
   accentColor.value = theme.accentColor;
   textColor.value = theme.textColor;
   applyStylePreview(collectStyle());
-  setStatus(`Preset ${preset} appliqué.`, "success");
+  setStatus(t("customize.status.preset_applied", { preset }), "success");
 }
 
 function fillForm(style) {
@@ -110,7 +110,7 @@ async function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(String(reader.result || ""));
-    reader.onerror = () => reject(new Error("Impossible de lire l'image."));
+    reader.onerror = () => reject(new Error(t("customize.status.read_image_error")));
     reader.readAsDataURL(file);
   });
 }
@@ -120,7 +120,7 @@ async function onBackgroundImageChange(event) {
   if (!file) return;
 
   if (file.type !== "image/png") {
-    setStatus("Seuls les fichiers .png sont acceptés pour le fond.", "error");
+    setStatus(`${t("customize.status.only_png")}`, "error");
     backgroundImageInput.value = "";
     return;
   }
@@ -128,10 +128,10 @@ async function onBackgroundImageChange(event) {
   try {
     backgroundImageData = await fileToDataUrl(file);
     applyStylePreview(collectStyle());
-    setStatus("Image de fond chargée. Pense à sauvegarder le design.", "success");
+    setStatus(`${t("customize.status.background_loaded")}`, "success");
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de charger l'image de fond.", "error");
+    setStatus(`${t("customize.status.background_load_error")}`, "error");
   }
 }
 
@@ -139,21 +139,21 @@ function clearBackgroundImage() {
   backgroundImageData = "";
   backgroundImageInput.value = "";
   applyStylePreview(collectStyle());
-  setStatus("Image de fond retirée. Pense à sauvegarder le design.", "info");
+  setStatus(`${t("customize.status.background_removed")}`, "info");
 }
 
 async function saveStyle() {
   const channel = channelInput.value.trim();
   try {
-    setStatus("Sauvegarde en cours...", "info");
+    setStatus(t("common.status.saving"), "info");
     const existing = await loadTeam(channel);
     const style = collectStyle();
 
     const payload = existing
       ? { ...existing, overlayStyle: { ...DEFAULT_OVERLAY_STYLE, ...existing.overlayStyle, ...style }, updatedAt: Date.now() }
       : buildTeamPayload({
-        trainerName: "Dresseur",
-        badgeText: "Équipe Pokémon",
+        trainerName: `${t("common.default_trainer")}`,
+        badgeText: `${t("common.default_badge")}`,
         nuzlockeMode: false,
         deathCount: 0,
         slots: Array.from({ length: 6 }, () => ({ name: "", nickname: "", level: "", item: "", shiny: false })),
@@ -162,23 +162,23 @@ async function saveStyle() {
       });
 
     await saveTeam(channel, payload);
-    setStatus(`Design sauvegardé. URL: ${getOverlayUrl(channel)}`, "success");
+    setStatus(t("customize.status.design_saved", { url: getOverlayUrl(channel) }), "success");
   } catch (error) {
     console.error(error);
-    setStatus("Erreur pendant la sauvegarde du design.", "error");
+    setStatus(`${t("customize.status.design_save_error")}`, "error");
   }
 }
 
 async function loadStyle() {
   const channel = channelInput.value.trim();
   try {
-    setStatus("Chargement du style...", "info");
+    setStatus(`${t("customize.status.loading_style")}`, "info");
     const existing = await loadTeam(channel);
     fillForm(existing?.overlayStyle || DEFAULT_OVERLAY_STYLE);
-    setStatus(existing ? "Style chargé." : "Style par défaut chargé.", "success");
+    setStatus(existing ? `${t("customize.status.style_loaded")}` : `${t("customize.status.default_style_loaded")}`, "success");
   } catch (error) {
     console.error(error);
-    setStatus("Impossible de charger le style.", "error");
+    setStatus(`${t("customize.status.style_load_error")}`, "error");
   }
 }
 
@@ -192,8 +192,8 @@ fontSelector?.addEventListener("change", () => applyStylePreview(collectStyle())
 exportThemeBtn?.addEventListener("click", () => {
   const payload = JSON.stringify(collectStyle(), null, 2);
   navigator.clipboard.writeText(payload)
-    .then(() => setStatus("Theme JSON copié.", "success"))
-    .catch(() => setStatus("Impossible d'exporter le thème JSON.", "error"));
+    .then(() => setStatus(`${t("customize.status.theme_copied")}`, "success"))
+    .catch(() => setStatus(`${t("customize.status.theme_export_error")}`, "error"));
 });
 
 saveBtn.addEventListener("click", saveStyle);
@@ -204,7 +204,7 @@ logoutBtn.addEventListener("click", () => {
 });
 
 async function init() {
-  initLanguageSelector();
+  await initPageI18n();
   const session = await ensureAuthenticated();
   if (!session) return;
   channelInput.value = session.channel;

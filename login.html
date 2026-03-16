@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Stream Overlay - Connexion</title>
+  <title>Pokémon Stream Overlay - Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
@@ -11,26 +11,26 @@
 </head>
 <body class="app-page login-page">
   <main class="auth-card panel">
-    <p class="eyebrow">Connexion sécurisée</p>
-    <h1>Identifiant + clé d’édition</h1>
+    <p class="eyebrow" data-i18n="login.secure_login">Secure login</p>
+    <h1 data-i18n="login.title">Identifier + edit key</h1>
     <p class="auth-note">Simple, fast, private.</p>
     <div class="field"><label for="languageSelect">UI language</label><select id="languageSelect"><option value="en">English</option><option value="fr">Français</option></select></div>
 
-    <div class="field"><label for="channelInput">Identifiant unique</label><input id="channelInput" type="text" placeholder="ex: joykix" /></div>
-    <div class="field"><label for="editKeyInput">Clé d’édition</label><input id="editKeyInput" type="password" placeholder="Ta clé privée" /></div>
-    <label class="checkbox-chip wide"><input type="checkbox" id="createMode"><span>Créer un nouvel identifiant</span></label>
-    <button id="submitBtn" class="primary-btn"><span class="material-symbols-rounded">login</span>Continuer</button>
+    <div class="field"><label for="channelInput" data-i18n="login.unique_identifier">Unique identifier</label><input id="channelInput" type="text" placeholder="e.g. joykix" /></div>
+    <div class="field"><label for="editKeyInput" data-i18n="login.edit_key">Edit key</label><input id="editKeyInput" type="password" data-i18n-placeholder="login.private_key_placeholder" placeholder="Your private key" /></div>
+    <label class="checkbox-chip wide"><input type="checkbox" id="createMode"><span data-i18n="login.create_new_identifier">Create new identifier</span></label>
+    <button id="submitBtn" class="primary-btn"><span class="material-symbols-rounded">login</span><span data-i18n="login.continue">Continue</span></button>
 
     <section class="card">
-      <div class="section-header"><h3>Mot de passe oublié</h3></div>
-      <div class="field"><label for="recoveryChannelInput">Identifiant</label><input id="recoveryChannelInput" type="text" placeholder="ex: joykix"></div>
-      <div class="field"><label for="recoveryKeyInput">Clé de récupération</label><input id="recoveryKeyInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
-      <div class="field"><label for="newPasswordInput">Nouvelle clé d’édition</label><input id="newPasswordInput" type="password" placeholder="Nouvelle clé"></div>
-      <button id="recoverBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">key</span>Réinitialiser la clé</button>
+      <div class="section-header"><h3 data-i18n="login.forgot_password">Forgot password</h3></div>
+      <div class="field"><label for="recoveryChannelInput" data-i18n="login.identifier">Identifier</label><input id="recoveryChannelInput" type="text" placeholder="e.g. joykix"></div>
+      <div class="field"><label for="recoveryKeyInput" data-i18n="login.recovery_key">Recovery key</label><input id="recoveryKeyInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
+      <div class="field"><label for="newPasswordInput" data-i18n="login.new_edit_key">New edit key</label><input id="newPasswordInput" type="password" data-i18n-placeholder="login.new_key_placeholder" placeholder="New key"></div>
+      <button id="recoverBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">key</span><span data-i18n="login.reset_key">Reset key</span></button>
     </section>
 
     <div id="recoveryKeyBox" class="status-box info" style="display:none"></div>
-    <div id="statusBox" class="status-box info">Prêt.</div>
+    <div id="statusBox" class="status-box info" data-i18n="common.status.ready">Ready.</div>
   </main>
   <script type="module" src="login.js"></script>
 </body>
