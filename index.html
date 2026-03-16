@@ -3,144 +3,108 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pokémon Stream Overlay - Studio</title>
+  <title>Pokemon Stream Overlay Studio - Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="app-page studio-v2-page">
-  <div class="studio-v2-shell">
-    <aside class="studio-v2-sidebar panel">
-      <div class="studio-brand">
-        <p class="eyebrow">Pokémon Stream Overlay</p>
-        <h1>Studio</h1>
-        <p class="studio-subtitle">Nouveau layout fluide, minimal et pensé stream.</p>
+<body class="app-page studio-page">
+  <div class="dashboard-shell">
+    <aside class="sidebar" aria-label="Main Navigation">
+      <div>
+        <p class="sidebar-kicker">Pokemon Stream Overlay</p>
+        <h1 class="sidebar-title">Studio</h1>
       </div>
-
-      <nav class="studio-v2-nav" aria-label="Navigation principale">
-        <a class="ghost-btn active" href="index.html"><span class="material-symbols-rounded" aria-hidden="true">dashboard</span>Éditeur</a>
-        <a class="ghost-btn" href="customize.html"><span class="material-symbols-rounded" aria-hidden="true">palette</span>Design</a>
-        <a class="ghost-btn" href="options.html"><span class="material-symbols-rounded" aria-hidden="true">settings</span>Profil</a>
+      <nav class="sidebar-nav">
+        <p class="nav-group-label">GENERAL</p>
+        <a class="nav-item active" href="index.html"><span class="material-symbols-rounded">dashboard</span>Studio</a>
+        <a class="nav-item" href="customize.html"><span class="material-symbols-rounded">palette</span>Design</a>
+        <p class="nav-group-label">ACCOUNT</p>
+        <a class="nav-item" href="options.html"><span class="material-symbols-rounded">person</span>Profile</a>
+        <button id="logoutBtn" class="nav-item nav-btn" type="button"><span class="material-symbols-rounded">logout</span>Logout</button>
       </nav>
-
-      <div class="studio-v2-sidebar-footer">
-        <button id="logoutBtn" class="ghost-btn" type="button"><span class="material-symbols-rounded" aria-hidden="true">logout</span>Déconnexion</button>
-      </div>
     </aside>
 
-    <main class="studio-v2-main">
-      <header class="studio-v2-header panel">
-        <div>
-          <p class="eyebrow">Nouvelle expérience</p>
-          <h2>Contrôle total de ton overlay</h2>
-        </div>
-        <div class="studio-header-pills">
-          <span class="stat-pill"><span class="material-symbols-rounded" aria-hidden="true">touch_app</span>Drag précis</span>
-          <span class="stat-pill"><span class="material-symbols-rounded" aria-hidden="true">motion_photos_auto</span>Transitions smooth</span>
-          <span class="stat-pill"><span class="material-symbols-rounded" aria-hidden="true">tv</span>Prêt OBS</span>
+    <main class="dashboard-main">
+      <header class="topbar">
+        <h2 class="page-title">Studio</h2>
+        <div class="topbar-controls">
+          <label class="toggle-control" for="snapToGrid"><span>Drag</span><input id="snapToGrid" type="checkbox" checked></label>
+          <label class="toggle-control" for="transitionToggle"><span>Transition</span><input id="transitionToggle" type="checkbox" checked></label>
+          <button id="exportObsBtn" class="primary-btn" type="button">OBS export</button>
         </div>
       </header>
 
-      <section class="studio-v2-grid">
-        <section class="panel studio-config">
-          <div class="panel-head"><h3>Paramètres globaux</h3></div>
-          <div class="field"><label for="channelInput">Identifiant unique</label><input id="channelInput" type="text" readonly /></div>
+      <div class="autosave-bar">Autosave: <strong id="autosaveIndicator">Idle</strong></div>
+
+      <section class="studio-grid">
+        <section class="card left-column">
+          <div class="section-header"><h3>STREAM SETTINGS</h3></div>
+          <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly /></div>
+          <div class="field"><label for="trainerInput">Trainer name</label><input id="trainerInput" type="text" /></div>
+          <div class="field"><label for="badgeInput">Team label</label><input id="badgeInput" type="text" /></div>
           <div class="inline-fields">
-            <div class="field"><label for="trainerInput">Nom du dresseur</label><input id="trainerInput" type="text" placeholder="ex: JOYKIX" /></div>
-            <div class="field"><label for="badgeInput">Texte secondaire</label><input id="badgeInput" type="text" placeholder="ex: Nuzlocke HGSS" /></div>
+            <div class="field"><label for="streamWidth">Resolution width</label><input id="streamWidth" type="number" value="1920" /></div>
+            <div class="field"><label for="streamHeight">Resolution height</label><input id="streamHeight" type="number" value="1080" /></div>
           </div>
+          <div class="field"><label for="resolutionPreset">Preset</label><select id="resolutionPreset"><option value="custom">Custom</option><option value="1920x1080">1920x1080</option><option value="2560x1440">2560x1440</option><option value="1280x720">1280x720</option></select></div>
 
-          <div class="toggle-panel">
-            <h3>Résolution stream</h3>
-            <div class="inline-fields">
-              <div class="field compact-field"><label for="streamWidth">Largeur (px)</label><input id="streamWidth" type="number" min="640" max="7680" step="10" value="1920" /></div>
-              <div class="field compact-field"><label for="streamHeight">Hauteur (px)</label><input id="streamHeight" type="number" min="360" max="4320" step="10" value="1080" /></div>
-            </div>
-            <div class="field">
-              <label for="resolutionPreset">Preset</label>
-              <select id="resolutionPreset" class="custom-select">
-                <option value="custom">Personnalisé</option>
-                <option value="1920x1080">1920 x 1080 (Full HD)</option>
-                <option value="2560x1440">2560 x 1440 (QHD)</option>
-                <option value="3840x2160">3840 x 2160 (4K)</option>
-                <option value="1280x720">1280 x 720 (HD)</option>
-              </select>
-            </div>
-          </div>
+          <div class="section-header"><h3>RUN MODE</h3></div>
+          <label class="checkbox-chip"><input type="checkbox" id="nuzlockeMode"><span>Nuzlocke mode</span></label>
+          <div class="field" id="deathCountField"><label for="deathCountInput">Death counter</label><input id="deathCountInput" type="number" min="0" value="0"></div>
+          <label class="checkbox-chip"><input type="checkbox" id="autoSave"><span>Auto death count</span></label>
 
-          <div class="toggle-panel">
-            <h3>Mode de run</h3>
-            <label class="checkbox-chip wide"><input type="checkbox" id="nuzlockeMode"><span>Activer Nuzlocke</span></label>
-            <div class="field" id="deathCountField"><label for="deathCountInput">Compteur de morts</label><input id="deathCountInput" type="number" min="0" step="1" value="0" /></div>
-          </div>
-
-          <div class="field"><label for="overlayUrl">URL overlay OBS</label><input id="overlayUrl" type="text" readonly /></div>
+          <div class="section-header"><h3>OBS INTEGRATION</h3></div>
+          <div class="field"><label for="overlayUrl">Overlay URL</label><input id="overlayUrl" type="text" readonly /></div>
           <div class="actions">
-            <button id="copyUrlBtn" class="secondary-btn"><span class="material-symbols-rounded" aria-hidden="true">content_copy</span>Copier l’URL</button>
-            <a id="openOverlayBtn" class="primary-btn link-btn" target="_blank"><span class="material-symbols-rounded" aria-hidden="true">open_in_new</span>Tester l’overlay</a>
+            <button id="copyUrlBtn" class="secondary-btn" type="button">Copy browser source</button>
+            <a id="openOverlayBtn" class="secondary-btn link-btn" target="_blank">Open overlay</a>
+            <button id="testOverlayBtn" class="secondary-btn" type="button">Test overlay</button>
           </div>
         </section>
 
-        <section class="panel studio-team scrollable-panel">
-          <div class="panel-head"><h3>Team builder</h3><p>Switch instantané entre équipe et canvas interactif.</p></div>
-
-          <div class="segment-switch" role="tablist" aria-label="Vue team">
-            <button type="button" class="segment-btn active" data-view="team" role="tab" aria-selected="true"><span class="material-symbols-rounded" aria-hidden="true">groups</span>Team</button>
-            <button type="button" class="segment-btn" data-view="canvas" role="tab" aria-selected="false"><span class="material-symbols-rounded" aria-hidden="true">view_in_ar</span>Canvas interactif</button>
-          </div>
-
+        <section class="card center-column">
+          <div class="section-header"><h3>TEAM BUILDER</h3><p>Drag and drop to reorder slots.</p></div>
           <datalist id="pokemonSuggestions"></datalist>
-          <div class="team-canvas-view active" data-panel="team"><div class="slots" id="teamSlots"></div></div>
-
-          <div class="team-canvas-view" data-panel="canvas">
-            <div class="editor-canvas-wrap">
-              <div class="editor-toolbar">
-                <strong>Placement live</strong>
-                <div class="editor-toolbar-actions">
-                  <label class="checkbox-chip small-chip"><input type="checkbox" id="snapToGrid" checked><span>Grille aimantée</span></label>
-                  <button id="resetPositionsBtn" type="button" class="secondary-btn small">Réinitialiser le placement</button>
-                </div>
-              </div>
-              <div id="editorCanvas" class="editor-canvas"></div>
-            </div>
+          <div class="slots" id="teamSlots" aria-live="polite"></div>
+          <div class="editor-canvas-wrap">
+            <div class="editor-toolbar"><strong>Layout canvas</strong><button id="resetPositionsBtn" class="secondary-btn small" type="button">Reset positions</button></div>
+            <div id="editorCanvas" class="editor-canvas"></div>
           </div>
         </section>
 
-        <section class="panel studio-display">
-          <div class="panel-head"><h3>Affichage & sprites</h3></div>
-          <div class="toggle-panel"><h3>Éléments visibles</h3><div class="toggle-grid">
+        <section class="card right-column">
+          <div class="section-header"><h3>SPRITE DISPLAY</h3></div>
+          <div class="toggle-grid">
             <label class="checkbox-chip"><input type="checkbox" id="showHeader" checked><span>Header</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Nom</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showNickname" checked><span>Surnom</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showLevel" checked><span>Niveau</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showItem" checked><span>Objet</span></label>
-            <label class="checkbox-chip"><input type="checkbox" id="showShiny" checked><span>Shiny</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showName" checked><span>Name</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showNickname" checked><span>Nickname</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showLevel" checked><span>Level</span></label>
+            <label class="checkbox-chip"><input type="checkbox" id="showItem" checked><span>Item</span></label>
             <label class="checkbox-chip"><input type="checkbox" id="showTypes" checked><span>Types</span></label>
-          </div></div>
-
-          <div class="toggle-panel">
-            <h3>Sprites</h3>
-            <div class="field"><label for="spriteVariant">Style de sprite</label><select id="spriteVariant" class="custom-select"><option value="auto">Auto</option><option value="official-artwork">Artwork officiel</option><option value="home">Pokémon HOME</option><option value="pixel">Pixel rétro</option><option value="dream-world">Dream World</option><option value="showdown">Showdown</option><option value="scarlet-violet">Scarlet/Violet</option></select></div>
-            <div class="field"><label for="spriteScale">Taille des sprites (<span id="spriteScaleValue">100%</span>)</label><input id="spriteScale" type="range" min="50" max="1000" step="5" value="100" /></div>
-            <div class="toggle-grid">
-              <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Préférer animé</span></label>
-              <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Retirer le fond</span></label>
-            </div>
+            <label class="checkbox-chip"><input type="checkbox" id="showShiny" checked><span>Visibility</span></label>
           </div>
 
+          <div class="section-header"><h3>SPRITE STYLE</h3></div>
+          <div class="field"><label for="spriteVariant">Sprite style</label><select id="spriteVariant"><option value="auto">Auto</option><option value="official-artwork">Official</option><option value="home">Home</option><option value="pixel">Pixel</option><option value="dream-world">Dream</option><option value="showdown">Showdown</option><option value="scarlet-violet">Scarlet/Violet</option></select></div>
+          <div class="field"><label for="spriteScale">Sprite size <span id="spriteScaleValue">100%</span></label><input id="spriteScale" type="range" min="50" max="1000" value="100"></div>
+          <label class="checkbox-chip"><input type="checkbox" id="preferAnimatedSprite"><span>Animated toggle</span></label>
+          <label class="checkbox-chip"><input type="checkbox" id="spriteOnlyMode"><span>Remove background</span></label>
+
+          <div class="section-header"><h3>DATA</h3></div>
           <div class="actions vertical">
-            <label class="checkbox-chip"><input type="checkbox" id="autoSave"><span>Sauvegarde auto</span></label>
-            <button id="saveBtn" class="primary-btn"><span class="material-symbols-rounded" aria-hidden="true">save</span>Sauvegarder la team</button>
-            <button id="loadBtn" class="secondary-btn"><span class="material-symbols-rounded" aria-hidden="true">download</span>Charger depuis la database</button>
-            <button id="clearBtn" class="danger-btn"><span class="material-symbols-rounded" aria-hidden="true">ink_eraser</span>Réinitialiser</button>
+            <button id="saveBtn" class="primary-btn" type="button">Save team</button>
+            <button id="loadBtn" class="secondary-btn" type="button">Load team</button>
+            <button id="clearBtn" class="danger-btn" type="button">Reset team</button>
           </div>
-          <div id="statusBox" class="status-box info">Chargement…</div>
+          <div id="statusBox" class="status-box info">Ready.</div>
         </section>
       </section>
     </main>
   </div>
 
+  <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>

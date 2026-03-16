@@ -23,11 +23,25 @@ const saveBtn = document.getElementById("saveBtn");
 const statusBox = document.getElementById("statusBox");
 const stylePreview = document.getElementById("stylePreview");
 const logoutBtn = document.getElementById("logoutBtn");
+const themePreset = document.getElementById("themePreset");
+const fontSelector = document.getElementById("fontSelector");
+const exportThemeBtn = document.getElementById("exportThemeBtn");
+const toastStack = document.getElementById("toastStack");
 let backgroundImageData = "";
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
   statusBox.className = `status-box ${type}`;
+  pushToast(message, type);
+}
+
+function pushToast(message, type = "info") {
+  if (!toastStack) return;
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toastStack.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
 }
 
 function collectStyle() {
@@ -40,7 +54,8 @@ function collectStyle() {
     accentColor: accentColor.value,
     cardColor: cardColor.value,
     cardOpacity: Number(cardOpacity.value),
-    borderRadius: Number(borderRadius.value)
+    borderRadius: Number(borderRadius.value),
+    fontFamily: fontSelector?.value || "Inter"
   };
 }
 
@@ -54,7 +69,25 @@ function applyStylePreview(style) {
   stylePreview.style.setProperty("--designer-card", merged.cardColor);
   stylePreview.style.setProperty("--designer-card-opacity", String(merged.cardOpacity));
   stylePreview.style.setProperty("--designer-radius", `${merged.borderRadius}px`);
+  stylePreview.style.fontFamily = merged.fontFamily || "Inter, sans-serif";
   stylePreview.classList.toggle("is-transparent", merged.transparentBackground);
+}
+
+function applyPreset(preset) {
+  const presets = {
+    dark: { backgroundColor: "#0f172a", cardColor: "#1e293b", accentColor: "#6366f1", textColor: "#f1f5f9" },
+    "pokemon-red": { backgroundColor: "#3b0a0a", cardColor: "#7f1d1d", accentColor: "#ef4444", textColor: "#fee2e2" },
+    "pokemon-blue": { backgroundColor: "#0b1f44", cardColor: "#1d4ed8", accentColor: "#60a5fa", textColor: "#dbeafe" },
+    neon: { backgroundColor: "#0b1022", cardColor: "#111827", accentColor: "#22d3ee", textColor: "#e0f2fe" }
+  };
+  const theme = presets[preset];
+  if (!theme) return;
+  backgroundColor.value = theme.backgroundColor;
+  cardColor.value = theme.cardColor;
+  accentColor.value = theme.accentColor;
+  textColor.value = theme.textColor;
+  applyStylePreview(collectStyle());
+  setStatus(`Preset ${preset} appliqué.`, "success");
 }
 
 function fillForm(style) {
@@ -152,6 +185,15 @@ async function loadStyle() {
   .forEach((input) => input.addEventListener("input", () => applyStylePreview(collectStyle())));
 backgroundImageInput.addEventListener("change", onBackgroundImageChange);
 clearBackgroundImageBtn.addEventListener("click", clearBackgroundImage);
+themePreset?.addEventListener("change", () => applyPreset(themePreset.value));
+fontSelector?.addEventListener("change", () => applyStylePreview(collectStyle()));
+
+exportThemeBtn?.addEventListener("click", () => {
+  const payload = JSON.stringify(collectStyle(), null, 2);
+  navigator.clipboard.writeText(payload)
+    .then(() => setStatus("Theme JSON copié.", "success"))
+    .catch(() => setStatus("Impossible d'exporter le thème JSON.", "error"));
+});
 
 saveBtn.addEventListener("click", saveStyle);
 loadBtn.addEventListener("click", loadStyle);

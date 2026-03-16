@@ -49,6 +49,11 @@ const overlayUrlInput = document.getElementById("overlayUrl");
 const copyUrlBtn = document.getElementById("copyUrlBtn");
 const openOverlayBtn = document.getElementById("openOverlayBtn");
 const pokemonSuggestions = document.getElementById("pokemonSuggestions");
+const toastStack = document.getElementById("toastStack");
+const transitionToggle = document.getElementById("transitionToggle");
+const exportObsBtn = document.getElementById("exportObsBtn");
+const testOverlayBtn = document.getElementById("testOverlayBtn");
+const autosaveIndicator = document.getElementById("autosaveIndicator");
 
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
@@ -78,6 +83,16 @@ viewButtons.forEach((btn) => {
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
   statusBox.className = `status-box ${type}`;
+  pushToast(message, type);
+}
+
+function pushToast(message, type = "info") {
+  if (!toastStack) return;
+  const toast = document.createElement("div");
+  toast.className = `toast ${type}`;
+  toast.textContent = message;
+  toastStack.appendChild(toast);
+  setTimeout(() => toast.remove(), 2800);
 }
 
 function isScarletVioletVariant() {
@@ -112,6 +127,9 @@ function defaultSlotPositions() {
 function createSlot(index) {
   const wrapper = document.createElement("article");
   wrapper.className = "slot-card";
+  wrapper.draggable = true;
+  wrapper.dataset.slotIndex = String(index);
+  wrapper.tabIndex = 0;
   wrapper.innerHTML = `
     <h3>Pokémon ${index + 1}</h3>
     <div class="slot-grid">
@@ -141,6 +159,7 @@ function createSlot(index) {
     </div>
   `;
   teamSlots.appendChild(wrapper);
+  wireSlotDnD(wrapper, index);
 
   const nameInput = wrapper.querySelector(`#name${index}`);
   const nicknameInput = wrapper.querySelector(`#nickname${index}`);
@@ -226,6 +245,23 @@ function createSlot(index) {
   });
   nuzlockeModeInput.addEventListener("change", () => {
     deadBtn.style.display = nuzlockeModeInput.checked ? "inline-flex" : "none";
+  });
+}
+
+let dragSlotIndex = null;
+function wireSlotDnD(wrapper, index) {
+  wrapper.addEventListener("dragstart", () => {
+    dragSlotIndex = index;
+  });
+  wrapper.addEventListener("dragover", (event) => event.preventDefault());
+  wrapper.addEventListener("drop", (event) => {
+    event.preventDefault();
+    if (dragSlotIndex === null || dragSlotIndex === index) return;
+    swapSlots(dragSlotIndex, index);
+    refreshSlots(Math.min(dragSlotIndex, index));
+    queueAutoSave();
+    setStatus(`Slots ${dragSlotIndex + 1} et ${index + 1} réorganisés.`, "success");
+    dragSlotIndex = null;
   });
 }
 
@@ -459,6 +495,7 @@ function fillForm(data) {
 }
 
 async function saveCurrentTeam() {
+  saveBtn.disabled = true;
   const channel = channelInput.value.trim();
 
   let overlayStyle = DEFAULT_OVERLAY_STYLE;
@@ -481,17 +518,22 @@ async function saveCurrentTeam() {
 
   try {
     setStatus("Sauvegarde en cours...", "info");
+    if (autosaveIndicator) autosaveIndicator.textContent = "Saving…";
     await saveTeam(channel, payload);
     setStatus("Team sauvegardée. L'overlay OBS est synchronisé.", "success");
+    if (autosaveIndicator) autosaveIndicator.textContent = "Synced";
     updateOverlayLink();
   } catch (error) {
     console.error(error);
     setStatus("Erreur lors de la sauvegarde Firebase.", "error");
+  } finally {
+    saveBtn.disabled = false;
   }
 }
 
 function queueAutoSave() {
   if (!autoSaveInput?.checked) return;
+  if (autosaveIndicator) autosaveIndicator.textContent = "Queued";
   clearTimeout(autoSaveTimer);
   autoSaveTimer = setTimeout(() => {
     saveCurrentTeam();
@@ -595,6 +637,27 @@ copyUrlBtn.addEventListener("click", async () => {
   } catch {
     setStatus("Impossible de copier l’URL.", "error");
   }
+});
+
+transitionToggle?.addEventListener("change", () => {
+  document.body.classList.toggle("reduced-transitions", !transitionToggle.checked);
+  setStatus(`Transitions ${transitionToggle.checked ? "activées" : "désactivées"}.`, "info");
+});
+
+exportObsBtn?.addEventListener("click", () => {
+  const obsConfig = {
+    source: overlayUrlInput.value,
+    width: Number(streamWidth.value) || 1920,
+    height: Number(streamHeight.value) || 1080
+  };
+  navigator.clipboard.writeText(JSON.stringify(obsConfig, null, 2))
+    .then(() => setStatus("Configuration OBS exportée dans le presse-papiers.", "success"))
+    .catch(() => setStatus("Impossible d'exporter la configuration OBS.", "error"));
+});
+
+testOverlayBtn?.addEventListener("click", () => {
+  window.open(openOverlayBtn.href, "_blank", "noopener");
+  setStatus("Aperçu overlay ouvert.", "info");
 });
 
 logoutBtn.addEventListener("click", () => {
