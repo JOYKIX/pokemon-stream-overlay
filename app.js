@@ -756,6 +756,15 @@ async function init() {
     for (let i = 0; i < 6; i++) createSlot(i);
   }
   refreshSlotTranslations();
+
+  const handleLanguageChange = () => {
+    refreshSlotTranslations();
+    loadPokemonSuggestions();
+    slotPreviewUpdaters.forEach((update) => update?.());
+    queueAutoSave();
+  };
+  window.addEventListener("app-language-changed", handleLanguageChange);
+
   try {
     const languages = await fetchPokemonLanguages();
     renderPokemonNameLanguageOptions(languages);
@@ -773,13 +782,6 @@ async function init() {
   await loadCurrentChannelTeam({ silentIfMissing: true });
   setStatus(t("app.status.pokeapi_loading"), "info");
   await loadPokemonSuggestions();
-
-  window.addEventListener("app-language-changed", () => {
-    refreshSlotTranslations();
-    loadPokemonSuggestions();
-    slotPreviewUpdaters.forEach((update) => update?.());
-    queueAutoSave();
-  });
 }
 
 async function loadCurrentChannelTeam({ silentIfMissing = false } = {}) {
