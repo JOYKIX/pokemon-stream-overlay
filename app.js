@@ -693,6 +693,9 @@ autoSaveInput?.addEventListener("change", () => {
   input.addEventListener("change", () => {
     syncShinyAvailability();
     slotPreviewUpdaters.forEach((update) => update?.());
+    if (input === pokemonNameLanguageInput) {
+      loadPokemonSuggestions();
+    }
     queueAutoSave();
   });
 });
