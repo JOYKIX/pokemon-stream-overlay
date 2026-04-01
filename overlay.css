@@ -144,15 +144,12 @@ body.overlay-page {
   transform: translate(-50%, -50%) scale(var(--slot-scale, 1));
   transform-origin: center;
   width: clamp(210px, 16vw, 320px);
-  --pokeball-size: calc(190px * var(--overlay-sprite-scale));
-  --sprite-fit-scale: 0.62;
   border-radius: var(--overlay-radius, 20px);
   background: transparent;
   border: none;
-  padding: 0 10px 12px;
+  padding: 8px 10px 12px;
   display: grid;
-  gap: 6px;
-  justify-items: center;
+  gap: 4px;
 }
 
 .overlay-card.cardless {
@@ -162,10 +159,6 @@ body.overlay-page {
 }
 
 .overlay-card-top {
-  position: absolute;
-  top: 2px;
-  right: 14px;
-  z-index: 2;
   display: flex;
   justify-content: flex-end;
   min-height: 1.3rem;
@@ -184,19 +177,17 @@ body.overlay-page {
   position: relative;
   display: grid;
   place-items: center;
-  width: 100%;
-  min-height: calc(var(--pokeball-size) + 22px);
-  padding-top: 6px;
+  min-height: calc(180px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
 }
 
 .overlay-image-wrap::before {
   content: "";
   position: absolute;
   inset: 50% auto auto 50%;
-  width: var(--pokeball-size);
-  height: var(--pokeball-size);
+  width: calc(190px * var(--overlay-sprite-scale));
+  height: calc(190px * var(--overlay-sprite-scale));
   transform: translate(-50%, -50%);
-  background: center / contain no-repeat url("../images/pokeball.png");
+  background: center / contain no-repeat url("./pokeball.png");
   opacity: 0.72;
   pointer-events: none;
 }
@@ -204,14 +195,13 @@ body.overlay-page {
 .overlay-image-wrap img {
   position: relative;
   z-index: 1;
-  width: calc(var(--pokeball-size) * var(--sprite-fit-scale) * var(--pokemon-scale, 1));
-  height: calc(var(--pokeball-size) * var(--sprite-fit-scale) * var(--pokemon-scale, 1));
-  transform: translateY(calc(var(--pokeball-size) * -0.09));
+  width: calc(118px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  height: calc(118px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
   object-fit: contain;
 }
 
 .overlay-name-wrap {
-  margin-top: -2px;
+  margin-top: -6px;
   display: grid;
   justify-items: center;
   gap: 2px;
