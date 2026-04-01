@@ -266,7 +266,7 @@ body.overlay-page {
 
 .overlay-types {
   top: 185px;
-  min-height: 28px;
+  min-height: 30px;
 }
 
 .meta-pill,
@@ -304,29 +304,18 @@ body.overlay-page {
 }
 
 .type-pill {
-  background: var(--type-color, #6b7280);
-  min-width: 72px;
+  background: rgba(14, 14, 14, 0.62);
+  min-width: 68px;
   text-transform: uppercase;
 }
 
-.type-pill.type-normal { --type-color: #a8a77a; }
-.type-pill.type-fire { --type-color: #ee8130; }
-.type-pill.type-water { --type-color: #6390f0; }
-.type-pill.type-electric { --type-color: #f7d02c; color: #2f2700; text-shadow: none; }
-.type-pill.type-grass { --type-color: #7ac74c; }
-.type-pill.type-ice { --type-color: #96d9d6; color: #11303a; text-shadow: none; }
-.type-pill.type-fighting { --type-color: #c22e28; }
-.type-pill.type-poison { --type-color: #a33ea1; }
-.type-pill.type-ground { --type-color: #e2bf65; color: #3f2e03; text-shadow: none; }
-.type-pill.type-flying { --type-color: #a98ff3; }
-.type-pill.type-psychic { --type-color: #f95587; }
-.type-pill.type-bug { --type-color: #a6b91a; }
-.type-pill.type-rock { --type-color: #b6a136; }
-.type-pill.type-ghost { --type-color: #735797; }
-.type-pill.type-dragon { --type-color: #6f35fc; }
-.type-pill.type-dark { --type-color: #705746; }
-.type-pill.type-steel { --type-color: #b7b7ce; color: #1f2937; text-shadow: none; }
-.type-pill.type-fairy { --type-color: #d685ad; }
+.type-logo {
+  width: 72px;
+  height: 26px;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.45));
+}
 
 .overlay-card.pixel-sprite-mode img {
   image-rendering: pixelated;

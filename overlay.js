@@ -63,8 +63,33 @@ function applyOverlayStyle(style = {}, options = {}) {
 }
 
 function renderTypeBadge(type) {
-  const safeType = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
-  return `<span class="type-pill type-${safeType}">${translateType(type)}</span>`;
+  const normalizedType = String(type || "").toLowerCase().trim();
+  const typeLogoByApiName = {
+    normal: "type_normal.png",
+    fire: "type_feu.png",
+    water: "type_eau.png",
+    electric: "type_electrik.png",
+    grass: "type_plante.png",
+    ice: "type_glace.png",
+    fighting: "type_combat.png",
+    poison: "type_poison.png",
+    ground: "type_sol.png",
+    flying: "type_vol.png",
+    psychic: "type_psy.png",
+    bug: "type_insecte.png",
+    rock: "type_roche.png",
+    ghost: "type_spectre.png",
+    dragon: "type_dragon.png",
+    dark: "type_tenebres.png",
+    steel: "type_acier.png",
+    fairy: "type_fee.png"
+  };
+  const typeLogo = typeLogoByApiName[normalizedType];
+  if (!typeLogo) {
+    return `<span class="type-pill type-fallback">${translateType(type)}</span>`;
+  }
+
+  return `<img class="type-logo" src="./logo_type/${typeLogo}" alt="${translateType(type)}" loading="lazy" decoding="async">`;
 }
 
 function getPosition(options, index) {
