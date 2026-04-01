@@ -547,7 +547,21 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       showNuzlockeLabel: asBool(displayOptions.showNuzlockeLabel, true),
       pokemonNameLanguage: cleanText(displayOptions.pokemonNameLanguage) || "auto",
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
-      overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
+      overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600),
+      cardLayout: {
+        pokeball: {
+          x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.pokeball?.x) || 0)),
+          y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.pokeball?.y) || 0))
+        },
+        sprite: {
+          x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.sprite?.x) || 0)),
+          y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.sprite?.y) || 0))
+        },
+        types: {
+          x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.types?.x) || 0)),
+          y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.types?.y) || 0))
+        }
+      }
     },
     overlayStyle: {
       ...DEFAULT_OVERLAY_STYLE,

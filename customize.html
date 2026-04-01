@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="overlay.css" />
 </head>
 <body class="app-page">
   <a class="site-header-anchor" href="index.html" aria-label="PokeOverlay home">PokeOverlay</a>
@@ -26,39 +27,32 @@
       </nav>
     </aside>
     <main class="dashboard-main">
-      <header class="topbar"><h2 class="page-title" data-i18n="overlay_theme_editor"></h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span data-i18n="ui_language"></span><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option><option value="es" data-i18n="spanish"></option><option value="ja" data-i18n="japanese"></option></select></label></div></header>
+      <header class="topbar"><h2 class="page-title">Éditeur de disposition des cartes</h2><div class="topbar-controls"><label class="switch-chip" for="languageSelect"><span data-i18n="ui_language"></span><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option><option value="es" data-i18n="spanish"></option><option value="ja" data-i18n="japanese"></option></select></label></div></header>
       <section class="studio-grid design-grid">
-        <section class="card">
-          <div class="field"><label for="channelInput" data-i18n="channel_id"></label><input id="channelInput" type="text" readonly></div>
-          <div class="section-header"><h3 data-i18n="theme_editor"></h3></div>
-          <div class="field"><label for="backgroundColor" data-i18n="background_color"></label><input id="backgroundColor" type="color" value="#0f172a"></div>
-          <div class="field"><label for="cardColor" data-i18n="card_color"></label><input id="cardColor" type="color" value="#1e293b"></div>
-          <div class="field"><label for="accentColor" data-i18n="accent_color"></label><input id="accentColor" type="color" value="#6366f1"></div>
-          <div class="field"><label for="textColor" data-i18n="text_color"></label><input id="textColor" type="color" value="#f1f5f9"></div>
-          <div class="field"><label for="borderRadius" data-i18n="border_radius"></label><input id="borderRadius" type="range" min="0" max="50" value="16"></div>
-          <div class="field"><label for="backgroundOpacity" data-i18n="background_opacity"></label><input id="backgroundOpacity" type="range" min="0" max="1" step="0.05" value="0.75"></div>
-          <div class="field"><label for="cardOpacity" data-i18n="card_opacity"></label><input id="cardOpacity" type="range" min="0.2" max="1" step="0.05" value="0.9"></div>
-          <label class="checkbox-chip"><input id="transparentBackground" type="checkbox" checked><span data-i18n="transparent_background"></span></label>
-          <div class="field"><label for="fontSelector" data-i18n="font_selector"></label><select id="fontSelector"><option data-i18n="font_inter"></option><option data-i18n="font_roboto"></option><option data-i18n="font_montserrat"></option></select></div>
-          <div class="field"><label for="themePreset" data-i18n="theme_preset"></label><select id="themePreset"><option value="dark" data-i18n="dark"></option><option value="pokemon-red" data-i18n="pokemon_red"></option><option value="pokemon-blue" data-i18n="pokemon_blue"></option><option value="neon" data-i18n="neon"></option></select></div>
-          <div class="field"><label for="backgroundImagePreset" data-i18n="background_image_preset"></label><select id="backgroundImagePreset"><option value="" data-i18n="none"></option></select></div>
-          <div class="field"><label for="backgroundImageInput" data-i18n="background_image_png"></label><input id="backgroundImageInput" type="file" accept="image/png"></div>
-          <div class="field"><label for="backgroundImageSize"><span data-i18n="background_image_size"></span> <span id="backgroundImageSizeValue">100%</span></label><input id="backgroundImageSize" type="range" min="20" max="200" step="5" value="100"></div>
+        <section class="card layout-editor-card">
+          <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly></div>
+          <div class="section-header"><h3>Canvas de placement</h3></div>
+          <p class="layout-editor-help">Déplace les points pour changer la position de la Pokéball, du sprite et des types dans la carte.</p>
+          <div id="layoutCanvas" class="layout-canvas" aria-label="Canvas de placement"></div>
           <div class="actions">
-            <button id="clearBackgroundImageBtn" class="secondary-btn" type="button" data-i18n="clear_image"></button>
-            <button id="exportThemeBtn" class="secondary-btn" type="button" data-i18n="export_theme_json"></button>
+            <button id="resetLayoutBtn" class="secondary-btn" type="button">Réinitialiser</button>
+            <button id="loadBtn" class="secondary-btn" type="button">Charger</button>
+            <button id="saveBtn" class="primary-btn" type="button">Sauvegarder</button>
           </div>
-          <div class="actions">
-            <button id="loadBtn" class="secondary-btn" type="button" data-i18n="load_theme"></button>
-            <button id="saveBtn" class="primary-btn" type="button" data-i18n="save_theme"></button>
-          </div>
-          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
+          <div id="statusBox" class="status-box info">Prêt</div>
         </section>
         <section class="card">
-          <div class="section-header"><h3 data-i18n="live_overlay_preview"></h3></div>
-          <div id="stylePreview" class="designer-preview">
-            <div class="designer-preview-card"><h3 data-i18n="trainer_hud"></h3><p data-i18n="name_badge_death_counter"></p></div>
-            <div class="designer-preview-grid"><div class="designer-preview-slot" data-i18n="slot_1"></div><div class="designer-preview-slot" data-i18n="slot_2"></div><div class="designer-preview-slot" data-i18n="slot_3"></div></div>
+          <div class="section-header"><h3>Rendu en direct</h3></div>
+          <div id="layoutPreview" class="layout-live-preview">
+            <article class="overlay-card preview-card">
+              <div class="overlay-card-top"><div class="overlay-level">Lv.25</div></div>
+              <div class="overlay-image-wrap">
+                <img class="preview-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
+              </div>
+              <div class="overlay-name-wrap"><div class="overlay-name-panel"><div class="overlay-name">Sparky</div><div class="overlay-species">Pikachu</div></div></div>
+              <div class="overlay-meta"><span class="meta-pill item">Orbe Vie</span></div>
+              <div class="overlay-types"><img class="type-logo" src="./logo_type/type_electrik.png" alt="Électrik"></div>
+            </article>
           </div>
         </section>
       </section>

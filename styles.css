@@ -815,3 +815,88 @@ button,
     grid-template-columns: 1fr;
   }
 }
+
+.layout-editor-card {
+  display: grid;
+  gap: 14px;
+}
+
+.layout-editor-help {
+  color: var(--text-muted);
+  font-size: 0.92rem;
+}
+
+.layout-canvas {
+  position: relative;
+  height: 290px;
+  border-radius: 14px;
+  border: 1px dashed var(--border-strong);
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 50% 50% / 24px 24px,
+    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 50% 50% / 24px 24px,
+    #0f1117;
+}
+
+.layout-canvas-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.layout-handle {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-height: 30px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.layout-handle.pokeball { border-color: #e2e8f0; }
+.layout-handle.sprite { border-color: #93c5fd; }
+.layout-handle.types { border-color: #86efac; }
+
+.layout-live-preview {
+  display: grid;
+  place-items: center;
+  min-height: 360px;
+  border-radius: 16px;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), rgba(5, 5, 5, 0.9));
+  overflow: hidden;
+  --layout-pokeball-x: 0px;
+  --layout-pokeball-y: 0px;
+  --layout-sprite-x: 0px;
+  --layout-sprite-y: 0px;
+  --layout-types-x: 0px;
+  --layout-types-y: 0px;
+}
+
+.preview-card {
+  position: relative;
+  transform: none;
+  left: auto;
+  top: auto;
+}
+
+.layout-live-preview .overlay-image-wrap::before {
+  transform: translate(calc(-50% + var(--layout-pokeball-x)), calc(-50% + var(--layout-pokeball-y)));
+}
+
+.layout-live-preview .overlay-image-wrap img {
+  transform: translate(var(--layout-sprite-x), var(--layout-sprite-y));
+}
+
+.layout-live-preview .overlay-types {
+  transform: translate(var(--layout-types-x), var(--layout-types-y));
+}
+
+.preview-sprite {
+  image-rendering: pixelated;
+}
