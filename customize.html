@@ -41,7 +41,9 @@
           <label class="checkbox-chip"><input id="transparentBackground" type="checkbox" checked><span data-i18n="transparent_background"></span></label>
           <div class="field"><label for="fontSelector" data-i18n="font_selector"></label><select id="fontSelector"><option data-i18n="font_inter"></option><option data-i18n="font_roboto"></option><option data-i18n="font_montserrat"></option></select></div>
           <div class="field"><label for="themePreset" data-i18n="theme_preset"></label><select id="themePreset"><option value="dark" data-i18n="dark"></option><option value="pokemon-red" data-i18n="pokemon_red"></option><option value="pokemon-blue" data-i18n="pokemon_blue"></option><option value="neon" data-i18n="neon"></option></select></div>
+          <div class="field"><label for="backgroundImagePreset" data-i18n="background_image_preset"></label><select id="backgroundImagePreset"><option value="" data-i18n="none"></option><option value="pokeball">Pokeball</option></select></div>
           <div class="field"><label for="backgroundImageInput" data-i18n="background_image_png"></label><input id="backgroundImageInput" type="file" accept="image/png"></div>
+          <div class="field"><label for="backgroundImageSize"><span data-i18n="background_image_size"></span> <span id="backgroundImageSizeValue">100%</span></label><input id="backgroundImageSize" type="range" min="20" max="200" step="5" value="100"></div>
           <div class="actions">
             <button id="clearBackgroundImageBtn" class="secondary-btn" type="button" data-i18n="clear_image"></button>
             <button id="exportThemeBtn" class="secondary-btn" type="button" data-i18n="export_theme_json"></button>

@@ -1,6 +1,7 @@
 import {
   getChannelFromUrl,
   subscribeToTeam,
+  subscribeToProfile,
   fetchPokemonLocalized,
   translateType,
   DEFAULT_OVERLAY_STYLE,
@@ -21,6 +22,7 @@ const TYPE_COLORS = {
 };
 
 let latestTeamData = null;
+let profileLanguage = getCurrentLanguage();
 
 function hexToRgb(hex) {
   const normalized = hex.replace("#", "");
@@ -31,7 +33,8 @@ function hexToRgb(hex) {
 function applyOverlayStyle(style = {}, options = {}) {
   const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
   const rgb = hexToRgb(merged.backgroundColor);
-  const hasBackgroundImage = typeof merged.backgroundImage === "string" && merged.backgroundImage.startsWith("data:image/png");
+  const hasBackgroundImage = typeof merged.backgroundImage === "string"
+    && (merged.backgroundImage.startsWith("data:image/") || merged.backgroundImage.endsWith(".png"));
 
   document.body.style.backgroundColor = merged.transparentBackground
     ? "transparent"
@@ -46,6 +49,7 @@ function applyOverlayStyle(style = {}, options = {}) {
   overlayRoot.style.setProperty("--overlay-bg", merged.backgroundColor);
   overlayRoot.style.setProperty("--overlay-bg-opacity", String(merged.transparentBackground ? 0 : merged.backgroundOpacity));
   overlayRoot.style.setProperty("--overlay-bg-image", hasBackgroundImage ? `url("${merged.backgroundImage}")` : "none");
+  overlayRoot.style.setProperty("--overlay-bg-size", `${Math.max(20, Math.min(200, Number(merged.backgroundImageSize) || 100))}% auto`);
   overlayRoot.style.setProperty("--overlay-text", merged.textColor);
   overlayRoot.style.setProperty("--overlay-accent", merged.accentColor);
   overlayRoot.style.setProperty("--overlay-card", merged.cardColor);
@@ -85,7 +89,7 @@ function getPosition(options, index) {
 }
 
 async function renderTeam(data) {
-  await loadTranslations(getCurrentLanguage());
+  await loadTranslations(profileLanguage);
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
     overlayRoot.classList.remove("sprite-only-mode", "hide-header");
@@ -152,7 +156,7 @@ async function renderTeam(data) {
       pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, {
         variant: options.spriteVariant,
         animated: options.preferAnimatedSprite,
-        nameLanguage: options.pokemonNameLanguage === "auto" ? getCurrentLanguage() : options.pokemonNameLanguage
+        nameLanguage: options.pokemonNameLanguage === "auto" ? profileLanguage : options.pokemonNameLanguage
       });
     } catch {
       pokemon = null;
@@ -194,6 +198,11 @@ const channel = getChannelFromUrl("joykix");
 subscribeToTeam(channel, (data) => {
   latestTeamData = data;
   renderTeam(data);
+});
+
+subscribeToProfile(channel, (profile) => {
+  profileLanguage = profile?.uiLanguage || getCurrentLanguage();
+  renderTeam(latestTeamData);
 });
 
 window.addEventListener("app-language-changed", () => {

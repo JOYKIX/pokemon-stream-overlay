@@ -6,12 +6,14 @@ import {
   fetchPokemonLanguages,
   saveTeam,
   loadTeam,
+  getProfile,
+  updateProfileLanguage,
   DEFAULT_OVERLAY_STYLE,
   shouldUsePixelRendering,
   getNextEvolutionName
 } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
-import { getCurrentLanguage, initPageI18n, loadTranslations, t } from "./i18n.js";
+import { getCurrentLanguage, initPageI18n, loadTranslations, sanitizeLanguage, setCurrentLanguage, t } from "./i18n.js";
 
 const teamSlots = document.getElementById("teamSlots");
 const editorCanvas = document.getElementById("editorCanvas");
@@ -813,6 +815,24 @@ async function init() {
   }
   const session = await ensureAuthenticated();
   if (!session) return;
+  const profile = await getProfile(session.channel);
+  if (profile?.uiLanguage) {
+    setCurrentLanguage(sanitizeLanguage(profile.uiLanguage));
+  }
+  const persistLanguage = async (event) => {
+    try {
+      await updateProfileLanguage(
+        session.channel,
+        session.editKeyHash,
+        sanitizeLanguage(event.detail?.language || getCurrentLanguage()),
+        { preHashed: true }
+      );
+    } catch (error) {
+      console.error("Failed to save profile language", error);
+    }
+  };
+  window.addEventListener("app-language-changed", persistLanguage);
+
   channelInput.value = session.channel;
   updateOverlayLink();
   syncNuzlockeUi();

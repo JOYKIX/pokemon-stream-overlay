@@ -8,6 +8,10 @@ function normalizeLanguage(language) {
   return SUPPORTED_UI_LANGUAGES.has(language) ? language : "en";
 }
 
+export function sanitizeLanguage(language) {
+  return normalizeLanguage(language);
+}
+
 export function getCurrentLanguage() {
   const saved = localStorage.getItem(UI_LANG_KEY);
   return normalizeLanguage(saved);

@@ -1,6 +1,6 @@
 import { createProfile, verifyProfile, hashEditKey, resetEditKeyWithRecovery } from "./shared.js";
 import { saveSession, loadSession } from "./auth.js";
-import { initPageI18n, t } from "./i18n.js";
+import { getCurrentLanguage, initPageI18n, sanitizeLanguage, t } from "./i18n.js";
 
 const channelInput = document.getElementById("channelInput");
 const editKeyInput = document.getElementById("editKeyInput");
@@ -41,7 +41,9 @@ submitBtn.addEventListener("click", async () => {
 
   try {
     if (createMode.checked) {
-      const { recoveryKey } = await createProfile(channel, editKey);
+      const { recoveryKey } = await createProfile(channel, editKey, {
+        uiLanguage: sanitizeLanguage(getCurrentLanguage())
+      });
       storeRecoveryKey(channel, recoveryKey);
       showRecoveryKey(recoveryKey);
       setStatus(t("login.status.identifier_created"), "success");

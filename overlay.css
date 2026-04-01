@@ -29,7 +29,9 @@ body.overlay-page {
 
 .overlay-root.has-bg-image::before {
   background-image: var(--overlay-bg-image);
-  background-size: cover;
+  background-size: var(--overlay-bg-size, 100% auto);
+  background-position: center center;
+  background-repeat: no-repeat;
   opacity: 0.35;
 }
 

@@ -1,11 +1,13 @@
 import {
   loadTeam,
   saveTeam,
+  getProfile,
+  updateProfileLanguage,
   DEFAULT_OVERLAY_STYLE,
   buildTeamPayload,
   getOverlayUrl
 } from "./shared.js";
-import { initPageI18n, t } from "./i18n.js";
+import { getCurrentLanguage, initPageI18n, sanitizeLanguage, setCurrentLanguage, t } from "./i18n.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 
 const channelInput = document.getElementById("channelInput");
@@ -13,6 +15,9 @@ const transparentBackground = document.getElementById("transparentBackground");
 const backgroundColor = document.getElementById("backgroundColor");
 const backgroundOpacity = document.getElementById("backgroundOpacity");
 const backgroundImageInput = document.getElementById("backgroundImageInput");
+const backgroundImagePreset = document.getElementById("backgroundImagePreset");
+const backgroundImageSize = document.getElementById("backgroundImageSize");
+const backgroundImageSizeValue = document.getElementById("backgroundImageSizeValue");
 const clearBackgroundImageBtn = document.getElementById("clearBackgroundImageBtn");
 const textColor = document.getElementById("textColor");
 const accentColor = document.getElementById("accentColor");
@@ -29,6 +34,9 @@ const fontSelector = document.getElementById("fontSelector");
 const exportThemeBtn = document.getElementById("exportThemeBtn");
 const toastStack = document.getElementById("toastStack");
 let backgroundImageData = "";
+const PRESET_BACKGROUND_IMAGES = {
+  pokeball: "pokeball.png"
+};
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;
@@ -51,6 +59,7 @@ function collectStyle() {
     backgroundColor: backgroundColor.value,
     backgroundOpacity: Number(backgroundOpacity.value),
     backgroundImage: backgroundImageData,
+    backgroundImageSize: Math.max(20, Math.min(200, Number(backgroundImageSize?.value) || 100)),
     textColor: textColor.value,
     accentColor: accentColor.value,
     cardColor: cardColor.value,
@@ -65,6 +74,7 @@ function applyStylePreview(style) {
   stylePreview.style.setProperty("--designer-bg", merged.backgroundColor);
   stylePreview.style.setProperty("--designer-bg-opacity", String(merged.backgroundOpacity));
   stylePreview.style.setProperty("--designer-bg-image", merged.backgroundImage ? `url("${merged.backgroundImage}")` : "none");
+  stylePreview.style.setProperty("--designer-bg-size", `${Math.max(20, Math.min(200, Number(merged.backgroundImageSize) || 100))}% auto`);
   stylePreview.style.setProperty("--designer-text", merged.textColor);
   stylePreview.style.setProperty("--designer-accent", merged.accentColor);
   stylePreview.style.setProperty("--designer-card", merged.cardColor);
@@ -97,6 +107,14 @@ function fillForm(style) {
   backgroundColor.value = merged.backgroundColor;
   backgroundOpacity.value = String(merged.backgroundOpacity);
   backgroundImageData = typeof merged.backgroundImage === "string" ? merged.backgroundImage : "";
+  if (backgroundImagePreset) {
+    const selectedPreset = Object.entries(PRESET_BACKGROUND_IMAGES).find(([, value]) => value === backgroundImageData)?.[0] || "";
+    backgroundImagePreset.value = selectedPreset;
+  }
+  if (backgroundImageSize) {
+    backgroundImageSize.value = String(Math.max(20, Math.min(200, Number(merged.backgroundImageSize) || 100)));
+    if (backgroundImageSizeValue) backgroundImageSizeValue.textContent = `${backgroundImageSize.value}%`;
+  }
   backgroundImageInput.value = "";
   textColor.value = merged.textColor;
   accentColor.value = merged.accentColor;
@@ -127,6 +145,9 @@ async function onBackgroundImageChange(event) {
 
   try {
     backgroundImageData = await fileToDataUrl(file);
+    if (backgroundImagePreset) {
+      backgroundImagePreset.value = "";
+    }
     applyStylePreview(collectStyle());
     setStatus(`${t("customize.status.background_loaded")}`, "success");
   } catch (error) {
@@ -135,9 +156,18 @@ async function onBackgroundImageChange(event) {
   }
 }
 
+function onBackgroundImagePresetChange() {
+  if (!backgroundImagePreset) return;
+  const preset = backgroundImagePreset.value;
+  backgroundImageData = preset ? (PRESET_BACKGROUND_IMAGES[preset] || "") : "";
+  backgroundImageInput.value = "";
+  applyStylePreview(collectStyle());
+}
+
 function clearBackgroundImage() {
   backgroundImageData = "";
   backgroundImageInput.value = "";
+  if (backgroundImagePreset) backgroundImagePreset.value = "";
   applyStylePreview(collectStyle());
   setStatus(`${t("customize.status.background_removed")}`, "info");
 }
@@ -182,9 +212,15 @@ async function loadStyle() {
   }
 }
 
-[transparentBackground, backgroundColor, backgroundOpacity, textColor, accentColor, cardColor, cardOpacity, borderRadius]
-  .forEach((input) => input.addEventListener("input", () => applyStylePreview(collectStyle())));
+[transparentBackground, backgroundColor, backgroundOpacity, textColor, accentColor, cardColor, cardOpacity, borderRadius, backgroundImageSize]
+  .forEach((input) => input.addEventListener("input", () => {
+    if (input === backgroundImageSize && backgroundImageSizeValue) {
+      backgroundImageSizeValue.textContent = `${backgroundImageSize.value}%`;
+    }
+    applyStylePreview(collectStyle());
+  }));
 backgroundImageInput.addEventListener("change", onBackgroundImageChange);
+backgroundImagePreset?.addEventListener("change", onBackgroundImagePresetChange);
 clearBackgroundImageBtn.addEventListener("click", clearBackgroundImage);
 themePreset?.addEventListener("change", () => applyPreset(themePreset.value));
 fontSelector?.addEventListener("change", () => applyStylePreview(collectStyle()));
@@ -207,6 +243,22 @@ async function init() {
   await initPageI18n();
   const session = await ensureAuthenticated();
   if (!session) return;
+  const profile = await getProfile(session.channel);
+  if (profile?.uiLanguage) {
+    setCurrentLanguage(sanitizeLanguage(profile.uiLanguage));
+  }
+  window.addEventListener("app-language-changed", async (event) => {
+    try {
+      await updateProfileLanguage(
+        session.channel,
+        session.editKeyHash,
+        sanitizeLanguage(event.detail?.language || getCurrentLanguage()),
+        { preHashed: true }
+      );
+    } catch (error) {
+      console.error("Failed to save profile language", error);
+    }
+  });
   channelInput.value = session.channel;
   await loadStyle();
 }
