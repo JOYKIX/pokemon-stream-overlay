@@ -510,6 +510,8 @@ export function translateType(type) {
 }
 
 export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCount, slots, displayOptions, overlayStyle }) {
+  const asBool = (value, fallback = false) => (typeof value === "boolean" ? value : fallback);
+
   return {
     trainerName: cleanText(trainerName) || "Dresseur",
     badgeText: cleanText(badgeText) || "Équipe Pokémon",
@@ -517,13 +519,13 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
     nuzlockeMode: Boolean(nuzlockeMode),
     deathCount: Math.max(0, Number(deathCount) || 0),
     displayOptions: {
-      showHeader: Boolean(displayOptions.showHeader),
-      showName: Boolean(displayOptions.showName),
-      showNickname: Boolean(displayOptions.showNickname),
-      showLevel: Boolean(displayOptions.showLevel),
-      showItem: Boolean(displayOptions.showItem),
-      showShiny: Boolean(displayOptions.showShiny),
-      showTypes: Boolean(displayOptions.showTypes),
+      showHeader: asBool(displayOptions.showHeader, true),
+      showName: asBool(displayOptions.showName, true),
+      showNickname: asBool(displayOptions.showNickname, true),
+      showLevel: asBool(displayOptions.showLevel, true),
+      showItem: asBool(displayOptions.showItem, true),
+      showShiny: asBool(displayOptions.showShiny, true),
+      showTypes: asBool(displayOptions.showTypes, true),
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
@@ -542,7 +544,8 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       slotScales: Array.isArray(displayOptions.slotScales)
         ? displayOptions.slotScales.slice(0, 6).map((value) => Math.max(0.6, Math.min(2, Number(value) || 1)))
         : Array.from({ length: 6 }, () => 1),
-      showNuzlockeLabel: displayOptions.showNuzlockeLabel ?? true,
+      showNuzlockeLabel: asBool(displayOptions.showNuzlockeLabel, true),
+      pokemonNameLanguage: cleanText(displayOptions.pokemonNameLanguage) || "auto",
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
       overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600)
     },
