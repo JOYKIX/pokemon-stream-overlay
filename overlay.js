@@ -183,7 +183,7 @@ async function renderTeam(data) {
 
     overlayTeam.insertAdjacentHTML(
       "beforeend",
-      `<article class="${cardClass}" style="left:${pos.x}%; top:${pos.y}%; --slot-scale:${scale}; --pokemon-scale:${pokemon?.spriteScale || 1}">
+      `<article class="${cardClass}" style="left:${pos.x}%; top:${pos.y}%; --slot-scale:${scale}">
         <div class="overlay-card-top">${levelHtml}</div>
         <div class="overlay-image-wrap">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
         ${nameHtml}
