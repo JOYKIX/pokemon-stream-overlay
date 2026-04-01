@@ -34,9 +34,7 @@ const fontSelector = document.getElementById("fontSelector");
 const exportThemeBtn = document.getElementById("exportThemeBtn");
 const toastStack = document.getElementById("toastStack");
 let backgroundImageData = "";
-const PRESET_BACKGROUND_IMAGES = {
-  pokeball: "pokeball.png"
-};
+const PRESET_BACKGROUND_IMAGES = {};
 
 function setStatus(message, type = "info") {
   statusBox.textContent = message;

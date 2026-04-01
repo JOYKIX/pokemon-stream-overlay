@@ -33,7 +33,10 @@ function hexToRgb(hex) {
 function applyOverlayStyle(style = {}, options = {}) {
   const merged = { ...DEFAULT_OVERLAY_STYLE, ...style };
   const rgb = hexToRgb(merged.backgroundColor);
+  const isPokeballSlotBackground = typeof merged.backgroundImage === "string"
+    && /(^|\/)pokeball\.png$/i.test(merged.backgroundImage.trim());
   const hasBackgroundImage = typeof merged.backgroundImage === "string"
+    && !isPokeballSlotBackground
     && (merged.backgroundImage.startsWith("data:image/") || merged.backgroundImage.endsWith(".png"));
 
   document.body.style.backgroundColor = merged.transparentBackground
