@@ -173,7 +173,7 @@ async function renderTeam(data) {
     const hasNickname = Boolean(nickname);
 
     const nameHtml = options.showName
-      ? `<div class="overlay-name-wrap">${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}<div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.displayName || slot.name}</div></div>`
+      ? `<div class="overlay-name-wrap"><div class="overlay-name-panel">${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}<div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.displayName || slot.name}</div></div></div>`
       : "";
 
     const levelHtml = options.showLevel && slot.level ? `<div class="overlay-level">Lv.${slot.level}</div>` : "";
