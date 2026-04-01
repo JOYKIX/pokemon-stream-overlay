@@ -187,7 +187,7 @@ body.overlay-page {
   width: calc(190px * var(--overlay-sprite-scale));
   height: calc(190px * var(--overlay-sprite-scale));
   transform: translate(-50%, -50%);
-  background: center / contain no-repeat url("./pokeball.png");
+  background: center / contain no-repeat url("../images/pokeball.png");
   opacity: 0.72;
   pointer-events: none;
 }

@@ -19,10 +19,10 @@ Cette version utilise :
 - `customize.html` : éditeur de design overlay
 - `options.html` : changement d'identifiant et de clé
 - `overlay.html` : page à mettre dans OBS
-- `styles.css` : design global
-- `app.js`, `customize.js`, `login.js`, `options.js` : logique des interfaces
-- `overlay.js` : logique OBS
-- `shared.js` + `auth.js` : fonctions communes + session locale
+- `assets/css/styles.css` : design global
+- `assets/js/app.js`, `assets/js/customize.js`, `assets/js/login.js`, `assets/js/options.js` : logique des interfaces
+- `assets/js/overlay.js` : logique OBS
+- `assets/js/shared.js` + `assets/js/auth.js` : fonctions communes + session locale
 
 ## Mise en place
 
