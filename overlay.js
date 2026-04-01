@@ -92,6 +92,18 @@ function renderTypeBadge(type) {
   return `<img class="type-logo" src="./logo_type/${typeLogo}" alt="${translateType(type)}" loading="lazy" decoding="async">`;
 }
 
+function sanitizeCardLayout(layout) {
+  const sanitizePoint = (point) => ({
+    x: Math.max(-120, Math.min(120, Number(point?.x) || 0)),
+    y: Math.max(-120, Math.min(120, Number(point?.y) || 0))
+  });
+  return {
+    pokeball: sanitizePoint(layout?.pokeball),
+    sprite: sanitizePoint(layout?.sprite),
+    types: sanitizePoint(layout?.types)
+  };
+}
+
 function getPosition(options, index) {
   const positions = options.slotPositions;
   const defaultPos = [
@@ -142,12 +154,19 @@ async function renderTeam(data) {
     slotPositions: data.displayOptions?.slotPositions || [],
     slotScales: data.displayOptions?.slotScales || [],
     showNuzlockeLabel: data.displayOptions?.showNuzlockeLabel ?? true,
-    pokemonNameLanguage: data.displayOptions?.pokemonNameLanguage || "auto"
+    pokemonNameLanguage: data.displayOptions?.pokemonNameLanguage || "auto",
+    cardLayout: sanitizeCardLayout(data.displayOptions?.cardLayout)
   };
 
   applyOverlayStyle(data.overlayStyle, options);
   overlayRoot.classList.toggle("sprite-only-mode", options.spriteOnlyMode);
   overlayRoot.style.setProperty("--overlay-sprite-scale", String(options.spriteScale));
+  overlayRoot.style.setProperty("--layout-pokeball-x", `${options.cardLayout.pokeball.x}px`);
+  overlayRoot.style.setProperty("--layout-pokeball-y", `${options.cardLayout.pokeball.y}px`);
+  overlayRoot.style.setProperty("--layout-sprite-x", `${options.cardLayout.sprite.x}px`);
+  overlayRoot.style.setProperty("--layout-sprite-y", `${options.cardLayout.sprite.y}px`);
+  overlayRoot.style.setProperty("--layout-types-x", `${options.cardLayout.types.x}px`);
+  overlayRoot.style.setProperty("--layout-types-y", `${options.cardLayout.types.y}px`);
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
 
   overlayTrainer.textContent = data.trainerName || t("common.default_trainer");

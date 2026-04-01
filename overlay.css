@@ -79,7 +79,10 @@ body.overlay-page {
 
 .overlay-floating-nuzlocke {
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(
+    calc(-50% + var(--layout-pokeball-x, 0px)),
+    calc(-50% + var(--layout-pokeball-y, 0px))
+  );
   z-index: 3;
   display: inline-flex;
   align-items: center;
@@ -188,7 +191,10 @@ body.overlay-page {
   inset: 50% auto auto 50%;
   width: calc(190px * var(--overlay-sprite-scale));
   height: calc(190px * var(--overlay-sprite-scale));
-  transform: translate(-50%, -50%);
+  transform: translate(
+    calc(-50% + var(--layout-pokeball-x, 0px)),
+    calc(-50% + var(--layout-pokeball-y, 0px))
+  );
   background: center / contain no-repeat url("./pokeball.png");
   opacity: 0.72;
   pointer-events: none;
@@ -201,6 +207,7 @@ body.overlay-page {
   height: calc(118px * var(--overlay-sprite-scale));
   object-fit: contain;
   object-position: center;
+  transform: translate(var(--layout-sprite-x, 0px), var(--layout-sprite-y, 0px));
 }
 
 .overlay-name-wrap {
@@ -267,6 +274,7 @@ body.overlay-page {
 .overlay-types {
   top: 185px;
   min-height: 30px;
+  transform: translate(var(--layout-types-x, 0px), var(--layout-types-y, 0px));
 }
 
 .meta-pill,
