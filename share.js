@@ -1,6 +1,6 @@
 import { ensureAuthenticated, clearSession } from "./auth.js";
-import { generateShareCode, importSharedData } from "./shared.js";
-import { initPageI18n, t } from "./i18n.js";
+import { generateShareCode, getProfile, importSharedData, updateProfileLanguage } from "./shared.js";
+import { getCurrentLanguage, initPageI18n, sanitizeLanguage, setCurrentLanguage, t } from "./i18n.js";
 
 const shareCodeOutput = document.getElementById("shareCodeOutput");
 const autoRotateOnUse = document.getElementById("autoRotateOnUse");
@@ -79,6 +79,23 @@ logoutBtn?.addEventListener("click", () => {
 async function init() {
   await initPageI18n();
   session = await ensureAuthenticated();
+  if (!session) return;
+  const profile = await getProfile(session.channel);
+  if (profile?.uiLanguage) {
+    setCurrentLanguage(sanitizeLanguage(profile.uiLanguage));
+  }
+  window.addEventListener("app-language-changed", async (event) => {
+    try {
+      await updateProfileLanguage(
+        session.channel,
+        session.editKeyHash,
+        sanitizeLanguage(event.detail?.language || getCurrentLanguage()),
+        { preHashed: true }
+      );
+    } catch (error) {
+      console.error("Failed to save profile language", error);
+    }
+  });
 }
 
 init();

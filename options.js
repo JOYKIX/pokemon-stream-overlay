@@ -1,6 +1,6 @@
 import { ensureAuthenticated, saveSession, clearSession } from "./auth.js";
-import { updateEditKey, renameIdentifier, hashEditKey, regenerateRecoveryKey, deleteAccount } from "./shared.js";
-import { initPageI18n, t } from "./i18n.js";
+import { updateEditKey, renameIdentifier, hashEditKey, regenerateRecoveryKey, deleteAccount, getProfile, updateProfileLanguage } from "./shared.js";
+import { getCurrentLanguage, initPageI18n, sanitizeLanguage, setCurrentLanguage, t } from "./i18n.js";
 
 const currentChannel = document.getElementById("currentChannel");
 const currentKey = document.getElementById("currentKey");
@@ -172,6 +172,22 @@ async function init() {
   await initPageI18n();
   session = await ensureAuthenticated();
   if (!session) return;
+  const profile = await getProfile(session.channel);
+  if (profile?.uiLanguage) {
+    setCurrentLanguage(sanitizeLanguage(profile.uiLanguage));
+  }
+  window.addEventListener("app-language-changed", async (event) => {
+    try {
+      await updateProfileLanguage(
+        session.channel,
+        session.editKeyHash,
+        sanitizeLanguage(event.detail?.language || getCurrentLanguage()),
+        { preHashed: true }
+      );
+    } catch (error) {
+      console.error("Failed to save profile language", error);
+    }
+  });
   currentChannel.value = session.channel;
   const cachedRecovery = localStorage.getItem(`pokemonOverlayRecovery:${session.channel}`);
   if (cachedRecovery) {

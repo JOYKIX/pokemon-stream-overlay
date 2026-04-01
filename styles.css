@@ -567,6 +567,9 @@ button,
   border-radius: 14px;
   padding: 16px;
   background: linear-gradient(145deg, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.82)), var(--designer-bg-image, none);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover, var(--designer-bg-size, 100% auto);
   color: var(--designer-text, #fff);
 }
 

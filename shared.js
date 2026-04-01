@@ -26,6 +26,7 @@ export { db, ref, set, get, onValue };
 const POKEAPI_SPECIES_LIMIT = 1025;
 const POKE_INDEX_STORAGE_KEY = "pokeapi-species-index-v3";
 const POKE_LANGUAGES_STORAGE_KEY = "pokeapi-languages-v1";
+const SUPPORTED_PROFILE_LANGUAGES = new Set(["en", "fr", "es", "ja"]);
 let pokemonIndexPromise = null;
 let pokemonLanguagesPromise = null;
 
@@ -59,6 +60,10 @@ export function slugifyForApi(value) {
 
 function normalizeChannel(channel) {
   return cleanText(channel).toLowerCase();
+}
+
+function normalizeProfileLanguage(language) {
+  return SUPPORTED_PROFILE_LANGUAGES.has(language) ? language : "en";
 }
 
 function normalizeRecoveryKey(value) {
@@ -106,9 +111,12 @@ async function migrateLegacyEditKey(channel, profile) {
   if (!profile?.editKey || profile.editKeyHash) return;
 
   const editKeyHash = await hashEditKey(channel, profile.editKey);
+  const { editKey: _legacyEditKey, ...safeProfile } = profile;
   await set(ref(db, `profiles/${normalizeChannel(channel)}`), {
+    ...safeProfile,
     channel: normalizeChannel(channel),
     editKeyHash,
+    uiLanguage: normalizeProfileLanguage(profile.uiLanguage),
     createdAt: profile.createdAt || Date.now(),
     updatedAt: Date.now()
   });
@@ -301,6 +309,7 @@ export const DEFAULT_OVERLAY_STYLE = {
   backgroundColor: "#0a0a0a",
   backgroundOpacity: 0.76,
   backgroundImage: "",
+  backgroundImageSize: 100,
   textColor: "#ffffff",
   accentColor: "#e53935",
   cardColor: "#111111",
@@ -567,13 +576,19 @@ export function subscribeToTeam(channel, callback) {
   });
 }
 
+export function subscribeToProfile(channel, callback) {
+  return onValue(ref(db, `profiles/${normalizeChannel(channel)}`), snapshot => {
+    callback(snapshot.exists() ? snapshot.val() : null);
+  });
+}
+
 
 export async function getProfile(channel) {
   const snapshot = await get(ref(db, `profiles/${normalizeChannel(channel)}`));
   return snapshot.exists() ? snapshot.val() : null;
 }
 
-export async function createProfile(channel, editKey) {
+export async function createProfile(channel, editKey, { uiLanguage = "en" } = {}) {
   const normalized = normalizeChannel(channel);
   const existing = await getProfile(normalized);
   if (existing) {
@@ -588,6 +603,7 @@ export async function createProfile(channel, editKey) {
     channel: normalized,
     editKeyHash,
     recoveryKeyHash,
+    uiLanguage: normalizeProfileLanguage(uiLanguage),
     createdAt: Date.now(),
     updatedAt: Date.now()
   });
@@ -604,6 +620,23 @@ export async function verifyProfile(channel, editKeyOrHash, options = {}) {
   }
 
   return valid;
+}
+
+export async function updateProfileLanguage(channel, editKeyOrHash, language, options = {}) {
+  const normalized = normalizeChannel(channel);
+  const profile = await getProfile(normalized);
+  const isValid = await isProfileKeyValid(profile, normalized, editKeyOrHash, options);
+  if (!isValid) {
+    throw new Error("INVALID_EDIT_KEY");
+  }
+
+  const { editKey: _legacyEditKey, ...safeProfile } = profile || {};
+  await set(ref(db, `profiles/${normalized}`), {
+    ...safeProfile,
+    channel: normalized,
+    uiLanguage: normalizeProfileLanguage(language),
+    updatedAt: Date.now()
+  });
 }
 
 export async function updateEditKey(channel, currentEditKey, nextEditKey) {
