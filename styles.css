@@ -581,6 +581,23 @@ button,
   background: color-mix(in srgb, var(--designer-card, #1e293b) calc(var(--designer-card-opacity, 0.9) * 100%), transparent);
 }
 
+.designer-preview-slot {
+  position: relative;
+  overflow: hidden;
+}
+
+.designer-preview-slot::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 54px;
+  height: 54px;
+  transform: translate(-50%, -50%);
+  background: center / contain no-repeat url("./pokeball.png");
+  opacity: 0.22;
+  pointer-events: none;
+}
+
 .designer-preview-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

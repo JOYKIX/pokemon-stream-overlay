@@ -152,6 +152,31 @@ body.overlay-page {
   object-fit: contain;
 }
 
+.overlay-image-wrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: calc(110px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+}
+
+.overlay-image-wrap::before {
+  content: "";
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: calc(96px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  height: calc(96px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  transform: translate(-50%, -50%);
+  background: center / contain no-repeat url("./pokeball.png");
+  opacity: 0.28;
+  filter: grayscale(0.08);
+  pointer-events: none;
+}
+
+.overlay-image-wrap img {
+  position: relative;
+  z-index: 1;
+}
+
 .overlay-card.pixel-sprite-mode img {
   image-rendering: pixelated;
 }
