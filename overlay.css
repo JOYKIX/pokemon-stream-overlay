@@ -177,7 +177,7 @@ body.overlay-page {
 .overlay-image-wrap {
   position: absolute;
   inset: 8px 0 auto;
-  height: calc(142px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  height: calc(142px * var(--overlay-sprite-scale));
   display: grid;
   place-items: center;
 }
@@ -197,9 +197,10 @@ body.overlay-page {
 .overlay-image-wrap img {
   position: relative;
   z-index: 1;
-  width: calc(118px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
-  height: calc(118px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  width: calc(118px * var(--overlay-sprite-scale));
+  height: calc(118px * var(--overlay-sprite-scale));
   object-fit: contain;
+  object-position: center;
 }
 
 .overlay-name-wrap {
