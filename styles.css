@@ -593,7 +593,7 @@ button,
   width: 54px;
   height: 54px;
   transform: translate(-50%, -50%);
-  background: center / contain no-repeat url("../images/pokeball.png");
+  background: center / contain no-repeat url("./pokeball.png");
   opacity: 0.22;
   pointer-events: none;
 }
