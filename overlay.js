@@ -17,9 +17,6 @@ const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
 
-const TYPE_COLORS = {
-  normal: "#b9b27a", fire: "#ff6b2c", water: "#2c8dff", electric: "#f5c400", grass: "#38c259", ice: "#29d3ff", fighting: "#e84a4a", poison: "#bb59ff", ground: "#d99f3a", flying: "#6da8ff", psychic: "#ff4ea4", bug: "#7fcf23", rock: "#c49326", ghost: "#8f74ff", dragon: "#5f6dff", dark: "#5f4a44", steel: "#7093b5", fairy: "#ff77c8"
-};
 
 let latestTeamData = null;
 let profileLanguage = getCurrentLanguage();
@@ -66,8 +63,8 @@ function applyOverlayStyle(style = {}, options = {}) {
 }
 
 function renderTypeBadge(type) {
-  const color = TYPE_COLORS[type] || "#666";
-  return `<span class="type-pill" style="--type-color:${color}">${translateType(type)}</span>`;
+  const safeType = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
+  return `<span class="type-pill type-${safeType}">${translateType(type)}</span>`;
 }
 
 function getPosition(options, index) {
