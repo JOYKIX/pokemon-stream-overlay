@@ -122,6 +122,7 @@ function renderPokemonNameLanguageOptions(languages = []) {
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
 const slotPreviewUpdaters = [];
+const slotPreviewRequestIds = Array.from({ length: 6 }, () => 0);
 let autoSaveTimer = null;
 
 const teamViewButtons = document.querySelectorAll("[data-team-view-btn]");
@@ -240,6 +241,8 @@ function createSlot(index) {
   const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
 
   async function updatePreview() {
+    slotPreviewRequestIds[index] += 1;
+    const requestId = slotPreviewRequestIds[index];
     const previewBox = wrapper.querySelector(`#previewBox${index}`);
     const name = nameInput.value.trim();
     if (!name) {
@@ -254,12 +257,15 @@ function createSlot(index) {
         animated: preferAnimatedSprite.checked,
         nameLanguage: resolvePokemonNameLanguage()
       });
+      if (requestId !== slotPreviewRequestIds[index]) return;
       const nextEvolution = await getNextEvolutionName(name);
+      if (requestId !== slotPreviewRequestIds[index]) return;
       evolutionBtn.disabled = !nextEvolution;
       evolutionBtn.dataset.nextEvolution = nextEvolution || "";
       const pixelSpriteClass = shouldUsePixelRendering(spriteVariant.value, preferAnimatedSprite.checked) ? " pixel-sprite-mode" : "";
       previewBox.innerHTML = `<div class="preview-content${pixelSpriteClass}"><img src="${pokemon.sprite}" alt="${pokemon.displayName}"><div class="preview-name-fr">${pokemon.displayName}</div></div>`;
     } catch {
+      if (requestId !== slotPreviewRequestIds[index]) return;
       evolutionBtn.disabled = true;
       evolutionBtn.dataset.nextEvolution = "";
       previewBox.innerHTML = `<div class="preview-placeholder">${t("app.not_found")}</div>`;
@@ -658,8 +664,12 @@ async function loadPokemonSuggestions() {
   try {
     const entries = await fetchFrenchPokemonIndex();
     const language = pokemonNameLanguageInput?.value || "auto";
-    pokemonSuggestions.innerHTML = entries
+    const collator = new Intl.Collator(language === "auto" ? getCurrentLanguage() : language, { sensitivity: "base" });
+    const labels = entries
       .map((entry) => getSuggestionLabel(entry, language))
+      .filter(Boolean);
+    const uniqueLabels = [...new Set(labels)].sort((a, b) => collator.compare(a, b));
+    pokemonSuggestions.innerHTML = uniqueLabels
       .map((name) => `<option value="${name}"></option>`)
       .join("");
     setStatus(t("common.status.ready"), "info");

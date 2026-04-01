@@ -20,6 +20,7 @@ const overlayDeathCount = document.getElementById("overlayDeathCount");
 
 let latestTeamData = null;
 let profileLanguage = getCurrentLanguage();
+let renderRequestId = 0;
 
 function hexToRgb(hex) {
   const normalized = hex.replace("#", "");
@@ -89,7 +90,10 @@ function getPosition(options, index) {
 }
 
 async function renderTeam(data) {
+  renderRequestId += 1;
+  const requestId = renderRequestId;
   await loadTranslations(profileLanguage);
+  if (requestId !== renderRequestId) return;
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
     overlayRoot.classList.remove("sprite-only-mode", "hide-header");
@@ -158,6 +162,7 @@ async function renderTeam(data) {
         animated: options.preferAnimatedSprite,
         nameLanguage: options.pokemonNameLanguage === "auto" ? profileLanguage : options.pokemonNameLanguage
       });
+      if (requestId !== renderRequestId) return;
     } catch {
       pokemon = null;
     }
