@@ -29,7 +29,7 @@ export async function loadTranslations(language = getCurrentLanguage()) {
   const next = normalizeLanguage(language);
   if (loadedLanguage === next && Object.keys(translations).length) return translations;
 
-  const fallbackResponse = await fetch("./lang/en.json");
+  const fallbackResponse = await fetch("../lang/en.json");
   if (!fallbackResponse.ok) {
     throw new Error("Unable to load fallback translation file for en");
   }
@@ -41,7 +41,7 @@ export async function loadTranslations(language = getCurrentLanguage()) {
     return translations;
   }
 
-  const response = await fetch(`./lang/${next}.json`);
+  const response = await fetch(`../lang/${next}.json`);
   if (!response.ok) {
     translations = fallbackTranslations;
     loadedLanguage = "en";
