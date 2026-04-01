@@ -144,7 +144,7 @@ body.overlay-page {
   transform: translate(-50%, -50%) scale(var(--slot-scale, 1));
   transform-origin: center;
   width: clamp(210px, 16vw, 320px);
-  height: clamp(260px, 22vw, 360px);
+  height: clamp(220px, 18vw, 300px);
   border-radius: var(--overlay-radius, 20px);
   background: transparent;
   border: none;
@@ -176,8 +176,8 @@ body.overlay-page {
 
 .overlay-image-wrap {
   position: absolute;
-  inset: 18px 0 auto;
-  height: calc(180px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
+  inset: 8px 0 auto;
+  height: calc(142px * var(--overlay-sprite-scale) * var(--pokemon-scale, 1));
   display: grid;
   place-items: center;
 }
@@ -206,7 +206,7 @@ body.overlay-page {
   position: absolute;
   left: 8px;
   right: 8px;
-  top: 185px;
+  top: 138px;
   display: grid;
   justify-items: center;
   gap: 2px;
@@ -251,12 +251,12 @@ body.overlay-page {
 }
 
 .overlay-meta {
-  top: 242px;
+  top: 186px;
   min-height: 28px;
 }
 
 .overlay-types {
-  top: 274px;
+  top: 216px;
   min-height: 28px;
 }
 
