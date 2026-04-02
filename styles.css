@@ -564,9 +564,14 @@ button,
 }
 
 .editor-canvas .editor-overlay-card {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(var(--slot-scale, 1));
+  transform-origin: center;
   width: 210px;
+  min-height: 248px;
   cursor: grab;
   user-select: none;
+  overflow: hidden;
 }
 
 .editor-canvas .editor-overlay-card:active {
@@ -574,14 +579,99 @@ button,
 }
 
 .editor-canvas .editor-overlay-card .overlay-header-row {
+  position: relative;
+  z-index: 3;
   font-size: 0.72rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.7);
 }
 
+.editor-canvas .editor-overlay-card .overlay-card-top {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  z-index: 3;
+}
+
+.editor-canvas .editor-overlay-card .overlay-image-wrap {
+  position: absolute;
+  inset: 6px 0 auto;
+  height: 145px;
+  display: grid;
+  place-items: center;
+}
+
+.editor-canvas .editor-overlay-card .overlay-pokeball {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 156px;
+  height: 156px;
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  opacity: 0.88;
+  pointer-events: none;
+}
+
 .editor-canvas .editor-overlay-card .overlay-sprite {
+  position: relative;
   z-index: 2;
+  width: 102px;
+  height: 102px;
+  object-fit: contain;
+}
+
+.editor-canvas .editor-overlay-card .overlay-name-wrap {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  top: 138px;
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.editor-canvas .editor-overlay-card .overlay-name-panel {
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.62);
+}
+
+.editor-canvas .editor-overlay-card .overlay-name,
+.editor-canvas .editor-overlay-card .overlay-species {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.editor-canvas .editor-overlay-card .overlay-name {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.editor-canvas .editor-overlay-card .overlay-species {
+  font-size: 0.8rem;
+  opacity: 0.95;
+}
+
+.editor-canvas .editor-overlay-card .overlay-meta,
+.editor-canvas .editor-overlay-card .overlay-types {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: center;
+}
+
+.editor-canvas .editor-overlay-card .overlay-types {
+  top: 187px;
+  min-height: 22px;
+}
+
+.editor-canvas .editor-overlay-card .overlay-meta {
+  top: 212px;
+  min-height: 24px;
 }
 
 .editor-canvas .editor-types-placeholder {
