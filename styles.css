@@ -14,6 +14,7 @@
   --radius: 16px;
   --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.45);
   --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.28);
+  --accent-glow: 0 0 0 1px rgba(255,255,255,0.06), 0 16px 40px rgba(217, 4, 41, 0.16);
 }
 
 * { box-sizing: border-box; }
@@ -163,14 +164,14 @@ button,
 }
 
 .sidebar {
-  background: linear-gradient(180deg, #171717, #111111);
+  background: linear-gradient(180deg, rgba(23,23,23,0.92), rgba(13,13,13,0.95));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
   display: grid;
   gap: 18px;
   align-content: start;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), var(--accent-glow);
 }
 
 .sidebar-kicker {
@@ -237,7 +238,7 @@ button,
   background: linear-gradient(180deg, #161616, #121212);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm), var(--accent-glow);
 }
 
 .topbar {
@@ -922,4 +923,16 @@ button,
 
 .layout-magnet-toggle {
   width: fit-content;
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel, .slot-card, .sidebar, .topbar {
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .panel:hover, .slot-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), var(--accent-glow);
+  }
 }

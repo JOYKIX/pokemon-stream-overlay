@@ -20,9 +20,8 @@ Cette version utilise :
 - `options.html` : changement d'identifiant et de clé
 - `overlay.html` : page à mettre dans OBS
 - `styles.css` : design global
-- `app.js`, `customize.js`, `login.js`, `options.js` : logique des interfaces
-- `overlay.js` : logique OBS
-- `shared.js` + `auth.js` : fonctions communes + session locale
+- `*.ts` : code source TypeScript (UI, overlay, auth, data)
+- `dist/*.js` : build JavaScript généré pour le navigateur
 
 ## Mise en place
 
@@ -52,6 +51,15 @@ Pour tester rapidement, mets ces règles :
 ### 3) Configure `config.js`
 
 Copie `config.example.js` en `config.js` puis remplace les valeurs.
+
+
+### Build TypeScript (V2)
+
+```bash
+tsc --project tsconfig.json
+```
+
+Le build génère les modules ES dans `dist/`, consommés par les pages HTML.
 
 ### 4) Publie sur GitHub Pages
 
