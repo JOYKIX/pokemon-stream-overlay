@@ -437,31 +437,61 @@ function renderEditorCanvas() {
     const slots = collectSlots();
     editorCanvas.innerHTML = "";
     const nuzlockeEnabled = nuzlockeModeInput.checked;
+    const displayOptions = collectDisplayOptions();
     slots.forEach((slot, index) => {
         const pos = slotPositions[index] || { x: 10, y: 10 };
-        const token = document.createElement("button");
-        token.type = "button";
-        token.className = "canvas-token";
+        const token = document.createElement("article");
+        token.className = "overlay-card editor-overlay-card";
         token.dataset.index = String(index);
         token.style.left = `${pos.x}%`;
         token.style.top = `${pos.y}%`;
-        token.innerHTML = `<strong>${slot.nickname || slot.name || t("slot_label", { index: index + 1 })}</strong><span>${slot.name ? t("app.drag_to_place") : t("app.add_pokemon")}</span>`;
         const scale = Math.max(0.6, Math.min(2, Number(slotScales[index]) || 1));
-        token.style.width = `${Math.round((slot.name ? 170 : 150) * scale)}px`;
+        token.style.setProperty("--slot-scale", String(scale));
+        const slotLabel = t("slot_label", { index: index + 1 });
+        const previewImage = document.querySelector(`#previewBox${index} img`)?.getAttribute("src") || "./pokeball.png";
+        const nickname = slot.nickname?.trim();
+        const pokemonName = slot.name?.trim();
+        const displayName = nickname || pokemonName || slotLabel;
+        const showHeaderText = displayOptions.showHeader ? `<div class="overlay-header-row">${slotLabel}</div>` : "";
+        const showLevelText = displayOptions.showLevel ? `<div class="overlay-level">Lv.${slot.level || "?"}</div>` : "";
+        const showNameText = displayOptions.showName ? `<div class="overlay-species">${pokemonName || t("app.add_pokemon")}</div>` : "";
+        const showNicknameText = displayOptions.showNickname ? `<div class="overlay-name">${displayName}</div>` : "";
+        const showItemText = displayOptions.showItem ? `<div class="overlay-meta"><span class="meta-pill item">${slot.item || "-"}</span></div>` : "";
+        const showTypesText = displayOptions.showTypes ? `<div class="overlay-types"><span class="editor-types-placeholder">${t("types")}</span></div>` : "";
+        token.innerHTML = `
+      ${showHeaderText}
+      <div class="overlay-card-top">${showLevelText}</div>
+      <div class="overlay-image-wrap">
+        <img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">
+        <img class="overlay-sprite" src="${previewImage}" alt="${displayName}">
+      </div>
+      <div class="overlay-name-wrap"><div class="overlay-name-panel">${showNicknameText}${showNameText}</div></div>
+      ${showItemText}
+      ${showTypesText}
+    `;
+        if (shouldUsePixelRendering(displayOptions.spriteVariant, displayOptions.preferAnimatedSprite)) {
+            token.classList.add("pixel-sprite-mode");
+        }
         enableDrag(token, index);
         enableScale(token, index);
         editorCanvas.appendChild(token);
     });
     if (nuzlockeEnabled) {
-        const deathToken = document.createElement("button");
-        deathToken.type = "button";
-        deathToken.className = "canvas-token canvas-token-nuzlocke";
+        const deathToken = document.createElement("div");
+        deathToken.className = "overlay-floating-nuzlocke editor-overlay-nuzlocke";
         deathToken.dataset.index = "nuzlocke";
         const nPos = slotPositions[6] || { x: 88, y: 12 };
         deathToken.style.left = `${nPos.x}%`;
         deathToken.style.top = `${nPos.y}%`;
-        const nuzlockeLabel = showNuzlockeLabelInput.checked ? t("nuzlocke_mode") : t("death_counter");
-        deathToken.innerHTML = `<strong>${nuzlockeLabel}</strong><span>${Math.max(0, Number(deathCountInput.value) || 0)} ${t("overlay.deaths").toLowerCase()}</span>`;
+        deathToken.classList.toggle("hide-run-label", !showNuzlockeLabelInput.checked);
+        deathToken.innerHTML = `
+      <span class="run-tag">${t("nuzlocke_mode")}</span>
+      <span class="death-counter">
+        <span class="death-counter-icon">☠</span>
+        <span class="death-counter-label">${t("death_counter")}</span>
+        <strong class="death-counter-value">${Math.max(0, Number(deathCountInput.value) || 0)}</strong>
+      </span>
+    `;
         enableDrag(deathToken, 6);
         editorCanvas.appendChild(deathToken);
     }
