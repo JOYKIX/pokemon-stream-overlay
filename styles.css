@@ -819,6 +819,10 @@ button,
 .layout-editor-card {
   display: grid;
   gap: 14px;
+  background:
+    radial-gradient(circle at 10% -10%, rgba(100, 180, 255, 0.18), transparent 35%),
+    radial-gradient(circle at 90% 115%, rgba(255, 70, 100, 0.16), transparent 40%),
+    linear-gradient(170deg, #14161c, #0f1218);
 }
 
 .layout-editor-help {
@@ -830,11 +834,13 @@ button,
   position: relative;
   height: 290px;
   border-radius: 14px;
-  border: 1px dashed var(--border-strong);
+  border: 1px dashed #4d5666;
   background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 50% 50% / 24px 24px,
-    linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px) 50% 50% / 24px 24px,
-    #0f1117;
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px) 50% 50% / 24px 24px,
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px) 50% 50% / 24px 24px,
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 58%),
+    #0c1018;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04), 0 14px 28px rgba(0, 0, 0, 0.35);
 }
 
 .layout-canvas-center {
@@ -851,16 +857,20 @@ button,
 .layout-handle {
   position: absolute;
   transform: translate(-50%, -50%);
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 34px;
+  padding: 0 12px;
   border-radius: 999px;
-  font-size: 0.75rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(0, 0, 0, 0.65);
+  background: rgba(5, 10, 20, 0.78);
+  backdrop-filter: blur(3px);
 }
 
 .layout-handle.pokeball { border-color: #e2e8f0; }
 .layout-handle.sprite { border-color: #93c5fd; }
+.layout-handle.level { border-color: #fcd34d; }
 .layout-handle.types { border-color: #86efac; }
 
 .layout-live-preview {
@@ -868,12 +878,17 @@ button,
   place-items: center;
   min-height: 360px;
   border-radius: 16px;
-  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.1), rgba(5, 5, 5, 0.9));
+  background:
+    radial-gradient(circle at 50% 25%, rgba(72, 157, 255, 0.32), transparent 46%),
+    radial-gradient(circle at 50% 90%, rgba(255, 80, 109, 0.25), transparent 40%),
+    linear-gradient(180deg, #0d1018, #090b12);
   overflow: hidden;
   --layout-pokeball-x: 0px;
   --layout-pokeball-y: 0px;
   --layout-sprite-x: 0px;
   --layout-sprite-y: 0px;
+  --layout-level-x: 0px;
+  --layout-level-y: 0px;
   --layout-types-x: 0px;
   --layout-types-y: 0px;
 }
@@ -885,12 +900,16 @@ button,
   top: auto;
 }
 
-.layout-live-preview .overlay-image-wrap::before {
+.layout-live-preview .overlay-pokeball {
   transform: translate(calc(-50% + var(--layout-pokeball-x)), calc(-50% + var(--layout-pokeball-y)));
 }
 
-.layout-live-preview .overlay-image-wrap img {
+.layout-live-preview .overlay-image-wrap .preview-sprite {
   transform: translate(var(--layout-sprite-x), var(--layout-sprite-y));
+}
+
+.layout-live-preview .overlay-card-top {
+  transform: translate(var(--layout-level-x), var(--layout-level-y));
 }
 
 .layout-live-preview .overlay-types {
@@ -899,4 +918,8 @@ button,
 
 .preview-sprite {
   image-rendering: pixelated;
+}
+
+.layout-magnet-toggle {
+  width: fit-content;
 }

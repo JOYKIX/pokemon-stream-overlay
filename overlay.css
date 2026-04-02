@@ -166,6 +166,7 @@ body.overlay-page {
   right: 44px;
   min-height: 1.3rem;
   z-index: 3;
+  transform: translate(var(--layout-level-x, 0px), var(--layout-level-y, 0px));
 }
 
 .overlay-level {
@@ -186,7 +187,10 @@ body.overlay-page {
 }
 
 .overlay-image-wrap::before {
-  content: "";
+  content: none;
+}
+
+.overlay-pokeball {
   position: absolute;
   inset: 50% auto auto 50%;
   width: calc(190px * var(--overlay-sprite-scale));
@@ -195,12 +199,14 @@ body.overlay-page {
     calc(-50% + var(--layout-pokeball-x, 0px)),
     calc(-50% + var(--layout-pokeball-y, 0px))
   );
-  background: center / contain no-repeat url("./pokeball.png");
-  opacity: 0.72;
+  object-fit: contain;
+  object-position: center;
+  opacity: 0.9;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.4));
   pointer-events: none;
 }
 
-.overlay-image-wrap img {
+.overlay-image-wrap img:not(.overlay-pokeball) {
   position: relative;
   z-index: 1;
   width: calc(118px * var(--overlay-sprite-scale));
