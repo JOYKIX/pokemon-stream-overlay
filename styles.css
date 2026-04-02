@@ -529,6 +529,7 @@ button,
   border: 1px solid var(--border);
   border-radius: 10px;
   background: #0f0f0f;
+  overflow: hidden;
 }
 
 .editor-canvas.show-grid::before {
@@ -560,6 +561,47 @@ button,
 .canvas-token-nuzlocke {
   border-color: #ff5d79;
   background: rgba(255, 93, 121, 0.24);
+}
+
+.editor-canvas .editor-overlay-card {
+  width: 210px;
+  cursor: grab;
+  user-select: none;
+}
+
+.editor-canvas .editor-overlay-card:active {
+  cursor: grabbing;
+}
+
+.editor-canvas .editor-overlay-card .overlay-header-row {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.editor-canvas .editor-overlay-card .overlay-sprite {
+  z-index: 2;
+}
+
+.editor-canvas .editor-types-placeholder {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 3px 8px;
+}
+
+.editor-canvas .editor-overlay-nuzlocke {
+  cursor: grab;
+  user-select: none;
+}
+
+.editor-canvas .editor-overlay-nuzlocke:active {
+  cursor: grabbing;
 }
 
 .designer-preview {
