@@ -557,6 +557,10 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
           x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.sprite?.x) || 0)),
           y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.sprite?.y) || 0))
         },
+        level: {
+          x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.level?.x) || 0)),
+          y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.level?.y) || 0))
+        },
         types: {
           x: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.types?.x) || 0)),
           y: Math.max(-120, Math.min(120, Number(displayOptions.cardLayout?.types?.y) || 0))

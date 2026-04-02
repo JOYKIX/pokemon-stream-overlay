@@ -32,7 +32,11 @@
         <section class="card layout-editor-card">
           <div class="field"><label for="channelInput">Channel ID</label><input id="channelInput" type="text" readonly></div>
           <div class="section-header"><h3>Canvas de placement</h3></div>
-          <p class="layout-editor-help">Déplace les points pour changer la position de la Pokéball, du sprite et des types dans la carte.</p>
+          <p class="layout-editor-help">Déplace les points pour changer la position de la Pokéball, du sprite, du niveau et des types dans la carte.</p>
+          <label class="toggle-control layout-magnet-toggle" for="snapToGridToggle">
+            <input id="snapToGridToggle" type="checkbox" checked>
+            <span>Aimant grille (snap)</span>
+          </label>
           <div id="layoutCanvas" class="layout-canvas" aria-label="Canvas de placement"></div>
           <div class="actions">
             <button id="resetLayoutBtn" class="secondary-btn" type="button">Réinitialiser</button>
@@ -47,6 +51,7 @@
             <article class="overlay-card preview-card">
               <div class="overlay-card-top"><div class="overlay-level">Lv.25</div></div>
               <div class="overlay-image-wrap">
+                <img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">
                 <img class="preview-sprite" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu">
               </div>
               <div class="overlay-name-wrap"><div class="overlay-name-panel"><div class="overlay-name">Sparky</div><div class="overlay-species">Pikachu</div></div></div>

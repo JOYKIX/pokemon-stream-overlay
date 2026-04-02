@@ -100,6 +100,7 @@ function sanitizeCardLayout(layout) {
   return {
     pokeball: sanitizePoint(layout?.pokeball),
     sprite: sanitizePoint(layout?.sprite),
+    level: sanitizePoint(layout?.level),
     types: sanitizePoint(layout?.types)
   };
 }
@@ -165,6 +166,8 @@ async function renderTeam(data) {
   overlayRoot.style.setProperty("--layout-pokeball-y", `${options.cardLayout.pokeball.y}px`);
   overlayRoot.style.setProperty("--layout-sprite-x", `${options.cardLayout.sprite.x}px`);
   overlayRoot.style.setProperty("--layout-sprite-y", `${options.cardLayout.sprite.y}px`);
+  overlayRoot.style.setProperty("--layout-level-x", `${options.cardLayout.level.x}px`);
+  overlayRoot.style.setProperty("--layout-level-y", `${options.cardLayout.level.y}px`);
   overlayRoot.style.setProperty("--layout-types-x", `${options.cardLayout.types.x}px`);
   overlayRoot.style.setProperty("--layout-types-y", `${options.cardLayout.types.y}px`);
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
@@ -229,7 +232,7 @@ async function renderTeam(data) {
       "beforeend",
       `<article class="${cardClass}" style="left:${pos.x}%; top:${pos.y}%; --slot-scale:${scale}">
         <div class="overlay-card-top">${levelHtml}</div>
-        <div class="overlay-image-wrap">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
+        <div class="overlay-image-wrap"><img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
         ${nameHtml}
         <div class="overlay-meta">${shinyHtml}${itemHtml}</div>
         ${typesHtml}

@@ -9,18 +9,21 @@ const loadBtn = document.getElementById("loadBtn");
 const saveBtn = document.getElementById("saveBtn");
 const statusBox = document.getElementById("statusBox");
 const layoutPreview = document.getElementById("layoutPreview");
+const snapToGridToggle = document.getElementById("snapToGridToggle");
 const logoutBtn = document.getElementById("logoutBtn");
 const toastStack = document.getElementById("toastStack");
 
 const DEFAULT_LAYOUT = {
   pokeball: { x: 0, y: 0 },
   sprite: { x: 0, y: 0 },
+  level: { x: 0, y: 0 },
   types: { x: 0, y: 0 }
 };
 
 const state = {
   layout: structuredClone(DEFAULT_LAYOUT),
-  dragKey: null
+  dragKey: null,
+  snapToGrid: true
 };
 
 function clamp(value, min, max) {
@@ -37,6 +40,7 @@ function sanitizeLayout(layout) {
   return {
     pokeball: sanitizePoint(source.pokeball),
     sprite: sanitizePoint(source.sprite),
+    level: sanitizePoint(source.level),
     types: sanitizePoint(source.types)
   };
 }
@@ -51,12 +55,20 @@ function setStatus(message, type = "info") {
   setTimeout(() => toast.remove(), 2600);
 }
 
+function maybeSnap(value) {
+  if (!state.snapToGrid) return value;
+  const step = 12;
+  return Math.round(value / step) * step;
+}
+
 function updatePreview() {
-  const { pokeball, sprite, types } = state.layout;
+  const { pokeball, sprite, level, types } = state.layout;
   layoutPreview.style.setProperty("--layout-pokeball-x", `${pokeball.x}px`);
   layoutPreview.style.setProperty("--layout-pokeball-y", `${pokeball.y}px`);
   layoutPreview.style.setProperty("--layout-sprite-x", `${sprite.x}px`);
   layoutPreview.style.setProperty("--layout-sprite-y", `${sprite.y}px`);
+  layoutPreview.style.setProperty("--layout-level-x", `${level.x}px`);
+  layoutPreview.style.setProperty("--layout-level-y", `${level.y}px`);
   layoutPreview.style.setProperty("--layout-types-x", `${types.x}px`);
   layoutPreview.style.setProperty("--layout-types-y", `${types.y}px`);
 }
@@ -70,6 +82,7 @@ function renderCanvas() {
   [
     ["pokeball", "Pokéball"],
     ["sprite", "Sprite"],
+    ["level", "Niveau"],
     ["types", "Types"]
   ].forEach(([key, label]) => {
     const node = document.createElement("button");
@@ -101,7 +114,7 @@ layoutCanvas.addEventListener("pointermove", (event) => {
   const rect = layoutCanvas.getBoundingClientRect();
   const x = clamp(event.clientX - rect.left - rect.width / 2, -120, 120);
   const y = clamp(event.clientY - rect.top - rect.height / 2, -120, 120);
-  state.layout[state.dragKey] = { x: Math.round(x), y: Math.round(y) };
+  state.layout[state.dragKey] = { x: Math.round(maybeSnap(x)), y: Math.round(maybeSnap(y)) };
   renderCanvas();
   updatePreview();
 });
@@ -157,6 +170,10 @@ async function saveLayout() {
 
 loadBtn?.addEventListener("click", loadLayout);
 saveBtn?.addEventListener("click", saveLayout);
+snapToGridToggle?.addEventListener("change", () => {
+  state.snapToGrid = Boolean(snapToGridToggle.checked);
+  setStatus(state.snapToGrid ? "Aimant de grille activé" : "Aimant de grille désactivé", "info");
+});
 logoutBtn?.addEventListener("click", () => {
   clearSession();
   window.location.href = "login.html";
@@ -183,6 +200,9 @@ async function init() {
     }
   });
   channelInput.value = session.channel;
+  if (snapToGridToggle) {
+    snapToGridToggle.checked = true;
+  }
   applyLayout(DEFAULT_LAYOUT);
   await loadLayout();
 }
