@@ -12,27 +12,35 @@
 <body class="app-page login-page">
   <a class="site-header-anchor" href="index.html" aria-label="PokeOverlay home">PokeOverlay</a>
 
-  <main class="auth-card panel">
-    <p class="eyebrow" data-i18n="secure_login"></p>
-    <h1 data-i18n="identifier_edit_key"></h1>
-    <p class="auth-note" data-i18n="simple_fast_private"></p>
-    <div class="field"><label for="languageSelect" data-i18n="ui_language"></label><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option><option value="es" data-i18n="spanish"></option><option value="ja" data-i18n="japanese"></option></select></div>
-
-    <div class="field"><label for="channelInput" data-i18n="unique_identifier"></label><input id="channelInput" type="text" data-i18n-placeholder="example_joykix" placeholder="e.g. joykix" /></div>
-    <div class="field"><label for="editKeyInput" data-i18n="edit_key"></label><input id="editKeyInput" type="password" data-i18n-placeholder="private_key_placeholder" placeholder="Your private key" /></div>
-    <label class="checkbox-chip wide"><input type="checkbox" id="createMode"><span data-i18n="create_new_identifier"></span></label>
-    <button id="submitBtn" class="primary-btn"><span class="material-symbols-rounded">login</span><span data-i18n="continue"></span></button>
-
-    <section class="card">
-      <div class="section-header"><h3 data-i18n="forgot_password"></h3></div>
-      <div class="field"><label for="recoveryChannelInput" data-i18n="identifier"></label><input id="recoveryChannelInput" type="text" data-i18n-placeholder="example_joykix" placeholder="e.g. joykix"></div>
-      <div class="field"><label for="recoveryKeyInput" data-i18n="recovery_key"></label><input id="recoveryKeyInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
-      <div class="field"><label for="newPasswordInput" data-i18n="new_edit_key"></label><input id="newPasswordInput" type="password" data-i18n-placeholder="new_key_placeholder" placeholder="New key"></div>
-      <button id="recoverBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">key</span><span data-i18n="reset_key"></span></button>
+  <main class="auth-card">
+    <section class="panel login-hero">
+      <p class="eyebrow" data-i18n="secure_login"></p>
+      <h1 data-i18n="identifier_edit_key"></h1>
+      <p class="auth-note" data-i18n="simple_fast_private"></p>
+      <ul class="login-bullets">
+        <li>Deploy-ready in minutes</li>
+        <li>Secure identifier + key model</li>
+        <li>Real-time sync for stream overlays</li>
+      </ul>
+      <div id="recoveryKeyBox" class="status-box info" style="display:none"></div>
+      <div id="statusBox" class="status-box info" data-i18n="ready"></div>
     </section>
 
-    <div id="recoveryKeyBox" class="status-box info" style="display:none"></div>
-    <div id="statusBox" class="status-box info" data-i18n="ready"></div>
+    <section class="panel">
+      <div class="field"><label for="languageSelect" data-i18n="ui_language"></label><select id="languageSelect"><option value="en" data-i18n="english"></option><option value="fr" data-i18n="french"></option><option value="es" data-i18n="spanish"></option><option value="ja" data-i18n="japanese"></option></select></div>
+      <div class="field"><label for="channelInput" data-i18n="unique_identifier"></label><input id="channelInput" type="text" data-i18n-placeholder="example_joykix" placeholder="e.g. joykix" /></div>
+      <div class="field"><label for="editKeyInput" data-i18n="edit_key"></label><input id="editKeyInput" type="password" data-i18n-placeholder="private_key_placeholder" placeholder="Your private key" /></div>
+      <label class="checkbox-chip wide"><input type="checkbox" id="createMode"><span data-i18n="create_new_identifier"></span></label>
+      <button id="submitBtn" class="primary-btn"><span class="material-symbols-rounded">login</span><span data-i18n="continue"></span></button>
+
+      <section class="panel">
+        <div class="section-header"><h3 data-i18n="forgot_password"></h3></div>
+        <div class="field"><label for="recoveryChannelInput" data-i18n="identifier"></label><input id="recoveryChannelInput" type="text" data-i18n-placeholder="example_joykix" placeholder="e.g. joykix"></div>
+        <div class="field"><label for="recoveryKeyInput" data-i18n="recovery_key"></label><input id="recoveryKeyInput" type="text" placeholder="xxxx-xxxx-xxxx-xxxx"></div>
+        <div class="field"><label for="newPasswordInput" data-i18n="new_edit_key"></label><input id="newPasswordInput" type="password" data-i18n-placeholder="new_key_placeholder" placeholder="New key"></div>
+        <button id="recoverBtn" class="secondary-btn" type="button"><span class="material-symbols-rounded">key</span><span data-i18n="reset_key"></span></button>
+      </section>
+    </section>
   </main>
   <script type="module" src="dist/login.js"></script>
 </body>

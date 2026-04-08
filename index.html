@@ -40,6 +40,28 @@
         </div>
       </header>
 
+      <section class="command-deck">
+        <article class="deck-hero">
+          <h3>Trainer Command Center</h3>
+          <p>Build your active squad, tune display logic, and deploy directly to OBS without leaving this screen.</p>
+          <div class="metric-grid">
+            <div class="metric"><strong>6</strong><span>team slots</span></div>
+            <div class="metric"><strong>Live</strong><span>sync status</span></div>
+            <div class="metric"><strong>Fast</strong><span>drag reorder</span></div>
+            <div class="metric"><strong>Safe</strong><span>autosave mode</span></div>
+          </div>
+        </article>
+        <article class="deck-metrics">
+          <div class="section-header"><h3>Broadcast Tools</h3><p>All critical controls in one compact panel.</p></div>
+          <div class="actions vertical">
+            <button id="saveBtn" class="primary-btn" type="button" data-i18n="save_team"></button>
+            <button id="loadBtn" class="secondary-btn" type="button" data-i18n="load_team"></button>
+            <button id="clearBtn" class="danger-btn" type="button" data-i18n="reset_team"></button>
+          </div>
+          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
+        </article>
+      </section>
+
       <div class="autosave-bar"><span data-i18n="autosave"></span>: <strong id="autosaveIndicator" data-i18n="idle"></strong></div>
 
       <section class="studio-grid">
@@ -114,14 +136,6 @@
               <div id="editorCanvas" class="editor-canvas"></div>
             </div>
           </div>
-
-          <div class="section-header"><h3 data-i18n="data"></h3></div>
-          <div class="actions vertical">
-            <button id="saveBtn" class="primary-btn" type="button" data-i18n="save_team"></button>
-            <button id="loadBtn" class="secondary-btn" type="button" data-i18n="load_team"></button>
-            <button id="clearBtn" class="danger-btn" type="button" data-i18n="reset_team"></button>
-          </div>
-          <div id="statusBox" class="status-box info" data-i18n="ready"></div>
         </section>
       </section>
     </main>
