@@ -1,100 +1,61 @@
-# PokeOverlay
+# Pokémon Stream Overlay
 
-Pokemon Stream Overlay for OBS, hébergé sur GitHub Pages.
+Projet hybride pour gérer un overlay Pokémon :
 
-## Pourquoi l'ancienne version ne marchait pas
+- **Frontend React (Vite)** pour la connexion Twitch (`/`).
+- **Backend Express** pour OAuth Twitch et session (`backend/server.js`).
+- **Frontend statique TypeScript compilé en `dist/`** pour l’éditeur overlay historique (`login.html`, `overlay.html`, etc.).
 
-`localStorage` ne partage pas l'état entre ta page web classique et la source navigateur d'OBS de façon fiable. Pour qu'un changement dans le site mette à jour l'overlay OBS en direct, il faut un stockage partagé côté cloud.
+## Architecture rapide
 
-Cette version utilise :
+- `src/`: application React (écran de connexion Twitch).
+- `backend/server.js`: API/session OAuth Twitch.
+- `*.ts` à la racine: logique de l’éditeur overlay historique.
+- `dist/`: sortie compilée consommée par les pages HTML historiques.
+- `lang/`: traductions UI.
 
-- **GitHub Pages** pour héberger le site
-- **Firebase Realtime Database** pour synchroniser l'équipe en direct
-- **PokéAPI** pour récupérer sprites et noms Pokémon
+## Configuration environnement
 
-## Fichiers
+Le backend lit les variables depuis un fichier **`.env` à la racine**.
 
-- `login.html` : connexion par identifiant + clé d'édition
-- `index.html` : éditeur principal de team
-- `customize.html` : éditeur de design overlay
-- `options.html` : changement d'identifiant et de clé
-- `overlay.html` : page à mettre dans OBS
-- `styles.css` : design global
-- `*.ts` : code source TypeScript (UI, overlay, auth, data)
-- `dist/*.js` : build JavaScript généré pour le navigateur
-
-## Mise en place
-
-### 1) Crée un projet Firebase
-
-- Va dans Firebase Console
-- Crée un projet
-- Ajoute une **application Web**
-- Copie l'objet de configuration
-- Active **Realtime Database**
-
-### 2) Règles temporaires simples
-
-Pour tester rapidement, mets ces règles :
-
-```json
-{
-  "rules": {
-    "teams": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
-```
-
-### 3) Configure `config.js`
-
-Copie `config.example.js` en `config.js` puis remplace les valeurs.
-
-
-### Build TypeScript (V2)
+1. Copier le modèle:
 
 ```bash
-tsc --project tsconfig.json
+cp .env.example .env
 ```
 
-Le build génère les modules ES dans `dist/`, consommés par les pages HTML.
+2. Remplir les variables Twitch:
 
-### 4) Publie sur GitHub Pages
+- `TWITCH_CLIENT_ID`
+- `TWITCH_CLIENT_SECRET`
+- `TWITCH_REDIRECT_URI` (ex: `http://localhost:3000/auth/twitch/callback`)
+- `SESSION_SECRET`
 
-- Crée un dépôt GitHub
-- Envoie tous les fichiers
-- Active GitHub Pages dans **Settings > Pages**
-- Publie depuis la branche `main` et le dossier racine
+> Un exemple backend dédié est aussi fourni dans `backend/.env.example` pour documentation.
 
-### 5) Utilise OBS
+## Développement
 
-Mets en source navigateur :
-
-```text
-https://ton-utilisateur.github.io/ton-repo/overlay.html?channel=joykix
+```bash
+npm install
+npm run dev
 ```
 
-## Conseils OBS
+- Frontend Vite: `http://localhost:5173`
+- Backend Express: `http://localhost:3000`
 
-- Largeur : `1920`
-- Hauteur : `360`
-- Coche le rafraîchissement quand la scène devient active
+## Build
 
-## Remarques importantes
+```bash
+npm run build
+```
 
-- Le champ Pokémon attend surtout un **nom PokéAPI anglais** ou un **numéro du Pokédex**
-- Les noms affichés sur l'overlay remontent en français quand PokéAPI les fournit
-- La synchronisation est en direct via Firebase
+## Démarrage backend seul
 
+```bash
+npm run start
+```
 
-## Sécurité de l'éditeur
+## Notes de sécurité
 
-- Le projet utilise un mécanisme léger : **identifiant unique + clé d'édition**.
-- Ce n'est **pas** un système de compte utilisateur complet (pas d'email / mot de passe).
-- Si l'identifiant existe déjà dans la base, la création est refusée.
-- Les options permettent de :
-  - changer la clé d'édition
-  - changer l'identifiant (ce qui supprime l'ancien ID dans la database)
-
+- Ne jamais versionner de secrets (`.env`, clés API, secrets session).
+- Faire une rotation immédiate des secrets s’ils ont déjà été exposés.
