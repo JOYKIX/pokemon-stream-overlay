@@ -430,6 +430,35 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
         spriteScale: getSpriteVisualScale(pokemonData)
     };
 }
+export async function fetchPokemonFormSuggestions(inputName) {
+    const index = await fetchPokemonIndex();
+    const apiName = toApiCandidate(inputName, index);
+    if (!apiName)
+        return [];
+    const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
+    if (!pokemonResponse.ok)
+        return [];
+    const pokemonData = await pokemonResponse.json();
+    const speciesResponse = await fetch(pokemonData.species.url);
+    if (!speciesResponse.ok)
+        return [];
+    const speciesData = await speciesResponse.json();
+    const baseName = String(speciesData?.name || pokemonData?.name || apiName);
+    const values = (speciesData?.varieties || [])
+        .map((entry) => entry?.pokemon?.name)
+        .filter(Boolean)
+        .map((name) => {
+        if (name === baseName)
+            return "";
+        if (name.startsWith(`${baseName}-`))
+            return name.slice(baseName.length + 1);
+        return name;
+    })
+        .map((value) => value.replace(/-/g, " "))
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0);
+    return uniqueValues(values).sort((a, b) => a.localeCompare(b));
+}
 export async function getNextEvolutionName(inputName) {
     const index = await fetchPokemonIndex();
     const apiName = toApiCandidate(inputName, index);

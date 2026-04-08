@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getOverlayUrl, buildTeamPayload, fetchPokemonLocalized, fetchFrenchPokemonIndex, fetchPokemonLanguages, saveTeam, loadTeam, getProfile, updateProfileLanguage, DEFAULT_OVERLAY_STYLE, shouldUsePixelRendering, getNextEvolutionName } from "./shared.js";
+import { getOverlayUrl, buildTeamPayload, fetchPokemonLocalized, fetchFrenchPokemonIndex, fetchPokemonLanguages, fetchPokemonFormSuggestions, saveTeam, loadTeam, getProfile, updateProfileLanguage, DEFAULT_OVERLAY_STYLE, shouldUsePixelRendering, getNextEvolutionName } from "./shared.js";
 import { ensureAuthenticated, clearSession } from "./auth.js";
 import { getCurrentLanguage, initPageI18n, loadTranslations, sanitizeLanguage, setCurrentLanguage, t } from "./i18n.js";
 const teamSlots = document.getElementById("teamSlots");
@@ -48,6 +48,7 @@ const LOCAL_STORAGE_KEYS = {
     pokemonNameLanguage: "pokemonOverlayPokemonNameLanguage",
     autoSaveEnabled: "pokemonOverlayAutoSaveEnabled"
 };
+const pokemonFormSuggestionsCache = new Map();
 function resolvePokemonNameLanguage() {
     const selected = pokemonNameLanguageInput?.value || "auto";
     if (selected === "auto")
@@ -100,6 +101,7 @@ function renderPokemonNameLanguageOptions(languages = []) {
 let slotPositions = defaultSlotPositions();
 let slotScales = Array.from({ length: 6 }, () => 1);
 const slotPreviewUpdaters = [];
+const slotFormSuggestionUpdaters = [];
 let autoSaveTimer = null;
 const teamViewButtons = document.querySelectorAll("[data-team-view-btn]");
 const teamViewPanels = document.querySelectorAll("[data-team-panel]");
@@ -174,7 +176,8 @@ function createSlot(index) {
       <div class="preview-box" id="previewBox${index}"><div class="preview-placeholder">${t("app.preview")}</div></div>
       <div class="slot-fields">
         <input type="text" id="name${index}" placeholder="${t("app.pokemon_name_placeholder")}" list="pokemonSuggestions" autocomplete="off" />
-        <input type="text" id="form${index}" placeholder="${t("app.form_placeholder")}" />
+        <input type="text" id="form${index}" placeholder="${t("app.form_placeholder")}" list="formSuggestions${index}" />
+        <datalist id="formSuggestions${index}"></datalist>
         <input type="text" id="nickname${index}" placeholder="${t("app.nickname")}" />
         <div class="inline-fields">
           <input type="number" id="level${index}" placeholder="${t("app.level")}" min="1" max="100" />
@@ -209,6 +212,27 @@ function createSlot(index) {
     const swapTarget = wrapper.querySelector(`#swapTarget${index}`);
     const swapBtn = wrapper.querySelector(`#swapBtn${index}`);
     const deadBtn = wrapper.querySelector(`#deadBtn${index}`);
+    const formSuggestions = wrapper.querySelector(`#formSuggestions${index}`);
+    async function refreshFormSuggestions() {
+        const name = nameInput.value.trim();
+        formSuggestions.innerHTML = "";
+        if (!name)
+            return;
+        const cacheKey = name.toLowerCase();
+        let suggestions = pokemonFormSuggestionsCache.get(cacheKey);
+        if (!suggestions) {
+            try {
+                suggestions = await fetchPokemonFormSuggestions(name);
+                pokemonFormSuggestionsCache.set(cacheKey, suggestions);
+            }
+            catch {
+                suggestions = [];
+            }
+        }
+        formSuggestions.innerHTML = suggestions
+            .map((value) => `<option value="${value}"></option>`)
+            .join("");
+    }
     async function updatePreview() {
         const previewBox = wrapper.querySelector(`#previewBox${index}`);
         const name = nameInput.value.trim();
@@ -266,13 +290,16 @@ function createSlot(index) {
         queueAutoSave();
     });
     slotPreviewUpdaters[index] = updatePreview;
+    slotFormSuggestionUpdaters[index] = refreshFormSuggestions;
     nameInput.addEventListener("change", updatePreview);
     nameInput.addEventListener("input", () => {
         evolutionBtn.disabled = true;
         evolutionBtn.dataset.nextEvolution = "";
+        refreshFormSuggestions();
         renderEditorCanvas();
         queueAutoSave();
     });
+    nameInput.addEventListener("blur", refreshFormSuggestions);
     [formInput, nicknameInput, levelInput, itemInput].forEach((input) => {
         input.addEventListener("input", () => {
             renderEditorCanvas();
@@ -591,6 +618,7 @@ function fillForm(data) {
         document.getElementById(`level${i}`).value = slot.level || "";
         document.getElementById(`item${i}`).value = slot.item || "";
         document.getElementById(`shiny${i}`).checked = Boolean(slot.shiny);
+        slotFormSuggestionUpdaters[i]?.();
         slotPreviewUpdaters[i]?.();
     }
     syncShinyAvailability();
