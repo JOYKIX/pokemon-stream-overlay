@@ -11,7 +11,9 @@ const {
   TWITCH_CLIENT_ID,
   TWITCH_CLIENT_SECRET,
   TWITCH_REDIRECT_URI,
-  SESSION_SECRET = 'change-me'
+  SESSION_SECRET = 'change-me',
+  FRONTEND_SUCCESS_REDIRECT = '/',
+  FRONTEND_ERROR_REDIRECT = '/'
 } = process.env;
 
 if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET || !TWITCH_REDIRECT_URI) {
@@ -21,7 +23,9 @@ if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET || !TWITCH_REDIRECT_URI) {
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const IS_PROD = process.env.NODE_ENV === 'production';
 
+app.set('trust proxy', 1);
 app.use(express.json());
 app.use(
   session({
@@ -31,10 +35,30 @@ app.use(
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production'
+      secure: IS_PROD,
+      maxAge: 1000 * 60 * 60 * 24 * 7
     }
   })
 );
+
+function redirectWithStatus(res, target, params = {}) {
+  const url = new URL(target, 'http://localhost');
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      url.searchParams.set(key, String(value));
+    }
+  });
+
+  const location = target.startsWith('http')
+    ? new URL(url.pathname + url.search, target).toString()
+    : `${url.pathname}${url.search}`;
+
+  return res.redirect(location);
+}
+
+app.get('/health', (_req, res) => {
+  res.status(200).json({ ok: true });
+});
 
 app.get('/auth/twitch', (req, res) => {
   const state = crypto.randomBytes(16).toString('hex');
@@ -45,18 +69,31 @@ app.get('/auth/twitch', (req, res) => {
     redirect_uri: TWITCH_REDIRECT_URI,
     response_type: 'code',
     scope: 'user:read:email',
-    state
+    state,
+    force_verify: 'false'
   });
 
   res.redirect(`https://id.twitch.tv/oauth2/authorize?${params.toString()}`);
 });
 
 app.get('/auth/twitch/callback', async (req, res) => {
-  const { code, state } = req.query;
+  const { code, state, error, error_description: errorDescription } = req.query;
+
+  if (error) {
+    req.session.oauthState = null;
+    return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+      auth: 'error',
+      reason: error,
+      message: errorDescription
+    });
+  }
 
   if (!code || !state || state !== req.session.oauthState) {
     req.session.oauthState = null;
-    return res.status(400).send('Invalid OAuth state');
+    return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+      auth: 'error',
+      reason: 'state_mismatch'
+    });
   }
 
   req.session.oauthState = null;
@@ -77,7 +114,12 @@ app.get('/auth/twitch/callback', async (req, res) => {
     });
 
     if (!tokenResponse.ok) {
-      return res.status(400).send('Token exchange failed');
+      const tokenError = await tokenResponse.text();
+      console.error('Token exchange failed:', tokenError);
+      return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+        auth: 'error',
+        reason: 'token_exchange_failed'
+      });
     }
 
     const tokenData = await tokenResponse.json();
@@ -90,35 +132,51 @@ app.get('/auth/twitch/callback', async (req, res) => {
     });
 
     if (!userResponse.ok) {
-      return res.status(400).send('Failed to fetch Twitch user');
+      const userError = await userResponse.text();
+      console.error('Failed to fetch Twitch user:', userError);
+      return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+        auth: 'error',
+        reason: 'user_fetch_failed'
+      });
     }
 
     const userData = await userResponse.json();
     const twitchUser = userData.data?.[0];
 
     if (!twitchUser) {
-      return res.status(400).send('User not found');
+      return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+        auth: 'error',
+        reason: 'user_not_found'
+      });
     }
 
     req.session.user = {
       id: twitchUser.id,
       login: twitchUser.login,
       display_name: twitchUser.display_name,
-      profile_image_url: twitchUser.profile_image_url
+      email: twitchUser.email,
+      profile_image_url: twitchUser.profile_image_url,
+      connected_at: new Date().toISOString(),
+      scopes: Array.isArray(tokenData.scope) ? tokenData.scope : [],
+      token_expires_in: tokenData.expires_in
     };
 
-    res.redirect('/');
-  } catch {
-    res.status(500).send('OAuth callback error');
+    return redirectWithStatus(res, FRONTEND_SUCCESS_REDIRECT, { auth: 'success' });
+  } catch (oauthError) {
+    console.error('OAuth callback error:', oauthError);
+    return redirectWithStatus(res, FRONTEND_ERROR_REDIRECT, {
+      auth: 'error',
+      reason: 'callback_exception'
+    });
   }
 });
 
 app.get('/api/me', (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ user: null });
+    return res.status(401).json({ authenticated: false, user: null });
   }
 
-  res.json({ user: req.session.user });
+  return res.json({ authenticated: true, user: req.session.user });
 });
 
 app.post('/auth/logout', (req, res) => {
