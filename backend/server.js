@@ -11,7 +11,7 @@ const {
   TWITCH_CLIENT_ID,
   TWITCH_CLIENT_SECRET,
   TWITCH_REDIRECT_URI,
-  SESSION_SECRET = 'jx4lumxkfmekw150wg7g6xnawloc5e'
+  SESSION_SECRET = 'change_me'
 } = process.env;
 
 if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET || !TWITCH_REDIRECT_URI) {
