@@ -324,3 +324,13 @@ button:hover, .link-btn:hover { transform: translateY(-1px); }
   .slots, .slot-grid, .inline-fields, .toggle-grid, .metric-grid { grid-template-columns: 1fr; }
   .auth-card { grid-template-columns: 1fr; }
 }
+
+body.spa-loading .dashboard-main {
+  opacity: 0.72;
+  transform: translateY(4px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.dashboard-main {
+  transition: opacity 160ms ease, transform 160ms ease;
+}
