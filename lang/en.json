@@ -261,5 +261,6 @@
   "app.synced": "Synced",
   "app.queued": "Queued",
   "app.status.save_error": "Error while saving to Firebase.",
-  "slot_label": "Slot {index}"
+  "slot_label": "Slot {index}",
+  "app.form_placeholder": "Form (Alola, Mega-X, etc.)"
 }

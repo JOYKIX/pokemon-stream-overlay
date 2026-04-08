@@ -571,7 +571,7 @@ button,
   min-height: 248px;
   cursor: grab;
   user-select: none;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .editor-canvas .editor-overlay-card:active {
