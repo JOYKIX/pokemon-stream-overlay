@@ -218,11 +218,12 @@ function createSlot(index) {
         formSuggestions.innerHTML = "";
         if (!name)
             return;
-        const cacheKey = name.toLowerCase();
+        const language = getCurrentLanguage();
+        const cacheKey = `${name.toLowerCase()}::${language}`;
         let suggestions = pokemonFormSuggestionsCache.get(cacheKey);
         if (!suggestions) {
             try {
-                suggestions = await fetchPokemonFormSuggestions(name);
+                suggestions = await fetchPokemonFormSuggestions(name, language);
                 pokemonFormSuggestionsCache.set(cacheKey, suggestions);
             }
             catch {

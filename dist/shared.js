@@ -311,15 +311,44 @@ function resolveVarietyMatch(varieties = [], form = "", defaultName = "") {
         .sort((a, b) => (b.score - a.score) || (a.name.length - b.name.length));
     return scored[0]?.name || defaultName;
 }
-function getLocalizedFormLabel(formData = {}) {
+function getLocalizedFormLabel(formData = {}, preferredLanguages = ["fr", "en"]) {
     const formNames = Array.isArray(formData?.form_names) ? formData.form_names : [];
     const names = Array.isArray(formData?.names) ? formData.names : [];
-    return (formNames.find((entry) => entry?.language?.name === "fr")?.name ||
-        formNames.find((entry) => entry?.language?.name === "en")?.name ||
-        names.find((entry) => entry?.language?.name === "fr")?.name ||
-        names.find((entry) => entry?.language?.name === "en")?.name ||
-        cleanText(formData?.form_name) ||
-        "");
+    const requestedLanguages = Array.isArray(preferredLanguages) ? preferredLanguages : [preferredLanguages];
+    for (const language of requestedLanguages) {
+        const fromFormNames = formNames.find((entry) => entry?.language?.name === language)?.name;
+        if (fromFormNames)
+            return fromFormNames;
+        const fromNames = names.find((entry) => entry?.language?.name === language)?.name;
+        if (fromNames)
+            return fromNames;
+    }
+    return cleanText(formData?.form_name) || "";
+}
+function buildLocalizedFormLabels(formDetail = {}, fallback = "") {
+    const labels = {};
+    const addLabel = (language, value) => {
+        const key = cleanText(language);
+        const label = cleanText(value);
+        if (!key || !label || labels[key])
+            return;
+        labels[key] = label;
+    };
+    const formNames = Array.isArray(formDetail?.form_names) ? formDetail.form_names : [];
+    const names = Array.isArray(formDetail?.names) ? formDetail.names : [];
+    formNames.forEach((entry) => addLabel(entry?.language?.name, entry?.name));
+    names.forEach((entry) => addLabel(entry?.language?.name, entry?.name));
+    const englishLabel = getLocalizedFormLabel(formDetail, ["en", "fr"]);
+    const frenchLabel = getLocalizedFormLabel(formDetail, ["fr", "en"]);
+    if (englishLabel)
+        labels.en = labels.en || englishLabel;
+    if (frenchLabel)
+        labels.fr = labels.fr || frenchLabel;
+    if (fallback && !Object.keys(labels).length) {
+        labels.en = fallback;
+        labels.fr = fallback;
+    }
+    return labels;
 }
 function addAlias(aliases, value) {
     const normalized = normalizeFormAlias(value);
@@ -376,10 +405,13 @@ async function fetchPokemonFormMetadata(inputName, index = []) {
             addAlias(aliases, getLocalizedFormLabel(formDetail));
             (formDetail?.names || []).forEach((entry) => addAlias(aliases, entry?.name));
             (formDetail?.form_names || []).forEach((entry) => addAlias(aliases, entry?.name));
-            const label = cleanText(getLocalizedFormLabel(formDetail) || toHumanReadableSlug(suffix));
+            const fallbackLabel = cleanText(toHumanReadableSlug(suffix));
+            const localizedLabels = buildLocalizedFormLabels(formDetail, fallbackLabel);
+            const label = cleanText(getLocalizedFormLabel(formDetail, ["fr", "en"]) || fallbackLabel);
             return {
                 pokemonName,
                 label,
+                localizedLabels,
                 aliases: Array.from(aliases)
             };
         }));
@@ -544,12 +576,17 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
         spriteScale: getSpriteVisualScale(pokemonData)
     };
 }
-export async function fetchPokemonFormSuggestions(inputName) {
+export async function fetchPokemonFormSuggestions(inputName, language = "en") {
     const index = await fetchPokemonIndex();
     const metadata = await fetchPokemonFormMetadata(inputName, index);
     if (!metadata?.options?.length)
         return [];
-    return uniqueValues(metadata.options.map((option) => option.label)).sort((a, b) => a.localeCompare(b));
+    const normalizedLanguage = cleanText(language);
+    const labelLanguage = normalizedLanguage || "en";
+    return uniqueValues(metadata.options.map((option) => (option.localizedLabels?.[labelLanguage] ||
+        option.localizedLabels?.en ||
+        option.localizedLabels?.fr ||
+        option.label))).sort((a, b) => a.localeCompare(b));
 }
 export async function getNextEvolutionName(inputName) {
     const index = await fetchPokemonIndex();
