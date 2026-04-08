@@ -5,7 +5,6 @@
   "common.default_badge": "ポケモンチーム",
   "common.status.ready": "準備完了。",
   "common.status.saving": "保存中...",
-
   "login.secure_login": "安全なログイン",
   "login.title": "識別子 + 編集キー",
   "login.unique_identifier": "一意の識別子",
@@ -30,7 +29,6 @@
   "login.status.recovery_fields_required": "識別子 + リカバリーキー + 新しいキーが必要です。",
   "login.status.edit_key_reset": "編集キーがリセットされました。新しいキーでログインしてください。",
   "login.status.recovery_invalid": "キーをリセットできません（無効なリカバリーキー）。",
-
   "share.status.code_generated": "共有コードが生成されました（24時間有効）。",
   "share.status.code_generate_error": "共有コードを生成できませんでした。",
   "share.status.no_code_to_copy": "コピーするコードがありません。",
@@ -39,7 +37,6 @@
   "share.status.source_and_code_required": "元の識別子と共有コードが必要です。",
   "share.status.import_success": "データをインポートしました（チーム / デザイン）。必要に応じてスタジオを再読み込みしてください。",
   "share.status.import_error": "インポートに失敗しました（コードが無効 / 期限切れ、またはソースが空）。",
-
   "options.confirm_delete": "アカウントとすべてのデータを完全に削除しますか？",
   "options.status.current_and_next_required": "現在のキーと新しいキーを入力してください。",
   "options.status.edit_key_updated": "編集キーを更新しました。",
@@ -60,7 +57,6 @@
   "options.status.recovery_copied": "リカバリーキーをコピーしました。",
   "options.status.recovery_copy_error": "リカバリーキーをコピーできませんでした。",
   "options.status.delete_error": "アカウントを削除できません（無効なセッション）。",
-
   "app.slot_title": "ポケモン {index}",
   "app.preview": "プレビュー",
   "app.pokemon_name_placeholder": "ポケモン名またはID",
@@ -73,53 +69,42 @@
   "app.dead": "ひんし",
   "app.drag_to_place": "ドラッグして配置",
   "app.add_pokemon": "ポケモンを追加",
-
   "overlay.no_team": "チームなし",
   "overlay.waiting_data": "データ待機中",
   "overlay.deaths": "ひんし数",
-
   "studio": "スタジオ",
   "design": "デザイン",
   "share": "共有",
   "account": "アカウント",
   "profile": "プロフィール",
   "logout": "ログアウト",
-
   "general": "一般",
   "drag": "ドラッグ",
   "transition": "トランジション",
   "ui_language": "UI言語",
-
   "english": "英語",
   "french": "フランス語",
   "spanish": "スペイン語",
   "japanese": "日本語",
-
   "autosave": "自動保存",
   "idle": "待機",
-
   "stream_settings": "配信設定",
   "sprite_display": "スプライト表示",
   "channel_id": "チャンネルID",
   "trainer_name": "トレーナー名",
   "team_label": "チーム名",
-
   "preset": "プリセット",
   "custom": "カスタム",
-
   "run_mode": "ランモード",
   "nuzlocke_mode": "ナズロックモード",
   "show_nuzlocke_label": "「Nuzlocke」ラベルを表示",
-
   "death_counter": "ひんしカウンター",
   "auto_save": "自動保存",
-
   "obs_integration": "OBS連携",
   "overlay_url": "オーバーレイURL",
   "copy_browser_source": "ブラウザソースをコピー",
   "open_overlay": "オーバーレイを開く",
   "test_overlay": "オーバーレイをテスト",
-
   "header": "ヘッダー",
   "name": "名前",
   "nickname": "ニックネーム",
@@ -127,38 +112,31 @@
   "item": "もちもの",
   "types": "タイプ",
   "visibility": "表示",
-
   "sprite_style": "スプライトスタイル",
   "auto": "自動",
   "official": "公式",
   "pixel": "ピクセル",
-
   "sprite_size": "スプライトサイズ",
   "pokemon_name_language": "ポケモン名の言語",
   "animated_toggle": "アニメーション切替",
   "remove_background": "背景を削除",
-
   "team_builder": "チームビルダー",
   "canvas": "レイアウト編集",
   "drag_and_drop_to_reorder_slots": "ドラッグ＆ドロップでスロットを並び替え。",
   "layout_canvas": "レイアウトエリア",
-
   "reset_positions": "位置をリセット",
-
   "data": "データ",
   "save_team": "チームを保存",
   "load_team": "チームを読み込み",
   "reset_team": "チームをリセット",
   "ready": "準備完了。",
-
   "trainer": "トレーナー",
   "nuzlocke": "ナズロック",
   "deaths": "ひんし数",
-
   "app.not_found": "見つかりません",
   "app.synced": "同期済み",
   "app.queued": "待機中",
   "app.status.save_error": "Firebase への保存中にエラーが発生しました。",
-
-  "slot_label": "スロット {index}"
+  "slot_label": "スロット {index}",
+  "app.form_placeholder": "フォルム (アローラ、メガX など)"
 }

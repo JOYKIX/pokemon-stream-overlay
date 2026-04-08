@@ -305,6 +305,61 @@ function toApiCandidate(value, index = []) {
   return slugifyForApi(input);
 }
 
+function uniqueValues(values = []) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function buildPokemonCandidates(inputName, form = "", index = []) {
+  const base = toApiCandidate(inputName, index);
+  const formSlug = slugifyForApi(form);
+  const candidates = [base];
+
+  if (formSlug) {
+    candidates.push(`${base}-${formSlug}`);
+    candidates.push(formSlug);
+    if (formSlug.startsWith(`${base}-`)) {
+      candidates.push(formSlug);
+    } else {
+      candidates.push(`${base}-${formSlug.replace(new RegExp(`^${base}-`), "")}`);
+    }
+  }
+
+  return uniqueValues(candidates);
+}
+
+async function fetchPokemonByCandidates(candidates = []) {
+  for (const candidate of candidates) {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${candidate}`);
+    if (response.ok) {
+      return response.json();
+    }
+  }
+  return null;
+}
+
+function resolveVarietyMatch(varieties = [], form = "", defaultName = "") {
+  const formSlug = slugifyForApi(form);
+  if (!formSlug) return defaultName;
+
+  const tokens = formSlug.split("-").filter(Boolean);
+  const varietyNames = varieties
+    .map((entry) => entry?.pokemon?.name)
+    .filter(Boolean);
+
+  const exact = varietyNames.find((name) => name === formSlug || name.endsWith(`-${formSlug}`));
+  if (exact) return exact;
+
+  const scored = varietyNames
+    .map((name) => ({
+      name,
+      score: tokens.reduce((acc, token) => (name.includes(token) ? acc + 1 : acc), 0)
+    }))
+    .filter((entry) => entry.score > 0)
+    .sort((a, b) => (b.score - a.score) || (a.name.length - b.name.length));
+
+  return scored[0]?.name || defaultName;
+}
+
 export const DEFAULT_OVERLAY_STYLE = {
   transparentBackground: true,
   backgroundColor: "#0a0a0a",
@@ -399,20 +454,31 @@ function getLocalizedSpeciesName(speciesData, language = "fr", fallback = "") {
 
 export async function fetchPokemonLocalized(inputName, shiny = false, spriteOptions = {}) {
   const index = await fetchPokemonIndex();
-  const apiName = toApiCandidate(inputName, index);
-  if (!apiName) return null;
+  const form = cleanText(spriteOptions.form);
+  const candidates = buildPokemonCandidates(inputName, form, index);
+  if (!candidates.length) return null;
 
-  const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
-  if (!pokemonResponse.ok) {
+  let pokemonData = await fetchPokemonByCandidates(candidates);
+  if (!pokemonData) {
     throw new Error(`Pokémon introuvable: ${inputName}`);
   }
-  const pokemonData = await pokemonResponse.json();
 
   const speciesResponse = await fetch(pokemonData.species.url);
   if (!speciesResponse.ok) {
     throw new Error(`Espèce introuvable: ${inputName}`);
   }
-  const speciesData = await speciesResponse.json();
+  let speciesData = await speciesResponse.json();
+  const matchedVariety = resolveVarietyMatch(speciesData.varieties, form, pokemonData.name);
+  if (matchedVariety && matchedVariety !== pokemonData.name) {
+    const matchedPokemon = await fetchPokemonByCandidates([matchedVariety]);
+    if (matchedPokemon) {
+      pokemonData = matchedPokemon;
+      const refreshedSpeciesResponse = await fetch(pokemonData.species.url);
+      if (refreshedSpeciesResponse.ok) {
+        speciesData = await refreshedSpeciesResponse.json();
+      }
+    }
+  }
 
   const nameLanguage = cleanText(spriteOptions.nameLanguage) || "fr";
   const displayName = getLocalizedSpeciesName(speciesData, nameLanguage, inputName);
@@ -575,6 +641,7 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
     slots: slots.map((slot, index) => ({
       id: index + 1,
       name: cleanText(slot.name),
+      form: cleanText(slot.form),
       nickname: cleanText(slot.nickname),
       level: Number(slot.level) || null,
       item: cleanText(slot.item),

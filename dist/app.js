@@ -174,6 +174,7 @@ function createSlot(index) {
       <div class="preview-box" id="previewBox${index}"><div class="preview-placeholder">${t("app.preview")}</div></div>
       <div class="slot-fields">
         <input type="text" id="name${index}" placeholder="${t("app.pokemon_name_placeholder")}" list="pokemonSuggestions" autocomplete="off" />
+        <input type="text" id="form${index}" placeholder="${t("app.form_placeholder")}" />
         <input type="text" id="nickname${index}" placeholder="${t("app.nickname")}" />
         <div class="inline-fields">
           <input type="number" id="level${index}" placeholder="${t("app.level")}" min="1" max="100" />
@@ -200,6 +201,7 @@ function createSlot(index) {
     wireSlotDnD(wrapper, index);
     const nameInput = wrapper.querySelector(`#name${index}`);
     const nicknameInput = wrapper.querySelector(`#nickname${index}`);
+    const formInput = wrapper.querySelector(`#form${index}`);
     const levelInput = wrapper.querySelector(`#level${index}`);
     const itemInput = wrapper.querySelector(`#item${index}`);
     const shinyInput = wrapper.querySelector(`#shiny${index}`);
@@ -210,6 +212,7 @@ function createSlot(index) {
     async function updatePreview() {
         const previewBox = wrapper.querySelector(`#previewBox${index}`);
         const name = nameInput.value.trim();
+        const form = formInput.value.trim();
         if (!name) {
             previewBox.innerHTML = `<div class="preview-placeholder">${t("app.preview")}</div>`;
             evolutionBtn.disabled = true;
@@ -218,6 +221,7 @@ function createSlot(index) {
         previewBox.innerHTML = `<div class="preview-placeholder">${t("common.loading")}</div>`;
         try {
             const pokemon = await fetchPokemonLocalized(name, shinyInput.checked, {
+                form,
                 variant: spriteVariant.value,
                 animated: preferAnimatedSprite.checked,
                 nameLanguage: resolvePokemonNameLanguage()
@@ -269,7 +273,7 @@ function createSlot(index) {
         renderEditorCanvas();
         queueAutoSave();
     });
-    [nicknameInput, levelInput, itemInput].forEach((input) => {
+    [formInput, nicknameInput, levelInput, itemInput].forEach((input) => {
         input.addEventListener("input", () => {
             renderEditorCanvas();
             queueAutoSave();
@@ -295,9 +299,12 @@ function refreshSlotTranslations() {
         if (emptyPreview)
             emptyPreview.textContent = t("app.preview");
         const nicknameInput = wrapper.querySelector(`#nickname${index}`);
+        const formInput = wrapper.querySelector(`#form${index}`);
         const nameInput = wrapper.querySelector(`#name${index}`);
         if (nameInput)
             nameInput.placeholder = t("app.pokemon_name_placeholder");
+        if (formInput)
+            formInput.placeholder = t("app.form_placeholder");
         if (nicknameInput)
             nicknameInput.placeholder = t("app.nickname");
         const levelInput = wrapper.querySelector(`#level${index}`);
@@ -340,6 +347,7 @@ function wireSlotDnD(wrapper, index) {
 function getSlotData(index) {
     return {
         name: document.getElementById(`name${index}`).value,
+        form: document.getElementById(`form${index}`).value,
         nickname: document.getElementById(`nickname${index}`).value,
         level: document.getElementById(`level${index}`).value,
         item: document.getElementById(`item${index}`).value,
@@ -348,6 +356,7 @@ function getSlotData(index) {
 }
 function setSlotData(index, slot) {
     document.getElementById(`name${index}`).value = slot.name || "";
+    document.getElementById(`form${index}`).value = slot.form || "";
     document.getElementById(`nickname${index}`).value = slot.nickname || "";
     document.getElementById(`level${index}`).value = slot.level || "";
     document.getElementById(`item${index}`).value = slot.item || "";
@@ -370,7 +379,7 @@ function shiftSlotsLeftFrom(startIndex) {
     for (let i = startIndex; i < 5; i++) {
         setSlotData(i, getSlotData(i + 1));
     }
-    setSlotData(5, { name: "", nickname: "", level: "", item: "", shiny: false });
+    setSlotData(5, { name: "", form: "", nickname: "", level: "", item: "", shiny: false });
     refreshSlots(startIndex);
 }
 function updateOverlayLink() {
@@ -382,6 +391,7 @@ function updateOverlayLink() {
 function collectSlots() {
     return Array.from({ length: 6 }, (_, i) => ({
         name: document.getElementById(`name${i}`).value,
+        form: document.getElementById(`form${i}`).value,
         nickname: document.getElementById(`nickname${i}`).value,
         level: document.getElementById(`level${i}`).value,
         item: document.getElementById(`item${i}`).value,
@@ -451,10 +461,12 @@ function renderEditorCanvas() {
         const previewImage = document.querySelector(`#previewBox${index} img`)?.getAttribute("src") || "./pokeball.png";
         const nickname = slot.nickname?.trim();
         const pokemonName = slot.name?.trim();
+        const pokemonForm = slot.form?.trim();
+        const formSuffix = pokemonForm ? ` (${pokemonForm})` : "";
         const displayName = nickname || pokemonName || slotLabel;
         const showHeaderText = displayOptions.showHeader ? `<div class="overlay-header-row">${slotLabel}</div>` : "";
         const showLevelText = displayOptions.showLevel ? `<div class="overlay-level">Lv.${slot.level || "?"}</div>` : "";
-        const showNameText = displayOptions.showName ? `<div class="overlay-species">${pokemonName || t("app.add_pokemon")}</div>` : "";
+        const showNameText = displayOptions.showName ? `<div class="overlay-species">${pokemonName ? `${pokemonName}${formSuffix}` : t("app.add_pokemon")}</div>` : "";
         const showNicknameText = displayOptions.showNickname ? `<div class="overlay-name">${displayName}</div>` : "";
         const showItemText = displayOptions.showItem ? `<div class="overlay-meta"><span class="meta-pill item">${slot.item || "-"}</span></div>` : "";
         const showTypesText = displayOptions.showTypes ? `<div class="overlay-types"><span class="editor-types-placeholder">${t("types")}</span></div>` : "";
@@ -574,6 +586,7 @@ function fillForm(data) {
     for (let i = 0; i < 6; i++) {
         const slot = slots[i] || {};
         document.getElementById(`name${i}`).value = slot.name || "";
+        document.getElementById(`form${i}`).value = slot.form || "";
         document.getElementById(`nickname${i}`).value = slot.nickname || "";
         document.getElementById(`level${i}`).value = slot.level || "";
         document.getElementById(`item${i}`).value = slot.item || "";

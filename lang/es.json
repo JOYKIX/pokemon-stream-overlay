@@ -5,7 +5,6 @@
   "common.default_badge": "Equipo Pokémon",
   "common.status.ready": "Listo.",
   "common.status.saving": "Guardando...",
-
   "login.secure_login": "Inicio de sesión seguro",
   "login.title": "Identificador + clave de edición",
   "login.unique_identifier": "Identificador único",
@@ -30,7 +29,6 @@
   "login.status.recovery_fields_required": "Se requieren identificador + clave de recuperación + nueva clave.",
   "login.status.edit_key_reset": "Clave de edición restablecida. Inicia sesión con la nueva clave.",
   "login.status.recovery_invalid": "No se pudo restablecer la clave (clave de recuperación inválida).",
-
   "share.status.code_generated": "Código de compartición generado (válido durante 24h).",
   "share.status.code_generate_error": "No se pudo generar el código de compartición.",
   "share.status.no_code_to_copy": "No hay código para copiar.",
@@ -39,7 +37,6 @@
   "share.status.source_and_code_required": "Se requieren identificador de origen y código de compartición.",
   "share.status.import_success": "Datos importados (equipo/diseño). Recarga el estudio si es necesario.",
   "share.status.import_error": "Error al importar (código inválido/caducado o fuente vacía).",
-
   "options.confirm_delete": "¿Eliminar permanentemente la cuenta y todos los datos?",
   "options.status.current_and_next_required": "Por favor proporciona la clave actual y la nueva.",
   "options.status.edit_key_updated": "Clave de edición actualizada.",
@@ -60,7 +57,6 @@
   "options.status.recovery_copied": "Clave de recuperación copiada.",
   "options.status.recovery_copy_error": "No se pudo copiar la clave de recuperación.",
   "options.status.delete_error": "No se pudo eliminar la cuenta (sesión inválida).",
-
   "customize.status.preset_applied": "Preajuste {preset} aplicado.",
   "customize.status.read_image_error": "No se pudo leer la imagen.",
   "customize.status.only_png": "Solo se aceptan archivos .png para el fondo.",
@@ -75,7 +71,6 @@
   "customize.status.style_load_error": "No se pudo cargar el estilo.",
   "customize.status.theme_copied": "JSON del tema copiado.",
   "customize.status.theme_export_error": "No se pudo exportar el JSON del tema.",
-
   "app.slot_title": "Pokémon {index}",
   "app.preview": "Vista previa",
   "app.pokemon_name_placeholder": "Nombre o ID del Pokémon",
@@ -88,7 +83,6 @@
   "app.dead": "Muerto",
   "app.drag_to_place": "Arrastrar para colocar",
   "app.add_pokemon": "Añadir un Pokémon",
-
   "app.status.team_saved": "Equipo guardado. El overlay de OBS está sincronizado.",
   "app.status.autocomplete_error": "No se pudo cargar el autocompletado de PokéAPI.",
   "app.status.autosave_on": "Guardado automático activado.",
@@ -110,11 +104,9 @@
   "app.status.missing_identifier": "Falta el identificador.",
   "app.status.transitions_on": "Transiciones activadas.",
   "app.status.transitions_off": "Transiciones desactivadas.",
-
   "overlay.no_team": "Sin equipo",
   "overlay.waiting_data": "Esperando datos",
   "overlay.deaths": "Muertes",
-
   "pokemon_stream_overlay_for_obs": "Overlay de Pokémon para stream en OBS",
   "studio": "Estudio",
   "design": "Diseño",
@@ -122,7 +114,6 @@
   "account": "Cuenta",
   "profile": "Perfil",
   "logout": "Cerrar sesión",
-
   "general": "General",
   "drag": "Arrastrar",
   "transition": "Transición",
@@ -131,10 +122,8 @@
   "french": "Francés",
   "spanish": "Español",
   "japanese": "日本語",
-
   "autosave": "Guardado automático",
   "idle": "Inactivo",
-
   "stream_settings": "Configuración del stream",
   "sprite_display": "Visualización del sprite",
   "channel_id": "ID del canal",
@@ -142,23 +131,18 @@
   "team_label": "Nombre del equipo",
   "resolution_width": "Ancho de resolución",
   "resolution_height": "Alto de resolución",
-
   "preset": "Preajuste",
   "custom": "Personalizado",
-
   "run_mode": "Modo de partida",
   "nuzlocke_mode": "Modo Nuzlocke",
   "show_nuzlocke_label": "Mostrar etiqueta \"Nuzlocke\"",
-
   "death_counter": "Contador de muertes",
   "auto_save": "Guardado automático",
-
   "obs_integration": "Integración con OBS",
   "overlay_url": "URL del overlay",
   "copy_browser_source": "Copiar fuente de navegador",
   "open_overlay": "Abrir overlay",
   "test_overlay": "Probar overlay",
-
   "header": "Encabezado",
   "name": "Nombre",
   "nickname": "Apodo",
@@ -166,7 +150,6 @@
   "item": "Objeto",
   "types": "Tipos",
   "visibility": "Visibilidad",
-
   "sprite_style": "Estilo del sprite",
   "auto": "Auto",
   "official": "Oficial",
@@ -175,88 +158,71 @@
   "dream": "Dream",
   "showdown": "Showdown",
   "scarlet_violet": "Escarlata/Violeta",
-
   "sprite_size": "Tamaño del sprite",
   "pokemon_name_language": "Idioma del nombre del Pokémon",
   "auto_ui_language": "Auto (idioma de la interfaz)",
   "animated_toggle": "Activar animación",
   "remove_background": "Eliminar fondo",
-
   "team_builder": "Constructor de equipo",
   "canvas": "Editor de diseño",
   "drag_and_drop_to_reorder_slots": "Arrastrar y soltar para reordenar los espacios.",
   "layout_canvas": "Área de diseño",
-
   "reset_positions": "Restablecer posiciones",
-
   "data": "Datos",
   "save_team": "Guardar equipo",
   "load_team": "Cargar equipo",
   "reset_team": "Reiniciar equipo",
   "ready": "Listo.",
-
   "overlay_theme_editor": "Editor de tema del overlay",
   "theme_editor": "Editor de tema",
-
   "background_color": "Color de fondo",
   "card_color": "Color de tarjeta",
   "accent_color": "Color de acento",
   "text_color": "Color del texto",
   "border_radius": "Radio del borde",
-
   "background_opacity": "Opacidad del fondo",
   "card_opacity": "Opacidad de la tarjeta",
   "transparent_background": "Fondo transparente",
-
   "font_selector": "Selector de fuente",
   "font_inter": "Inter",
   "font_roboto": "Roboto",
   "font_montserrat": "Montserrat",
-
   "theme_preset": "Preajuste de tema",
   "dark": "Oscuro",
   "pokemon_red": "Pokémon rojo",
   "pokemon_blue": "Pokémon azul",
   "neon": "Neón",
-
   "background_image_png": "Imagen de fondo PNG",
   "clear_image": "Quitar imagen",
   "export_theme_json": "Exportar tema JSON",
   "load_theme": "Cargar tema",
   "save_theme": "Guardar tema",
-
   "live_overlay_preview": "Vista previa del overlay en vivo",
   "trainer_hud": "HUD DEL ENTRENADOR",
   "name_badge_death_counter": "Nombre • Insignia • Contador de muertes",
-
   "slot_1": "Espacio 1",
   "slot_2": "Espacio 2",
   "slot_3": "Espacio 3",
-
   "account_settings": "Configuración de la cuenta",
   "username": "Nombre de usuario",
   "email_new_id": "Correo / nuevo id",
   "new_id_placeholder": "nuevo-id",
   "edit_key": "Clave de edición",
   "update_profile": "Actualizar perfil",
-
   "recovery_key_section": "Clave de recuperación",
   "recovery_key": "Clave de recuperación",
   "click_regenerate": "Haz clic para regenerar",
   "show": "Mostrar",
   "regenerate": "Regenerar",
   "copy": "Copiar",
-
   "security": "Seguridad",
   "current_key": "Clave actual",
   "change_edit_key": "Cambiar clave de edición",
   "regenerate_key": "Regenerar clave",
   "copy_key": "Copiar clave",
   "show_hide_key": "Mostrar / ocultar clave",
-
   "danger_zone": "Zona de peligro",
   "delete_account": "Eliminar cuenta",
-
   "data_sharing": "Compartir datos",
   "generate_share_code": "Generar código de compartición",
   "current_code": "Código actual",
@@ -264,19 +230,15 @@
   "auto_regenerate_after_use": "Regenerar automáticamente después de usar",
   "generate_24h": "Generar (24h)",
   "show_hide": "Mostrar / ocultar",
-
   "code_encrypted_validity": "El código está cifrado en la base de datos. Validez: 24h.",
-
   "import_data_from_other_account": "Importar datos de otra cuenta",
   "source_identifier": "Identificador de origen",
   "source_account_placeholder": "cuenta-origen",
   "share_code": "Código de compartición",
   "import_team_design": "Importar equipo + diseño",
-
   "secure_login": "Inicio de sesión seguro",
   "identifier_edit_key": "Identificador + clave de edición",
   "simple_fast_private": "Simple, rápido y privado.",
-
   "unique_identifier": "Identificador único",
   "example_joykix": "ej. joykix",
   "private_key_placeholder": "Tu clave privada",
@@ -287,16 +249,14 @@
   "new_edit_key": "Nueva clave de edición",
   "new_key_placeholder": "Nueva clave",
   "reset_key": "Restablecer clave",
-
   "loading": "Cargando...",
   "trainer": "Entrenador",
   "nuzlocke": "Nuzlocke",
   "deaths": "Muertes",
-
   "app.not_found": "No encontrado",
   "app.synced": "Sincronizado",
   "app.queued": "En cola",
   "app.status.save_error": "Error al guardar en Firebase.",
-
-  "slot_label": "Espacio {index}"
+  "slot_label": "Espacio {index}",
+  "app.form_placeholder": "Forma (Alola, Mega-X, etc.)"
 }

@@ -258,5 +258,6 @@
   "app.synced": "Synchronisé",
   "app.queued": "En file d'attente",
   "app.status.save_error": "Erreur lors de la sauvegarde Firebase.",
-  "slot_label": "Slot {index}"
+  "slot_label": "Slot {index}",
+  "app.form_placeholder": "Forme (Alola, Méga-X, etc.)"
 }

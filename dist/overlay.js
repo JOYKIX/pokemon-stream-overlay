@@ -176,6 +176,7 @@ async function renderTeam(data) {
         let pokemon = null;
         try {
             pokemon = await fetchPokemonLocalized(slot.name, slot.shiny, {
+                form: slot.form,
                 variant: options.spriteVariant,
                 animated: options.preferAnimatedSprite,
                 nameLanguage: options.pokemonNameLanguage === "auto" ? profileLanguage : options.pokemonNameLanguage
@@ -193,8 +194,11 @@ async function renderTeam(data) {
         const scale = Math.max(0.6, Math.min(2, Number(options.slotScales?.[index]) || 1));
         const nickname = slot.nickname?.trim();
         const hasNickname = Boolean(nickname);
+        const form = slot.form?.trim();
+        const displayForm = form ? ` (${form})` : "";
+        const displaySpecies = `${pokemon?.displayName || slot.name}${displayForm}`;
         const nameHtml = options.showName
-            ? `<div class="overlay-name-wrap"><div class="overlay-name-panel">${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}<div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${pokemon?.displayName || slot.name}</div></div></div>`
+            ? `<div class="overlay-name-wrap"><div class="overlay-name-panel">${options.showNickname && hasNickname ? `<div class="overlay-name">${nickname}</div>` : ""}<div class="overlay-species ${!options.showNickname || !hasNickname ? "is-primary" : ""}">${displaySpecies}</div></div></div>`
             : "";
         const levelHtml = options.showLevel && slot.level ? `<div class="overlay-level">Lv.${slot.level}</div>` : "";
         const shinyHtml = options.showShiny && slot.shiny ? '<span class="meta-pill shiny"><span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>Shiny</span>' : "";

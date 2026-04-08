@@ -164,7 +164,7 @@ body.overlay-page {
   border: 1px solid transparent;
   box-shadow: none;
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .overlay-card::before {
