@@ -336,12 +336,21 @@ function createSlot(index) {
     queueAutoSave();
   });
   nameInput.addEventListener("blur", refreshFormSuggestions);
-  [formInput, nicknameInput, levelInput, itemInput].forEach((input) => {
+  [nicknameInput, levelInput, itemInput].forEach((input) => {
     input.addEventListener("input", () => {
       renderEditorCanvas();
       queueAutoSave();
     });
   });
+  formInput.addEventListener("input", () => {
+    renderEditorCanvas();
+    queueAutoSave();
+  });
+  formInput.addEventListener("change", () => {
+    updatePreview();
+    queueAutoSave();
+  });
+  formInput.addEventListener("blur", updatePreview);
   shinyInput.addEventListener("change", () => {
     updatePreview();
     queueAutoSave();

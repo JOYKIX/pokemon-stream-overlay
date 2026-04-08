@@ -19,6 +19,7 @@ const POKE_LANGUAGES_STORAGE_KEY = "pokeapi-languages-v1";
 const SUPPORTED_PROFILE_LANGUAGES = new Set(["en", "fr", "es", "ja"]);
 let pokemonIndexPromise = null;
 let pokemonLanguagesPromise = null;
+const pokemonFormMetadataPromiseCache = new Map();
 export function cleanText(value) {
     return (value || "").trim();
 }
@@ -259,6 +260,12 @@ function toApiCandidate(value, index = []) {
 function uniqueValues(values = []) {
     return Array.from(new Set(values.filter(Boolean)));
 }
+function toHumanReadableSlug(value) {
+    return cleanText(value).replace(/-/g, " ");
+}
+function normalizeFormAlias(value) {
+    return normalizeInput(value).replace(/\s+/g, " ").trim();
+}
 function buildPokemonCandidates(inputName, form = "", index = []) {
     const base = toApiCandidate(inputName, index);
     const formSlug = slugifyForApi(form);
@@ -303,6 +310,111 @@ function resolveVarietyMatch(varieties = [], form = "", defaultName = "") {
         .filter((entry) => entry.score > 0)
         .sort((a, b) => (b.score - a.score) || (a.name.length - b.name.length));
     return scored[0]?.name || defaultName;
+}
+function getLocalizedFormLabel(formData = {}) {
+    const formNames = Array.isArray(formData?.form_names) ? formData.form_names : [];
+    const names = Array.isArray(formData?.names) ? formData.names : [];
+    return (formNames.find((entry) => entry?.language?.name === "fr")?.name ||
+        formNames.find((entry) => entry?.language?.name === "en")?.name ||
+        names.find((entry) => entry?.language?.name === "fr")?.name ||
+        names.find((entry) => entry?.language?.name === "en")?.name ||
+        cleanText(formData?.form_name) ||
+        "");
+}
+function addAlias(aliases, value) {
+    const normalized = normalizeFormAlias(value);
+    if (normalized) {
+        aliases.add(normalized);
+    }
+}
+async function fetchPokemonFormMetadata(inputName, index = []) {
+    const apiName = toApiCandidate(inputName, index);
+    if (!apiName)
+        return null;
+    if (pokemonFormMetadataPromiseCache.has(apiName)) {
+        return pokemonFormMetadataPromiseCache.get(apiName);
+    }
+    const promise = (async () => {
+        const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
+        if (!pokemonResponse.ok)
+            return null;
+        const pokemonData = await pokemonResponse.json();
+        const speciesResponse = await fetch(pokemonData.species.url);
+        if (!speciesResponse.ok)
+            return null;
+        const speciesData = await speciesResponse.json();
+        const baseName = cleanText(speciesData?.name || pokemonData?.name || apiName);
+        const varieties = Array.isArray(speciesData?.varieties) ? speciesData.varieties : [];
+        const options = await Promise.all(varieties.map(async (variety) => {
+            const pokemonName = cleanText(variety?.pokemon?.name);
+            if (!pokemonName || pokemonName === baseName)
+                return null;
+            let detailPokemon = null;
+            const detailResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+            if (detailResponse.ok) {
+                detailPokemon = await detailResponse.json();
+            }
+            let formDetail = null;
+            const primaryFormUrl = detailPokemon?.forms?.[0]?.url;
+            if (primaryFormUrl) {
+                const formResponse = await fetch(primaryFormUrl);
+                if (formResponse.ok) {
+                    formDetail = await formResponse.json();
+                }
+            }
+            const suffix = pokemonName.startsWith(`${baseName}-`)
+                ? pokemonName.slice(baseName.length + 1)
+                : pokemonName;
+            const aliases = new Set();
+            addAlias(aliases, suffix);
+            addAlias(aliases, toHumanReadableSlug(suffix));
+            addAlias(aliases, pokemonName);
+            addAlias(aliases, toHumanReadableSlug(pokemonName));
+            addAlias(aliases, formDetail?.name);
+            addAlias(aliases, toHumanReadableSlug(formDetail?.name));
+            addAlias(aliases, formDetail?.form_name);
+            addAlias(aliases, getLocalizedFormLabel(formDetail));
+            (formDetail?.names || []).forEach((entry) => addAlias(aliases, entry?.name));
+            (formDetail?.form_names || []).forEach((entry) => addAlias(aliases, entry?.name));
+            const label = cleanText(getLocalizedFormLabel(formDetail) || toHumanReadableSlug(suffix));
+            return {
+                pokemonName,
+                label,
+                aliases: Array.from(aliases)
+            };
+        }));
+        return {
+            baseName,
+            options: options.filter(Boolean)
+        };
+    })();
+    pokemonFormMetadataPromiseCache.set(apiName, promise);
+    return promise;
+}
+function resolveFormSpecificPokemonName(form = "", metadata = null) {
+    const normalized = normalizeFormAlias(form);
+    if (!normalized || !metadata?.options?.length)
+        return "";
+    const tokens = normalized.split(" ").filter(Boolean);
+    const exact = metadata.options.find((option) => option.aliases.includes(normalized));
+    if (exact?.pokemonName)
+        return exact.pokemonName;
+    const scored = metadata.options
+        .map((option) => {
+        const score = option.aliases.reduce((max, alias) => {
+            if (!alias)
+                return max;
+            if (alias.includes(normalized) || normalized.includes(alias)) {
+                return Math.max(max, tokens.length + 1);
+            }
+            const tokenScore = tokens.reduce((acc, token) => (alias.includes(token) ? acc + 1 : acc), 0);
+            return Math.max(max, tokenScore);
+        }, 0);
+        return { option, score };
+    })
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => (b.score - a.score) || (a.option.pokemonName.length - b.option.pokemonName.length));
+    return scored[0]?.option?.pokemonName || "";
 }
 export const DEFAULT_OVERLAY_STYLE = {
     transparentBackground: true,
@@ -394,7 +506,9 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
         throw new Error(`Espèce introuvable: ${inputName}`);
     }
     let speciesData = await speciesResponse.json();
-    const matchedVariety = resolveVarietyMatch(speciesData.varieties, form, pokemonData.name);
+    const formMetadata = form ? await fetchPokemonFormMetadata(inputName, index) : null;
+    const matchedByAlias = resolveFormSpecificPokemonName(form, formMetadata);
+    const matchedVariety = matchedByAlias || resolveVarietyMatch(speciesData.varieties, form, pokemonData.name);
     if (matchedVariety && matchedVariety !== pokemonData.name) {
         const matchedPokemon = await fetchPokemonByCandidates([matchedVariety]);
         if (matchedPokemon) {
@@ -432,32 +546,10 @@ export async function fetchPokemonLocalized(inputName, shiny = false, spriteOpti
 }
 export async function fetchPokemonFormSuggestions(inputName) {
     const index = await fetchPokemonIndex();
-    const apiName = toApiCandidate(inputName, index);
-    if (!apiName)
+    const metadata = await fetchPokemonFormMetadata(inputName, index);
+    if (!metadata?.options?.length)
         return [];
-    const pokemonResponse = await fetch(`https://pokeapi.co/api/v2/pokemon/${apiName}`);
-    if (!pokemonResponse.ok)
-        return [];
-    const pokemonData = await pokemonResponse.json();
-    const speciesResponse = await fetch(pokemonData.species.url);
-    if (!speciesResponse.ok)
-        return [];
-    const speciesData = await speciesResponse.json();
-    const baseName = String(speciesData?.name || pokemonData?.name || apiName);
-    const values = (speciesData?.varieties || [])
-        .map((entry) => entry?.pokemon?.name)
-        .filter(Boolean)
-        .map((name) => {
-        if (name === baseName)
-            return "";
-        if (name.startsWith(`${baseName}-`))
-            return name.slice(baseName.length + 1);
-        return name;
-    })
-        .map((value) => value.replace(/-/g, " "))
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0);
-    return uniqueValues(values).sort((a, b) => a.localeCompare(b));
+    return uniqueValues(metadata.options.map((option) => option.label)).sort((a, b) => a.localeCompare(b));
 }
 export async function getNextEvolutionName(inputName) {
     const index = await fetchPokemonIndex();
