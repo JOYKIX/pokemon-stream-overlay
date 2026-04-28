@@ -25,9 +25,17 @@ public sealed class DisplayOptions
     public double SpriteScalePercent { get; set; } = 100;
 }
 
+public sealed class EmulatorSyncSettings
+{
+    public string SaveFolderPath { get; set; } = string.Empty;
+    public string ActiveSaveFilePath { get; set; } = string.Empty;
+    public string FallbackGameId { get; set; } = string.Empty;
+    public bool Enabled { get; set; }
+}
+
 public sealed class OverlaySettings
 {
-    public string Channel { get; set; } = string.Empty;
+    public string Channel { get; set; } = "local";
     public string TrainerName { get; set; } = string.Empty;
     public string TeamLabel { get; set; } = "Champion";
     public int StreamWidth { get; set; } = 1920;
@@ -36,19 +44,11 @@ public sealed class OverlaySettings
     public bool ShowNuzlockeLabel { get; set; } = true;
     public int DeathCount { get; set; }
     public DisplayOptions DisplayOptions { get; set; } = new();
+    public EmulatorSyncSettings EmulatorSync { get; set; } = new();
     public List<TeamSlot> Team { get; set; } = Enumerable.Range(1, 6).Select(i => new TeamSlot { SlotNumber = i }).ToList();
-}
-
-public sealed class UserProfile
-{
-    public string Channel { get; set; } = string.Empty;
-    public string EditKeyHash { get; set; } = string.Empty;
-    public string RecoveryKeyHash { get; set; } = string.Empty;
-    public string UiLanguage { get; set; } = "fr";
 }
 
 public sealed class AppState
 {
-    public List<UserProfile> Profiles { get; set; } = [];
-    public List<OverlaySettings> Teams { get; set; } = [];
+    public OverlaySettings LocalTeam { get; set; } = new();
 }
