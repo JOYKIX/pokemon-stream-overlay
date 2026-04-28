@@ -15,7 +15,7 @@ public sealed class PokemonApiService(HttpClient httpClient)
         try
         {
             var response = await httpClient.GetFromJsonAsync<PokemonSpeciesResponse>(
-                "https://pokeapi.co/api/v2/pokemon-species?limit=151",
+                "https://pokeapi.co/api/v2/pokemon-species?limit=2000",
                 cancellationToken);
 
             var entries = new List<PokemonEntry>();
