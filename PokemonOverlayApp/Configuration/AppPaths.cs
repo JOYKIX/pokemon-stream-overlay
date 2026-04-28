@@ -1,3 +1,6 @@
+using System;
+using System.IO;
+
 namespace PokemonOverlayApp.Configuration;
 
 public static class AppPaths
