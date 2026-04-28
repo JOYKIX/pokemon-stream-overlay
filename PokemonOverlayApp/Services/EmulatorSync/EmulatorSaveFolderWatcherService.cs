@@ -1,3 +1,4 @@
+using System.IO;
 using PokemonOverlayApp.Models;
 
 namespace PokemonOverlayApp.Services.EmulatorSync;
