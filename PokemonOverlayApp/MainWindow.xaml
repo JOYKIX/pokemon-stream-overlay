@@ -1,0 +1,111 @@
+<Window x:Class="PokemonOverlayApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Pokémon Overlay Desktop" Height="860" Width="1320" WindowStartupLocation="CenterScreen">
+    <Grid Background="#101522">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Background="#171E31" Padding="14">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="Pokémon Overlay Desktop" Foreground="White" FontSize="22" FontWeight="SemiBold"/>
+                <TextBlock x:Name="SessionLabel" Margin="20,0,0,0" Foreground="#97A3BF" FontSize="14" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+
+        <TabControl Grid.Row="1" Margin="12">
+            <TabItem Header="Connexion">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="400"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Identifiant" Foreground="White"/>
+                        <TextBox x:Name="ChannelInput" Margin="0,6,0,12"/>
+                        <TextBlock Text="Clé d'édition" Foreground="White"/>
+                        <PasswordBox x:Name="EditKeyInput" Margin="0,6,0,12"/>
+                        <CheckBox x:Name="CreateModeCheckbox" Content="Créer un nouvel identifiant" Foreground="White" Margin="0,0,0,12"/>
+                        <Button Content="Connexion / Création" Click="OnLoginClick" Height="34"/>
+                        <TextBlock x:Name="LoginStatus" Margin="0,12,0,0" Foreground="#F8D477" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1" Margin="24,0,0,0" Foreground="#B4BEDA" TextWrapping="Wrap"
+                               Text="Cette application remplace entièrement les pages web (login/studio/customize/share/options) par des écrans desktop natifs. Les données sont stockées localement dans un fichier JSON sous AppData."/>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Studio">
+                <Grid Margin="16">
+                    <Grid.ColumnDefinitions><ColumnDefinition Width="340"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Nom du dresseur" Foreground="White"/>
+                        <TextBox x:Name="TrainerInput" Margin="0,6,0,10"/>
+                        <TextBlock Text="Label équipe" Foreground="White"/>
+                        <TextBox x:Name="TeamLabelInput" Margin="0,6,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Width="150"><TextBlock Text="Largeur" Foreground="White"/><TextBox x:Name="WidthInput" Margin="0,6,0,10" Text="1920"/></StackPanel>
+                            <StackPanel Width="150" Margin="10,0,0,0"><TextBlock Text="Hauteur" Foreground="White"/><TextBox x:Name="HeightInput" Margin="0,6,0,10" Text="1080"/></StackPanel>
+                        </StackPanel>
+                        <CheckBox x:Name="NuzlockeCheckbox" Content="Mode Nuzlocke" Foreground="White"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Content="Charger" Click="OnLoadTeamClick" Width="100"/>
+                            <Button Content="Sauvegarder" Click="OnSaveTeamClick" Width="100" Margin="8,0,0,0"/>
+                            <Button Content="Exporter URL OBS" Click="OnExportObsClick" Width="140" Margin="8,0,0,0"/>
+                        </StackPanel>
+                        <TextBlock x:Name="StudioStatus" Margin="0,12,0,0" Foreground="#9FE870" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <DataGrid Grid.Column="1" x:Name="TeamGrid" AutoGenerateColumns="False" CanUserAddRows="False" Margin="20,0,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Slot" Binding="{Binding SlotNumber}" IsReadOnly="True" Width="55"/>
+                            <DataGridTextColumn Header="Pokémon" Binding="{Binding PokemonName}" Width="*"/>
+                            <DataGridTextColumn Header="Surnom" Binding="{Binding Nickname}" Width="*"/>
+                            <DataGridTextColumn Header="Niveau" Binding="{Binding Level}" Width="90"/>
+                            <DataGridTextColumn Header="Objet" Binding="{Binding Item}" Width="*"/>
+                            <DataGridCheckBoxColumn Header="Shiny" Binding="{Binding IsShiny}" Width="90"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Personnalisation">
+                <StackPanel Margin="16">
+                    <TextBlock Text="Options d'affichage des sprites" Foreground="White" FontSize="18" FontWeight="SemiBold"/>
+                    <WrapPanel Margin="0,12,0,0">
+                        <CheckBox x:Name="ShowHeaderCheckbox" Content="Afficher en-tête" Foreground="White" Margin="0,0,14,8"/>
+                        <CheckBox x:Name="ShowNameCheckbox" Content="Afficher nom" Foreground="White" Margin="0,0,14,8"/>
+                        <CheckBox x:Name="ShowNicknameCheckbox" Content="Afficher surnom" Foreground="White" Margin="0,0,14,8"/>
+                        <CheckBox x:Name="ShowItemCheckbox" Content="Afficher objet" Foreground="White" Margin="0,0,14,8"/>
+                        <CheckBox x:Name="ShowTypesCheckbox" Content="Afficher types" Foreground="White" Margin="0,0,14,8"/>
+                    </WrapPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <TextBlock Text="Style sprite" Foreground="White" VerticalAlignment="Center"/>
+                        <ComboBox x:Name="SpriteVariantCombo" Width="220" Margin="10,0,0,0">
+                            <ComboBoxItem Content="official-artwork"/>
+                            <ComboBoxItem Content="home"/>
+                            <ComboBoxItem Content="pixel"/>
+                            <ComboBoxItem Content="dream-world"/>
+                        </ComboBox>
+                    </StackPanel>
+                    <TextBlock Text="Cette section remplace customize.html de la version web." Margin="0,18,0,0" Foreground="#B4BEDA"/>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Partage">
+                <StackPanel Margin="16">
+                    <TextBlock Text="URL Overlay (équivalent de share.html)" Foreground="White"/>
+                    <TextBox x:Name="OverlayUrlBox" Margin="0,8,0,0" IsReadOnly="True"/>
+                    <Button Content="Actualiser" Width="110" Margin="0,10,0,0" Click="OnRefreshShareClick"/>
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Compte">
+                <StackPanel Margin="16" Width="500">
+                    <TextBlock Text="Nouveau mot de passe d'édition" Foreground="White"/>
+                    <PasswordBox x:Name="NewEditKeyBox" Margin="0,8,0,8"/>
+                    <Button Content="Mettre à jour la clé" Width="170" Click="OnUpdateKeyClick"/>
+                    <TextBlock x:Name="AccountStatus" Margin="0,12,0,0" Foreground="#F8D477" TextWrapping="Wrap"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
