@@ -20,7 +20,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _appService = new AppService(new JsonAppRepository());
-        _pokemonApiService = new PokemonApiService(new HttpClient());
+        _pokemonApiService = new PokemonApiService(new HttpClient { Timeout = TimeSpan.FromSeconds(10) });
         TeamGrid.ItemsSource = _teamSlots;
         SpriteVariantCombo.SelectedIndex = 0;
 
@@ -29,9 +29,18 @@ public partial class MainWindow : Window
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
-        await _appService.InitializeAsync();
-        var pokemons = await _pokemonApiService.GetPokemonAsync();
-        StudioStatus.Text = $"Pokédex chargé ({pokemons.Count} espèces Gen1).";
+        try
+        {
+            await _appService.InitializeAsync();
+            var pokemons = await _pokemonApiService.GetPokemonAsync();
+            StudioStatus.Text = pokemons.Count > 0
+                ? $"Pokédex chargé ({pokemons.Count} espèces Gen1)."
+                : "Pokédex indisponible (hors-ligne). L'application reste utilisable.";
+        }
+        catch (Exception)
+        {
+            StudioStatus.Text = "Initialisation incomplète. Vérifiez les paramètres locaux puis réessayez.";
+        }
     }
 
     private async void OnLoginClick(object sender, RoutedEventArgs e)
@@ -66,8 +75,43 @@ public partial class MainWindow : Window
         ShowItemCheckbox.IsChecked = team.DisplayOptions.ShowItem;
         ShowTypesCheckbox.IsChecked = team.DisplayOptions.ShowTypes;
 
-        _teamSlots = new ObservableCollection<TeamSlot>(team.Team);
+        SelectSpriteVariant(team.DisplayOptions.SpriteVariant);
+
+        _teamSlots = new ObservableCollection<TeamSlot>(NormalizeTeam(team.Team));
         TeamGrid.ItemsSource = _teamSlots;
+    }
+
+    private static IEnumerable<TeamSlot> NormalizeTeam(IReadOnlyCollection<TeamSlot> source)
+    {
+        var normalized = source
+            .OrderBy(s => s.SlotNumber)
+            .Take(6)
+            .Select((s, idx) => new TeamSlot
+            {
+                SlotNumber = idx + 1,
+                PokemonName = s.PokemonName,
+                Nickname = s.Nickname,
+                Level = s.Level,
+                Item = s.Item,
+                IsShiny = s.IsShiny
+            })
+            .ToList();
+
+        for (var i = normalized.Count; i < 6; i++)
+        {
+            normalized.Add(new TeamSlot { SlotNumber = i + 1 });
+        }
+
+        return normalized;
+    }
+
+    private void SelectSpriteVariant(string spriteVariant)
+    {
+        var selected = SpriteVariantCombo.Items
+            .OfType<ComboBoxItem>()
+            .FirstOrDefault(i => string.Equals(i.Content?.ToString(), spriteVariant, StringComparison.OrdinalIgnoreCase));
+
+        SpriteVariantCombo.SelectedItem = selected ?? SpriteVariantCombo.Items[0];
     }
 
     private async void OnLoadTeamClick(object sender, RoutedEventArgs e)
@@ -91,11 +135,14 @@ public partial class MainWindow : Window
             return;
         }
 
+        TeamGrid.CommitEdit(DataGridEditingUnit.Row, true);
+        TeamGrid.CommitEdit();
+
         _currentTeam.TrainerName = TrainerInput.Text.Trim();
         _currentTeam.TeamLabel = TeamLabelInput.Text.Trim();
         _currentTeam.NuzlockeMode = NuzlockeCheckbox.IsChecked == true;
-        _currentTeam.StreamWidth = int.TryParse(WidthInput.Text, out var w) ? w : 1920;
-        _currentTeam.StreamHeight = int.TryParse(HeightInput.Text, out var h) ? h : 1080;
+        _currentTeam.StreamWidth = ParseDimension(WidthInput.Text, 1920);
+        _currentTeam.StreamHeight = ParseDimension(HeightInput.Text, 1080);
 
         _currentTeam.DisplayOptions.ShowHeader = ShowHeaderCheckbox.IsChecked == true;
         _currentTeam.DisplayOptions.ShowName = ShowNameCheckbox.IsChecked == true;
@@ -104,9 +151,15 @@ public partial class MainWindow : Window
         _currentTeam.DisplayOptions.ShowTypes = ShowTypesCheckbox.IsChecked == true;
         _currentTeam.DisplayOptions.SpriteVariant = (SpriteVariantCombo.SelectedItem as ComboBoxItem)?.Content?.ToString() ?? "official-artwork";
 
-        _currentTeam.Team = _teamSlots.ToList();
+        _currentTeam.Team = NormalizeTeam(_teamSlots.ToList()).ToList();
         await _appService.SaveTeamAsync(_currentTeam);
         StudioStatus.Text = "Équipe et paramètres sauvegardés.";
+    }
+
+    private static int ParseDimension(string? value, int fallback)
+    {
+        if (!int.TryParse(value, out var parsed)) return fallback;
+        return Math.Clamp(parsed, 320, 7680);
     }
 
     private async void OnExportObsClick(object sender, RoutedEventArgs e)
