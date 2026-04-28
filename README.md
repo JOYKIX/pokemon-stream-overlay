@@ -1,100 +1,75 @@
 # PokeOverlay
 
-Pokemon Stream Overlay for OBS, hébergé sur GitHub Pages.
+PokeOverlay existe maintenant en **application desktop C# (Windows)**, en plus des fichiers web d'origine.
 
-## Pourquoi l'ancienne version ne marchait pas
+## Nouveau dossier C#
 
-`localStorage` ne partage pas l'état entre ta page web classique et la source navigateur d'OBS de façon fiable. Pour qu'un changement dans le site mette à jour l'overlay OBS en direct, il faut un stockage partagé côté cloud.
+- `PokemonOverlayApp/` : projet WinForms (.NET 8) avec WebView2.
+- L'app embarque les fichiers du site (`*.html`, `*.css`, `*.js`, `lang/`, `logo_type/`, etc.) dans `wwwroot` au build.
+- Au lancement, elle ouvre `login.html` dans une fenêtre desktop.
 
-Cette version utilise :
+---
 
-- **GitHub Pages** pour héberger le site
-- **Firebase Realtime Database** pour synchroniser l'équipe en direct
-- **PokéAPI** pour récupérer sprites et noms Pokémon
+## Prérequis
 
-## Fichiers
+1. **Windows 10/11**
+2. **.NET SDK 8.0**
+3. **WebView2 Runtime** (souvent déjà installé via Microsoft Edge)
 
-- `login.html` : connexion par identifiant + clé d'édition
-- `index.html` : éditeur principal de team
-- `customize.html` : éditeur de design overlay
-- `options.html` : changement d'identifiant et de clé
-- `overlay.html` : page à mettre dans OBS
-- `styles.css` : design global
-- `*.ts` : code source TypeScript (UI, overlay, auth, data)
-- `dist/*.js` : build JavaScript généré pour le navigateur
+---
 
-## Mise en place
+## Tuto 1 — Lancer l'app pour test
 
-### 1) Crée un projet Firebase
-
-- Va dans Firebase Console
-- Crée un projet
-- Ajoute une **application Web**
-- Copie l'objet de configuration
-- Active **Realtime Database**
-
-### 2) Règles temporaires simples
-
-Pour tester rapidement, mets ces règles :
-
-```json
-{
-  "rules": {
-    "teams": {
-      ".read": true,
-      ".write": true
-    }
-  }
-}
-```
-
-### 3) Configure `config.js`
-
-Copie `config.example.js` en `config.js` puis remplace les valeurs.
-
-
-### Build TypeScript (V2)
+### 1) Ouvrir un terminal à la racine du repo
 
 ```bash
-tsc --project tsconfig.json
+cd /chemin/vers/pokemon-stream-overlay
 ```
 
-Le build génère les modules ES dans `dist/`, consommés par les pages HTML.
+### 2) Restaurer les dépendances C#
 
-### 4) Publie sur GitHub Pages
+```bash
+dotnet restore PokemonOverlayApp/PokemonOverlayApp.csproj
+```
 
-- Crée un dépôt GitHub
-- Envoie tous les fichiers
-- Active GitHub Pages dans **Settings > Pages**
-- Publie depuis la branche `main` et le dossier racine
+### 3) Lancer en mode test
 
-### 5) Utilise OBS
+```bash
+dotnet run --project PokemonOverlayApp/PokemonOverlayApp.csproj
+```
 
-Mets en source navigateur :
+L'application s'ouvre en fenêtre Windows et charge l'interface PokeOverlay.
+
+---
+
+## Tuto 2 — Générer un `.exe`
+
+### Option A (framework-dependent, plus léger)
+
+```bash
+dotnet publish PokemonOverlayApp/PokemonOverlayApp.csproj -c Release -r win-x64 --self-contained false
+```
+
+Le `.exe` est généré dans :
 
 ```text
-https://ton-utilisateur.github.io/ton-repo/overlay.html?channel=joykix
+PokemonOverlayApp/bin/Release/net8.0-windows/win-x64/publish/
 ```
 
-## Conseils OBS
+Fichier principal : `PokemonOverlayApp.exe`
 
-- Largeur : `1920`
-- Hauteur : `360`
-- Coche le rafraîchissement quand la scène devient active
+### Option B (self-contained, plus gros mais autonome)
 
-## Remarques importantes
+```bash
+dotnet publish PokemonOverlayApp/PokemonOverlayApp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
+```
 
-- Le champ Pokémon attend surtout un **nom PokéAPI anglais** ou un **numéro du Pokédex**
-- Les noms affichés sur l'overlay remontent en français quand PokéAPI les fournit
-- La synchronisation est en direct via Firebase
+Le `.exe` autonome est dans le même dossier `publish/`.
 
+---
 
-## Sécurité de l'éditeur
+## Notes importantes
 
-- Le projet utilise un mécanisme léger : **identifiant unique + clé d'édition**.
-- Ce n'est **pas** un système de compte utilisateur complet (pas d'email / mot de passe).
-- Si l'identifiant existe déjà dans la base, la création est refusée.
-- Les options permettent de :
-  - changer la clé d'édition
-  - changer l'identifiant (ce qui supprime l'ancien ID dans la database)
-
+- Si vous utilisez Firebase, gardez votre configuration `config.js` à jour.
+- L'app C# réutilise les mêmes pages que la version web, donc les comportements overlay/editor restent identiques.
+- Pour OBS, vous pouvez continuer à utiliser `overlay.html` (web) ou piloter l'équipe depuis l'app desktop.
