@@ -2,25 +2,9 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
-    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2957.106" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\*.html" Link="wwwroot\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\*.css" Link="wwwroot\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\*.js" Link="wwwroot\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\lang\**\*.*" Link="wwwroot\lang\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\logo_type\**\*.*" Link="wwwroot\logo_type\%(RecursiveDir)%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\pokeball.png" Link="wwwroot\pokeball.png" CopyToOutputDirectory="PreserveNewest" />
-    <None Include="..\config.js" Link="wwwroot\config.js" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\config.js')" />
-    <None Include="..\config.example.js" Link="wwwroot\config.example.js" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\config.example.js')" />
-    <None Include="..\package.json" Link="wwwroot\package.json" CopyToOutputDirectory="PreserveNewest" />
-  </ItemGroup>
 </Project>

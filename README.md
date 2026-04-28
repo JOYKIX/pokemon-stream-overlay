@@ -1,75 +1,47 @@
-# PokeOverlay
+# Pokémon Stream Overlay — Desktop C# natif
 
-PokeOverlay existe maintenant en **application desktop C# (Windows)**, en plus des fichiers web d'origine.
+Ce dépôt a été migré vers une **application desktop C# native (WPF)**.
 
-## Nouveau dossier C#
+## Ce qui a changé
 
-- `PokemonOverlayApp/` : projet WinForms (.NET 8) avec WebView2.
-- L'app embarque les fichiers du site (`*.html`, `*.css`, `*.js`, `lang/`, `logo_type/`, etc.) dans `wwwroot` au build.
-- Au lancement, elle ouvre `login.html` dans une fenêtre desktop.
+- Le cœur utilisateur ne dépend plus du front web (`html/css/js`) ni d'un serveur HTTP interne.
+- L'interface est maintenant une UI native WPF avec des écrans équivalents :
+  - Connexion
+  - Studio (team builder)
+  - Personnalisation
+  - Partage
+  - Compte
+- Les échanges front↔back web ont été remplacés par des appels directs à des services C#.
+- Les données sont persistées localement dans `%AppData%/PokemonOverlayDesktop/state.json`.
 
----
+## Architecture
+
+`PokemonOverlayApp/`
+
+- `MainWindow.xaml` : interface native (navigation + formulaires).
+- `Models/` : modèles métier (`OverlaySettings`, `TeamSlot`, `UserProfile`, etc.).
+- `Services/` : logique métier (`AppService`, `PokemonApiService`, `SecurityService`).
+- `Data/` : accès aux données (`JsonAppRepository`).
+- `Configuration/` : chemins et configuration locale (`AppPaths`).
 
 ## Prérequis
 
-1. **Windows 10/11**
-2. **.NET SDK 8.0**
-3. **WebView2 Runtime** (souvent déjà installé via Microsoft Edge)
+- Windows 10/11
+- .NET SDK 8.0+
 
----
-
-## Tuto 1 — Lancer l'app pour test
-
-### 1) Ouvrir un terminal à la racine du repo
-
-```bash
-cd /chemin/vers/pokemon-stream-overlay
-```
-
-### 2) Restaurer les dépendances C#
+## Lancer l'application
 
 ```bash
 dotnet restore PokemonOverlayApp/PokemonOverlayApp.csproj
-```
-
-### 3) Lancer en mode test
-
-```bash
 dotnet run --project PokemonOverlayApp/PokemonOverlayApp.csproj
 ```
 
-L'application s'ouvre en fenêtre Windows et charge l'interface PokeOverlay.
-
----
-
-## Tuto 2 — Générer un `.exe`
-
-### Option A (framework-dependent, plus léger)
+## Build release
 
 ```bash
 dotnet publish PokemonOverlayApp/PokemonOverlayApp.csproj -c Release -r win-x64 --self-contained false
 ```
 
-Le `.exe` est généré dans :
+Binaire de sortie :
 
-```text
-PokemonOverlayApp/bin/Release/net8.0-windows/win-x64/publish/
-```
-
-Fichier principal : `PokemonOverlayApp.exe`
-
-### Option B (self-contained, plus gros mais autonome)
-
-```bash
-dotnet publish PokemonOverlayApp/PokemonOverlayApp.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true
-```
-
-Le `.exe` autonome est dans le même dossier `publish/`.
-
----
-
-## Notes importantes
-
-- Si vous utilisez Firebase, gardez votre configuration `config.js` à jour.
-- L'app C# réutilise les mêmes pages que la version web, donc les comportements overlay/editor restent identiques.
-- Pour OBS, vous pouvez continuer à utiliser `overlay.html` (web) ou piloter l'équipe depuis l'app desktop.
+`PokemonOverlayApp/bin/Release/net8.0-windows/win-x64/publish/PokemonOverlayApp.exe`
