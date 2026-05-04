@@ -1,0 +1,124 @@
+:root {
+  --overlay-base-width: 1920;
+  --overlay-base-height: 1080;
+}
+
+body.overlay-page {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+}
+
+.overlay-page h1,
+.overlay-page h2,
+.overlay-page h3,
+.overlay-page p {
+  margin: 0;
+}
+
+.overlay-root {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  color: var(--overlay-text, #f8f8f8);
+  font-family: Inter, system-ui, sans-serif;
+  --overlay-sprite-scale: clamp(0.78, min(1.2vw, 2.2vh), 1.1);
+  --overlay-glow: color-mix(in srgb, var(--overlay-accent, #7bdff2) 45%, transparent);
+  --overlay-responsive-scale: min(calc(100vw / var(--overlay-base-width)), calc(100vh / var(--overlay-base-height)));
+}
+
+.overlay-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: transparent;
+}
+
+.overlay-root.has-bg-image::before {
+  background-image: var(--overlay-bg-image);
+  background-size: var(--overlay-bg-size, contain);
+  background-position: center center;
+  background-repeat: no-repeat;
+  opacity: 0.35;
+}
+
+.overlay-root.overlay-transparent-bg::before,
+.overlay-root.overlay-transparent-bg.has-bg-image::before {
+  background-image: none;
+  opacity: 0;
+}
+
+.overlay-header {
+  position: absolute;
+  left: clamp(12px, 2vw, 38px);
+  top: clamp(12px, 3vh, 42px);
+  z-index: 2;
+  padding: clamp(9px, 1vh, 14px) clamp(12px, 1vw, 18px);
+  border-radius: var(--overlay-radius, 20px);
+  border: 1px solid color-mix(in srgb, var(--overlay-accent, #7bdff2) 22%, rgba(255, 255, 255, 0.2));
+  background: linear-gradient(155deg, color-mix(in srgb, var(--overlay-card, #1f1f1f) calc(var(--overlay-card-opacity, 0.92) * 100%), transparent), color-mix(in srgb, var(--overlay-card, #1f1f1f) calc(var(--overlay-card-opacity, 0.74) * 100%), transparent));
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(7px) saturate(1.2);
+}
+
+.overlay-badge { font-size: clamp(0.62rem, 0.35rem + 0.5vw, 0.78rem); text-transform: uppercase; letter-spacing: 0.08em; }
+.overlay-trainer { margin-top: 2px; font-size: clamp(0.95rem, 0.7rem + 0.8vw, 1.25rem); font-weight: 800; }
+
+.overlay-root.hide-header .overlay-header,
+.overlay-root.single-slot-mode .overlay-header,
+.overlay-root.single-slot-mode .overlay-floating-nuzlocke,
+.overlay-root.deaths-only-mode .overlay-header,
+.overlay-root.deaths-only-mode .overlay-team { display: none !important; }
+
+.overlay-team { position: absolute; inset: 0; }
+.overlay-root.single-slot-mode .overlay-team { display: block; }
+
+.overlay-root.single-slot-mode .overlay-card {
+  width: clamp(220px, 34vw, 320px);
+  height: clamp(210px, 30vh, 300px);
+}
+
+.overlay-floating-nuzlocke {
+  position: absolute;
+  transform: translate(calc(-50% + var(--layout-pokeball-x, 0px)), calc(-50% + var(--layout-pokeball-y, 0px))) scale(clamp(0.68, var(--overlay-responsive-scale), 1.08));
+  transform-origin: center;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(6px, 0.5vw, 10px);
+  padding: clamp(7px, 0.7vw, 10px) clamp(10px, 1vw, 14px);
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--overlay-accent, #ff8ea2) 28%, rgba(255, 255, 255, 0.22));
+  background: linear-gradient(135deg, rgba(8, 8, 8, 0.9), rgba(38, 38, 38, 0.78));
+}
+
+.run-tag,.death-counter-label{font-size:clamp(.62rem,.32rem + .5vw,.78rem);text-transform:uppercase;letter-spacing:.05em}
+.run-tag{font-weight:800;color:#ff8ea2}
+.death-counter{display:inline-flex;align-items:center;gap:8px}
+.death-counter-value{font-size:clamp(.95rem,.7rem + .8vw,1.25rem);font-weight:800}
+
+.overlay-card {
+  position: absolute;
+  transform: translate(-50%, -50%) scale(var(--slot-scale, 1));
+  transform-origin: center;
+  width: clamp(180px, 16vw, 320px);
+  height: clamp(190px, 18vw, 300px);
+  border-radius: var(--overlay-radius, 20px);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.overlay-card-top { position: absolute; top: 8px; right: 44px; min-height: 1.3rem; z-index: 3; }
+.overlay-level { font-size: clamp(.62rem,.3rem + .4vw,.78rem); font-weight: 800; padding: 4px 10px; border-radius: 999px; }
+.overlay-image-wrap { position: absolute; inset: 8px 0 auto; height: calc(142px * var(--overlay-sprite-scale)); display: grid; place-items: center; }
+.overlay-pokeball { position: absolute; inset: 50% auto auto 50%; width: calc(190px * var(--overlay-sprite-scale)); height: calc(190px * var(--overlay-sprite-scale)); transform: translate(calc(-50% + var(--layout-pokeball-x, 0px)), calc(-50% + var(--layout-pokeball-y, 0px))); opacity: .63; }
+.overlay-image-wrap img:not(.overlay-pokeball) { position: relative; z-index: 1; width: calc(118px * var(--overlay-sprite-scale)); height: calc(118px * var(--overlay-sprite-scale)); object-fit: contain; }
+
+.overlay-root.deaths-only-mode { display: grid; place-items: center; }
+.overlay-root.deaths-only-mode .overlay-floating-nuzlocke {
+  display: inline-flex !important;
+  position: relative;
+  left: auto !important;
+  top: auto !important;
+  transform: scale(clamp(0.7, min(calc(100vw / 430), calc(100vh / 90)), 1.4));
+}
