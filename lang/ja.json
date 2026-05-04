@@ -111,6 +111,7 @@
   "level": "レベル",
   "item": "もちもの",
   "types": "タイプ",
+  "pokeball": "モンスターボール",
   "visibility": "表示",
   "sprite_style": "スプライトスタイル",
   "auto": "自動",

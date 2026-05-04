@@ -487,6 +487,7 @@ function collectDisplayOptions() {
     showItem: showItem.checked,
     showShiny: isScarletVioletVariant() ? false : showShiny.checked,
     showTypes: showTypes.checked,
+    showPokeball: showPokeball.checked,
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
@@ -559,7 +560,7 @@ function renderEditorCanvas() {
       ${showHeaderText}
       <div class="overlay-card-top">${showLevelText}</div>
       <div class="overlay-image-wrap">
-        <img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">
+        ${displayOptions.showPokeball ? '<img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">' : ""}
         <img class="overlay-sprite" src="${previewImage}" alt="${displayName}">
       </div>
       <div class="overlay-name-wrap"><div class="overlay-name-panel">${showNicknameText}${showNameText}</div></div>
@@ -654,6 +655,7 @@ function fillForm(data) {
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
   showTypes.checked = opts.showTypes ?? true;
+  showPokeball.checked = opts.showPokeball ?? true;
   showNuzlockeLabelInput.checked = opts.showNuzlockeLabel ?? true;
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);

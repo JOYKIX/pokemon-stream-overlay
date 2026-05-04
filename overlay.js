@@ -147,6 +147,7 @@ async function renderTeam(data) {
     showItem: data.displayOptions?.showItem ?? true,
     showShiny: data.displayOptions?.showShiny ?? true,
     showTypes: data.displayOptions?.showTypes ?? true,
+    showPokeball: data.displayOptions?.showPokeball ?? true,
     spriteVariant: data.displayOptions?.spriteVariant || "auto",
     preferAnimatedSprite: Boolean(data.displayOptions?.preferAnimatedSprite),
     spriteOnlyMode: Boolean(data.displayOptions?.spriteOnlyMode),
@@ -232,7 +233,7 @@ async function renderTeam(data) {
       "beforeend",
       `<article class="${cardClass}" style="left:${pos.x}%; top:${pos.y}%; --slot-scale:${scale}">
         <div class="overlay-card-top">${levelHtml}</div>
-        <div class="overlay-image-wrap"><img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
+        <div class="overlay-image-wrap">${options.showPokeball ? '<img class="overlay-pokeball" src="./pokeball.png" alt="" aria-hidden="true">' : ""}${sprite ? `<img src="${sprite}" alt="${pokemon?.displayName || slot.name}">` : ""}</div>
         ${nameHtml}
         <div class="overlay-meta">${shinyHtml}${itemHtml}</div>
         ${typesHtml}

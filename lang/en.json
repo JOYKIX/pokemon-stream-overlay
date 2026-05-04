@@ -148,6 +148,7 @@
   "level": "Level",
   "item": "Item",
   "types": "Types",
+  "pokeball": "Pokéball",
   "visibility": "Visibility",
   "sprite_style": "Sprite style",
   "auto": "Auto",
