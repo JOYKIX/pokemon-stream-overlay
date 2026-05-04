@@ -86,6 +86,37 @@ body.overlay-page {
   inset: 0;
 }
 
+.overlay-root.single-slot-mode .overlay-header,
+.overlay-root.single-slot-mode .overlay-floating-nuzlocke,
+.overlay-root.deaths-only-mode .overlay-header,
+.overlay-root.deaths-only-mode .overlay-team {
+  display: none !important;
+}
+
+.overlay-root.single-slot-mode .overlay-team {
+  display: block;
+}
+
+.overlay-root.single-slot-mode .overlay-card {
+  width: 320px;
+  height: 300px;
+  transform: translate(-50%, -50%) scale(min(calc(100vw / 320), calc(100vh / 300)));
+}
+
+.overlay-root.deaths-only-mode {
+  display: grid;
+  place-items: center;
+}
+
+.overlay-root.deaths-only-mode .overlay-floating-nuzlocke {
+  display: inline-flex !important;
+  position: relative;
+  left: auto !important;
+  top: auto !important;
+  transform: scale(min(calc(100vw / 430), calc(100vh / 90)));
+  transform-origin: center;
+}
+
 .overlay-floating-nuzlocke {
   position: absolute;
   transform: translate(

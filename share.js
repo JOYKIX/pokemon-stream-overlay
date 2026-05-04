@@ -12,6 +12,9 @@ const sourceShareCodeInput = document.getElementById("sourceShareCodeInput");
 const importShareBtn = document.getElementById("importShareBtn");
 const statusBox = document.getElementById("statusBox");
 const logoutBtn = document.getElementById("logoutBtn");
+const overlayUrlOutput = document.getElementById("overlayUrlOutput");
+const overlayPokemonUrlsOutput = document.getElementById("overlayPokemonUrlsOutput");
+const overlayDeathsUrlOutput = document.getElementById("overlayDeathsUrlOutput");
 
 let session = null;
 
@@ -83,6 +86,16 @@ async function init() {
   const profile = await getProfile(session.channel);
   if (profile?.uiLanguage) {
     setCurrentLanguage(sanitizeLanguage(profile.uiLanguage));
+  }
+  const baseUrl = `${window.location.origin}${window.location.pathname.replace(/[^/]+$/, "")}`;
+  if (overlayUrlOutput) {
+    overlayUrlOutput.value = `${baseUrl}overlay.html?channel=${session.channel}`;
+  }
+  if (overlayPokemonUrlsOutput) {
+    overlayPokemonUrlsOutput.value = Array.from({ length: 6 }, (_, index) => `${baseUrl}overlaypokemon${index + 1}.html?channel=${session.channel}`).join("\n");
+  }
+  if (overlayDeathsUrlOutput) {
+    overlayDeathsUrlOutput.value = `${baseUrl}overlaydeaths.html?channel=${session.channel}`;
   }
   window.addEventListener("app-language-changed", async (event) => {
     try {
