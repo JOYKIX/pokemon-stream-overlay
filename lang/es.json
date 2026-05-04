@@ -149,6 +149,7 @@
   "level": "Nivel",
   "item": "Objeto",
   "types": "Tipos",
+  "pokeball": "Poké Ball",
   "visibility": "Visibilidad",
   "sprite_style": "Estilo del sprite",
   "auto": "Auto",

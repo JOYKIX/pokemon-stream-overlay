@@ -438,6 +438,7 @@ function collectDisplayOptions() {
     showItem: showItem.checked,
     showShiny: isScarletVioletVariant() ? false : showShiny.checked,
     showTypes: showTypes.checked,
+    showPokeball: showPokeball.checked,
     spriteVariant: spriteVariant.value,
     preferAnimatedSprite: preferAnimatedSprite.checked,
     spriteOnlyMode: spriteOnlyMode.checked,
@@ -570,6 +571,7 @@ function fillForm(data) {
   showItem.checked = opts.showItem ?? true;
   showShiny.checked = opts.showShiny ?? true;
   showTypes.checked = opts.showTypes ?? true;
+  showPokeball.checked = opts.showPokeball ?? true;
   showNuzlockeLabelInput.checked = opts.showNuzlockeLabel ?? true;
   spriteVariant.value = opts.spriteVariant || "auto";
   preferAnimatedSprite.checked = Boolean(opts.preferAnimatedSprite);

@@ -526,6 +526,7 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
       showItem: asBool(displayOptions.showItem, true),
       showShiny: asBool(displayOptions.showShiny, true),
       showTypes: asBool(displayOptions.showTypes, true),
+      showPokeball: asBool(displayOptions.showPokeball, true),
       spriteVariant: cleanText(displayOptions.spriteVariant) || "auto",
       preferAnimatedSprite: Boolean(displayOptions.preferAnimatedSprite),
       spriteOnlyMode: Boolean(displayOptions.spriteOnlyMode),
