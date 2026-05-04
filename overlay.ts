@@ -18,6 +18,12 @@ const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
 
+const pathName = window.location.pathname.split("/").pop() || "overlay.html";
+const singlePokemonMatch = pathName.match(/^overlaypokemon([1-6])\.html$/i);
+const singlePokemonIndex = singlePokemonMatch ? Number(singlePokemonMatch[1]) - 1 : null;
+const isSinglePokemonMode = Number.isInteger(singlePokemonIndex);
+const isDeathsOnlyMode = /^overlaydeaths\.html$/i.test(pathName);
+
 
 let latestTeamData = null;
 let profileLanguage = getCurrentLanguage();
@@ -131,7 +137,7 @@ async function renderTeam(data) {
   await loadTranslations(profileLanguage);
   if (!data) {
     applyOverlayStyle(DEFAULT_OVERLAY_STYLE, {});
-    overlayRoot.classList.remove("sprite-only-mode", "hide-header");
+    overlayRoot.classList.remove("sprite-only-mode", "hide-header", "single-slot-mode", "deaths-only-mode");
     overlayRoot.style.setProperty("--overlay-sprite-scale", "1");
     overlayTrainer.textContent = t("overlay.no_team");
     overlayBadge.textContent = t("overlay.waiting_data");
@@ -161,6 +167,8 @@ async function renderTeam(data) {
   };
 
   applyOverlayStyle(data.overlayStyle, options);
+  overlayRoot.classList.toggle("single-slot-mode", isSinglePokemonMode);
+  overlayRoot.classList.toggle("deaths-only-mode", isDeathsOnlyMode);
   overlayRoot.classList.toggle("sprite-only-mode", options.spriteOnlyMode);
   overlayRoot.style.setProperty("--overlay-sprite-scale", String(options.spriteScale));
   overlayRoot.style.setProperty("--layout-pokeball-x", `${options.cardLayout.pokeball.x}px`);
@@ -186,16 +194,23 @@ async function renderTeam(data) {
   if (nuzlockeOn) {
     const nPos = getPosition(options, 6);
     overlayNuzlockeTag.style.display = "inline-flex";
-    overlayNuzlockeTag.style.left = `${nPos.x}%`;
-    overlayNuzlockeTag.style.top = `${nPos.y}%`;
+    if (isDeathsOnlyMode) {
+      overlayNuzlockeTag.style.left = "50%";
+      overlayNuzlockeTag.style.top = "50%";
+    } else {
+      overlayNuzlockeTag.style.left = `${nPos.x}%`;
+      overlayNuzlockeTag.style.top = `${nPos.y}%`;
+    }
   } else {
     overlayNuzlockeTag.style.display = "none";
   }
 
   overlayTeam.innerHTML = "";
   const slots = data.slots || [];
+  const allowedSlotIndex = isSinglePokemonMode ? singlePokemonIndex : null;
 
   for (let index = 0; index < 6; index++) {
+    if (allowedSlotIndex !== null && index !== allowedSlotIndex) continue;
     const slot = slots[index];
     if (!slot?.name) continue;
 
@@ -211,13 +226,13 @@ async function renderTeam(data) {
       pokemon = null;
     }
 
-    const pos = getPosition(options, index);
+    const pos = isSinglePokemonMode ? { x: 50, y: 50 } : getPosition(options, index);
     const sprite = pokemon?.sprite || pokemon?.artwork || "";
     const pixelSpriteClass = shouldUsePixelRendering(options.spriteVariant, options.preferAnimatedSprite) ? "pixel-sprite-mode" : "";
     const cardClass = options.spriteOnlyMode
       ? `overlay-card cardless ${pixelSpriteClass}`.trim()
       : `overlay-card ${pixelSpriteClass}`.trim();
-    const scale = Math.max(0.6, Math.min(2, Number(options.slotScales?.[index]) || 1));
+    const scale = isSinglePokemonMode ? 1 : Math.max(0.6, Math.min(2, Number(options.slotScales?.[index]) || 1));
     const nickname = slot.nickname?.trim();
     const hasNickname = Boolean(nickname);
     const form = slot.form?.trim();
