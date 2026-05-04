@@ -1,0 +1,17 @@
+@import url('./overlaypokemon.css');
+
+.overlay-root {
+  --overlay-base-width: 640;
+  --overlay-base-height: 180;
+}
+
+.overlay-root .overlay-header,
+.overlay-root .overlay-team {
+  display: none !important;
+}
+
+.overlay-root .overlay-floating-nuzlocke {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(clamp(0.7, min(calc(100vw / 460), calc(100vh / 110)), 1.7));
+}
