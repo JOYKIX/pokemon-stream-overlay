@@ -14,6 +14,7 @@ const overlayRoot = document.getElementById("overlayRoot");
 const overlayTrainer = document.getElementById("overlayTrainer");
 const overlayBadge = document.getElementById("overlayBadge");
 const overlayTeam = document.getElementById("overlayTeam");
+const overlayBadges = document.getElementById("overlayBadges");
 const overlayNuzlockeTag = document.getElementById("overlayNuzlockeTag");
 const overlayDeathsLabel = document.getElementById("overlayDeathsLabel");
 const overlayDeathCount = document.getElementById("overlayDeathCount");
@@ -27,6 +28,44 @@ const isDeathsOnlyMode = /^overlaydeaths\.html$/i.test(pathName);
 
 let latestTeamData = null;
 let profileLanguage = getCurrentLanguage();
+const isBadgeOnlyPage = window.location.pathname.endsWith("/overlaybadge.html") || window.location.pathname.endsWith("overlaybadge.html");
+
+function getBadgePrefix(badgeGame) {
+  const map = {
+    kanto: "Badges/Kanto/Badge_",
+    johto: "Badges/Johto/Badge_",
+    hoenn: "Badges/Hoenn/Badge_",
+    sinnoh: "Badges/Sinnoh/Badge_",
+    unys_bw: "Badges/Unys/BW/Badge_",
+    unys_b2w2: "Badges/Unys/B2W2/Badge_"
+  };
+  return map[badgeGame] || "";
+}
+
+function getBadgeSuffix(badgeGame) {
+  if (badgeGame === "unys_bw") return "_Unys_BW.png";
+  if (badgeGame === "unys_b2w2") return "_Unys_B2W2.png";
+  const region = { kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh" }[badgeGame];
+  return region ? `_${region}.png` : "";
+}
+
+function renderBadges(badgeGame, badgeCount, enabled) {
+  if (!overlayBadges) return;
+  const prefix = getBadgePrefix(badgeGame);
+  const suffix = getBadgeSuffix(badgeGame);
+  if (!enabled || !prefix || !suffix) {
+    overlayBadges.style.display = "none";
+    overlayBadges.innerHTML = "";
+    return;
+  }
+  overlayBadges.style.display = "grid";
+  const obtained = Math.max(0, Math.min(8, Number(badgeCount) || 0));
+  overlayBadges.innerHTML = Array.from({ length: 8 }, (_, i) => {
+    const index = i + 1;
+    const locked = index > obtained ? "is-locked" : "";
+    return `<img class="overlay-badge-item ${locked}" src="./${prefix}${index}${suffix}" alt="Badge ${index}" loading="lazy" decoding="async">`;
+  }).join("");
+}
 
 function hexToRgb(hex) {
   const normalized = hex.replace("#", "");
@@ -143,6 +182,7 @@ async function renderTeam(data) {
     overlayBadge.textContent = t("overlay.waiting_data");
     overlayNuzlockeTag.style.display = "none";
     overlayTeam.innerHTML = "";
+    renderBadges("none", 0, false);
     return;
   }
 
@@ -164,7 +204,10 @@ async function renderTeam(data) {
     slotScales: data.displayOptions?.slotScales || [],
     showNuzlockeLabel: data.displayOptions?.showNuzlockeLabel ?? true,
     pokemonNameLanguage: data.displayOptions?.pokemonNameLanguage || "auto",
-    cardLayout: sanitizeCardLayout(data.displayOptions?.cardLayout)
+    cardLayout: sanitizeCardLayout(data.displayOptions?.cardLayout),
+    badgeGame: data.displayOptions?.badgeGame || "none",
+    badgeCount: data.displayOptions?.badgeCount ?? 0,
+    showBadges: Boolean(data.displayOptions?.showBadges)
   };
 
   applyOverlayStyle(data.overlayStyle, options);
@@ -181,6 +224,8 @@ async function renderTeam(data) {
   overlayRoot.style.setProperty("--layout-types-x", `${options.cardLayout.types.x}px`);
   overlayRoot.style.setProperty("--layout-types-y", `${options.cardLayout.types.y}px`);
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
+  overlayRoot.classList.toggle("badge-only-mode", isBadgeOnlyPage);
+  renderBadges(options.badgeGame, options.badgeCount, options.showBadges);
 
   overlayTrainer.textContent = data.trainerName || t("common.default_trainer");
   overlayBadge.textContent = data.badgeText || t("common.default_badge");
@@ -207,6 +252,7 @@ async function renderTeam(data) {
   }
 
   overlayTeam.innerHTML = "";
+  if (isBadgeOnlyPage) return;
   const slots = data.slots || [];
   const allowedSlotIndex = isSinglePokemonMode ? singlePokemonIndex : null;
 
