@@ -790,6 +790,9 @@ export function buildTeamPayload({ trainerName, badgeText, nuzlockeMode, deathCo
         : Array.from({ length: 6 }, () => 1),
       showNuzlockeLabel: asBool(displayOptions.showNuzlockeLabel, true),
       pokemonNameLanguage: cleanText(displayOptions.pokemonNameLanguage) || "auto",
+      badgeGame: cleanText(displayOptions.badgeGame) || "none",
+      badgeCount: Math.max(0, Math.min(8, Number(displayOptions.badgeCount) || 0)),
+      showBadges: asBool(displayOptions.showBadges, false),
       overlayOrientation: cleanText(displayOptions.overlayOrientation) === "vertical" ? "vertical" : "horizontal",
       overlayWidthPx: Math.max(320, Number(displayOptions.overlayWidthPx) || 1600),
       cardLayout: {
