@@ -55,6 +55,11 @@
             <div class="field"><label for="trainerInput" data-i18n="trainer_name"></label><input id="trainerInput" type="text" /></div>
             <div class="field"><label for="badgeInput" data-i18n="team_label"></label><input id="badgeInput" type="text" /></div>
             <div class="inline-fields">
+              <div class="field"><label for="badgeGameSelect">Jeu badges</label><select id="badgeGameSelect"><option value="none">Aucun</option><option value="kanto">Kanto (1G)</option><option value="johto">Johto (2G)</option><option value="hoenn">Hoenn (3G)</option><option value="sinnoh">Sinnoh (4G)</option><option value="unys_bw">Unys BW (5G)</option><option value="unys_b2w2">Unys B2W2 (5G)</option></select></div>
+              <div class="field"><label for="badgeCountInput">Badges obtenus</label><input id="badgeCountInput" type="number" min="0" max="8" value="0" /></div>
+            </div>
+            <label class="switch-chip" for="showBadges"><span>Afficher badges</span><input type="checkbox" id="showBadges"><span class="toggle-slider" aria-hidden="true"></span></label>
+            <div class="inline-fields">
               <div class="field"><label for="streamWidth" data-i18n="resolution_width"></label><input id="streamWidth" type="number" value="1920" /></div>
               <div class="field"><label for="streamHeight" data-i18n="resolution_height"></label><input id="streamHeight" type="number" value="1080" /></div>
             </div>

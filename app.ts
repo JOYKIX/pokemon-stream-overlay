@@ -27,6 +27,9 @@ const resetPositionsBtn = document.getElementById("resetPositionsBtn");
 const channelInput = document.getElementById("channelInput");
 const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
+const badgeGameSelect = document.getElementById("badgeGameSelect");
+const badgeCountInput = document.getElementById("badgeCountInput");
+const showBadgesInput = document.getElementById("showBadges");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
 const showNuzlockeLabelInput = document.getElementById("showNuzlockeLabel");
 const deathCountInput = document.getElementById("deathCountInput");
@@ -499,7 +502,10 @@ function collectDisplayOptions() {
     slotPositions,
     slotScales,
     showNuzlockeLabel: showNuzlockeLabelInput.checked,
-    pokemonNameLanguage: pokemonNameLanguageInput?.value || "auto"
+    pokemonNameLanguage: pokemonNameLanguageInput?.value || "auto",
+    badgeGame: badgeGameSelect?.value || "none",
+    badgeCount: Math.max(0, Math.min(8, Number(badgeCountInput?.value) || 0)),
+    showBadges: Boolean(showBadgesInput?.checked)
   };
 }
 
@@ -648,6 +654,9 @@ function fillForm(data) {
   deathCountInput.value = Number(data?.deathCount) || 0;
 
   const opts = data?.displayOptions || {};
+  if (badgeGameSelect) badgeGameSelect.value = opts.badgeGame || "none";
+  if (badgeCountInput) badgeCountInput.value = String(Math.max(0, Math.min(8, Number(opts.badgeCount) || 0)));
+  if (showBadgesInput) showBadgesInput.checked = Boolean(opts.showBadges);
   showHeader.checked = opts.showHeader ?? true;
   showName.checked = opts.showName ?? true;
   showNickname.checked = opts.showNickname ?? true;
@@ -829,6 +838,9 @@ autoSaveInput?.addEventListener("change", () => {
 [
   trainerInput,
   badgeInput,
+  badgeGameSelect,
+  badgeCountInput,
+  showBadgesInput,
   nuzlockeModeInput,
   showHeader,
   showName,
