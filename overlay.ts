@@ -38,7 +38,9 @@ function getBadgePrefix(badgeGame) {
     sinnoh: "Badges/Sinnoh/Badge_",
     unys_bw: "Badges/Unys/BW/Badge_",
     unys_b2w2: "Badges/Unys/B2W2/Badge_",
-    kalos: "Badges/Kalos/Badge_"
+    kalos: "Badges/Kalos/Badge_",
+    galar_epee: "Badges/Galar/Badge_",
+    galar_bouclier: "Badges/Galar/Badge_"
   };
   return map[badgeGame] || "";
 }
@@ -50,11 +52,47 @@ function getBadgeSuffix(badgeGame) {
   return region ? `_${region}.png` : "";
 }
 
-function renderBadges(badgeGame, badgeCount, enabled) {
+function renderBadges(badgeGame, badgeCount, enabled, badgeManual = "") {
   if (!overlayBadges) return;
+  if (badgeGame === "paldea") {
+    if (!enabled) {
+      overlayBadges.style.display = "none";
+      overlayBadges.innerHTML = "";
+      return;
+    }
+    const orderedBadges = [
+      "Arene/Badge_Insecte_Paldea.png",
+      "Arene/Badge_Plante_Paldea.png",
+      "Arene/Badge_Electrik_Paldea.png",
+      "Arene/Badge_Eau_Paldea.png",
+      "Arene/Badge_Normal_Paldea.png",
+      "Arene/Badge_Spectre_Paldea.png",
+      "Arene/Badge_Psy_Paldea.png",
+      "Arene/Badge_Glace_Paldea.png",
+      "Dominant/Badge_Roche_Paldea.png",
+      "Dominant/Badge_Vol_Paldea.png",
+      "Dominant/Badge_Acier_Paldea.png",
+      "Dominant/Badge_Sol_Paldea.png",
+      "Dominant/Badge_Dragon_Paldea.png",
+      "Team/Badge_Tenebres_Paldea.png",
+      "Team/Badge_Feu_Paldea.png",
+      "Team/Badge_Poison_Paldea.png",
+      "Team/Badge_Fee_Paldea.png",
+      "Team/Badge_Combat_Paldea.png"
+    ];
+    const selected = new Set(String(badgeManual || "").split(",").map((it) => it.trim()).filter(Boolean));
+    const obtained = Math.max(0, Math.min(18, Number(badgeCount) || 0));
+    overlayBadges.style.display = "grid";
+    overlayBadges.innerHTML = orderedBadges.map((relativePath, i) => {
+      const baseName = relativePath.replace(".png", "").split("/").pop();
+      const locked = (selected.size ? !selected.has(baseName) : i >= obtained) ? "is-locked" : "";
+      return `<img class="overlay-badge-item ${locked}" src="./Badges/Paldea/${relativePath}" alt="${baseName}" loading="lazy" decoding="async">`;
+    }).join("");
+    return;
+  }
   const prefix = getBadgePrefix(badgeGame);
   const suffix = getBadgeSuffix(badgeGame);
-  if (!enabled || !prefix || !suffix) {
+  if (!enabled || !prefix || (badgeGame !== "galar_epee" && badgeGame !== "galar_bouclier" && !suffix)) {
     overlayBadges.style.display = "none";
     overlayBadges.innerHTML = "";
     return;
@@ -64,7 +102,16 @@ function renderBadges(badgeGame, badgeCount, enabled) {
   overlayBadges.innerHTML = Array.from({ length: 8 }, (_, i) => {
     const index = i + 1;
     const locked = index > obtained ? "is-locked" : "";
-    return `<img class="overlay-badge-item ${locked}" src="./${prefix}${index}${suffix}" alt="Badge ${index}" loading="lazy" decoding="async">`;
+    const isVariantBadge = index === 4 || index === 6;
+    const galarVariantSuffix = badgeGame === "galar_epee"
+      ? "_Galar_Epee.png"
+      : badgeGame === "galar_bouclier"
+        ? "_Galar_Bouclier.png"
+        : "";
+    const currentSuffix = (badgeGame === "galar_epee" || badgeGame === "galar_bouclier")
+      ? (isVariantBadge ? galarVariantSuffix : "_Galar.png")
+      : suffix;
+    return `<img class="overlay-badge-item ${locked}" src="./${prefix}${index}${currentSuffix}" alt="Badge ${index}" loading="lazy" decoding="async">`;
   }).join("");
 }
 
@@ -208,6 +255,7 @@ async function renderTeam(data) {
     cardLayout: sanitizeCardLayout(data.displayOptions?.cardLayout),
     badgeGame: data.displayOptions?.badgeGame || "none",
     badgeCount: data.displayOptions?.badgeCount ?? 0,
+    badgeManual: data.displayOptions?.badgeManual || "",
     showBadges: Boolean(data.displayOptions?.showBadges)
   };
 
@@ -226,7 +274,7 @@ async function renderTeam(data) {
   overlayRoot.style.setProperty("--layout-types-y", `${options.cardLayout.types.y}px`);
   overlayRoot.classList.toggle("hide-header", !options.showHeader);
   overlayRoot.classList.toggle("badge-only-mode", isBadgeOnlyPage);
-  renderBadges(options.badgeGame, options.badgeCount, options.showBadges);
+  renderBadges(options.badgeGame, options.badgeCount, options.showBadges, options.badgeManual);
 
   overlayTrainer.textContent = data.trainerName || t("common.default_trainer");
   overlayBadge.textContent = data.badgeText || t("common.default_badge");
