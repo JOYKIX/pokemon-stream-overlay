@@ -57,7 +57,29 @@
             <div class="inline-fields">
               <div class="field"><label for="badgeGameSelect">Jeu badges</label><select id="badgeGameSelect"><option value="none">Aucun</option><option value="kanto">Kanto (1G)</option><option value="johto">Johto (2G)</option><option value="hoenn">Hoenn (3G)</option><option value="sinnoh">Sinnoh (4G)</option><option value="unys_bw">Unys BW (5G)</option><option value="unys_b2w2">Unys B2W2 (5G)</option><option value="kalos">Kalos (6G)</option><option value="galar_epee">Galar Épée (8G)</option><option value="galar_bouclier">Galar Bouclier (8G)</option><option value="paldea">Paldea (9G)</option></select></div>
               <div class="field"><label for="badgeCountInput">Badges obtenus</label><input id="badgeCountInput" type="number" min="0" max="8" value="0" /></div>
-              <div class="field"><label for="badgeManualInput">Badges manuels (Paldea)</label><input id="badgeManualInput" type="text" placeholder="ex: Badge_Eau_Paldea,Badge_Combat_Paldea" /></div>
+            </div>
+            <div id="paldeaBadgeControls" class="field" style="display:none;">
+              <label>Badges Paldea (manuel)</label>
+              <div class="paldea-badge-sliders">
+                <label for="paldeaBadge0">Badge Insecte <input id="paldeaBadge0" type="checkbox"></label>
+                <label for="paldeaBadge1">Badge Plante <input id="paldeaBadge1" type="checkbox"></label>
+                <label for="paldeaBadge2">Badge Electrik <input id="paldeaBadge2" type="checkbox"></label>
+                <label for="paldeaBadge3">Badge Eau <input id="paldeaBadge3" type="checkbox"></label>
+                <label for="paldeaBadge4">Badge Normal <input id="paldeaBadge4" type="checkbox"></label>
+                <label for="paldeaBadge5">Badge Spectre <input id="paldeaBadge5" type="checkbox"></label>
+                <label for="paldeaBadge6">Badge Psy <input id="paldeaBadge6" type="checkbox"></label>
+                <label for="paldeaBadge7">Badge Glace <input id="paldeaBadge7" type="checkbox"></label>
+                <label for="paldeaBadge8">Badge Roche <input id="paldeaBadge8" type="checkbox"></label>
+                <label for="paldeaBadge9">Badge Vol <input id="paldeaBadge9" type="checkbox"></label>
+                <label for="paldeaBadge10">Badge Acier <input id="paldeaBadge10" type="checkbox"></label>
+                <label for="paldeaBadge11">Badge Sol <input id="paldeaBadge11" type="checkbox"></label>
+                <label for="paldeaBadge12">Badge Dragon <input id="paldeaBadge12" type="checkbox"></label>
+                <label for="paldeaBadge13">Badge Ténèbres <input id="paldeaBadge13" type="checkbox"></label>
+                <label for="paldeaBadge14">Badge Feu <input id="paldeaBadge14" type="checkbox"></label>
+                <label for="paldeaBadge15">Badge Poison <input id="paldeaBadge15" type="checkbox"></label>
+                <label for="paldeaBadge16">Badge Fée <input id="paldeaBadge16" type="checkbox"></label>
+                <label for="paldeaBadge17">Badge Combat <input id="paldeaBadge17" type="checkbox"></label>
+              </div>
             </div>
             <label class="switch-chip" for="showBadges"><span>Afficher badges</span><input type="checkbox" id="showBadges"><span class="toggle-slider" aria-hidden="true"></span></label>
             <div class="inline-fields">
