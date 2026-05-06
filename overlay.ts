@@ -37,7 +37,8 @@ function getBadgePrefix(badgeGame) {
     hoenn: "Badges/Hoenn/Badge_",
     sinnoh: "Badges/Sinnoh/Badge_",
     unys_bw: "Badges/Unys/BW/Badge_",
-    unys_b2w2: "Badges/Unys/B2W2/Badge_"
+    unys_b2w2: "Badges/Unys/B2W2/Badge_",
+    kalos: "Badges/Kalos/Badge_"
   };
   return map[badgeGame] || "";
 }
@@ -45,7 +46,7 @@ function getBadgePrefix(badgeGame) {
 function getBadgeSuffix(badgeGame) {
   if (badgeGame === "unys_bw") return "_Unys_BW.png";
   if (badgeGame === "unys_b2w2") return "_Unys_B2W2.png";
-  const region = { kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh" }[badgeGame];
+  const region = { kanto: "Kanto", johto: "Johto", hoenn: "Hoenn", sinnoh: "Sinnoh", kalos: "Kalos" }[badgeGame];
   return region ? `_${region}.png` : "";
 }
 
