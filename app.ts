@@ -29,6 +29,7 @@ const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
 const badgeGameSelect = document.getElementById("badgeGameSelect");
 const badgeCountInput = document.getElementById("badgeCountInput");
+const badgeManualInput = document.getElementById("badgeManualInput");
 const showBadgesInput = document.getElementById("showBadges");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
 const showNuzlockeLabelInput = document.getElementById("showNuzlockeLabel");
@@ -504,7 +505,8 @@ function collectDisplayOptions() {
     showNuzlockeLabel: showNuzlockeLabelInput.checked,
     pokemonNameLanguage: pokemonNameLanguageInput?.value || "auto",
     badgeGame: badgeGameSelect?.value || "none",
-    badgeCount: Math.max(0, Math.min(8, Number(badgeCountInput?.value) || 0)),
+    badgeCount: Math.max(0, Math.min(18, Number(badgeCountInput?.value) || 0)),
+    badgeManual: String(badgeManualInput?.value || "").trim(),
     showBadges: Boolean(showBadgesInput?.checked)
   };
 }
@@ -655,7 +657,8 @@ function fillForm(data) {
 
   const opts = data?.displayOptions || {};
   if (badgeGameSelect) badgeGameSelect.value = opts.badgeGame || "none";
-  if (badgeCountInput) badgeCountInput.value = String(Math.max(0, Math.min(8, Number(opts.badgeCount) || 0)));
+  if (badgeCountInput) badgeCountInput.value = String(Math.max(0, Math.min(18, Number(opts.badgeCount) || 0)));
+  if (badgeManualInput) badgeManualInput.value = opts.badgeManual || "";
   if (showBadgesInput) showBadgesInput.checked = Boolean(opts.showBadges);
   showHeader.checked = opts.showHeader ?? true;
   showName.checked = opts.showName ?? true;
@@ -840,6 +843,7 @@ autoSaveInput?.addEventListener("change", () => {
   badgeInput,
   badgeGameSelect,
   badgeCountInput,
+  badgeManualInput,
   showBadgesInput,
   nuzlockeModeInput,
   showHeader,
@@ -851,7 +855,7 @@ autoSaveInput?.addEventListener("change", () => {
   showTypes,
   showNuzlockeLabelInput,
   spriteOnlyMode
-].forEach((input) => {
+].filter(Boolean).forEach((input) => {
   const eventName = input.type === "checkbox" ? "change" : "input";
   input.addEventListener(eventName, queueAutoSave);
 });
