@@ -29,7 +29,7 @@ const trainerInput = document.getElementById("trainerInput");
 const badgeInput = document.getElementById("badgeInput");
 const badgeGameSelect = document.getElementById("badgeGameSelect");
 const badgeCountInput = document.getElementById("badgeCountInput");
-const badgeManualInput = document.getElementById("badgeManualInput");
+const paldeaBadgeControls = document.getElementById("paldeaBadgeControls");
 const showBadgesInput = document.getElementById("showBadges");
 const nuzlockeModeInput = document.getElementById("nuzlockeMode");
 const showNuzlockeLabelInput = document.getElementById("showNuzlockeLabel");
@@ -71,6 +71,27 @@ const LOCAL_STORAGE_KEYS = {
   autoSaveEnabled: "pokemonOverlayAutoSaveEnabled"
 };
 const pokemonFormSuggestionsCache = new Map();
+const PALDEA_BADGE_KEYS = [
+  "Badge_Insecte_Paldea","Badge_Plante_Paldea","Badge_Electrik_Paldea","Badge_Eau_Paldea","Badge_Normal_Paldea","Badge_Spectre_Paldea","Badge_Psy_Paldea","Badge_Glace_Paldea","Badge_Roche_Paldea","Badge_Vol_Paldea","Badge_Acier_Paldea","Badge_Sol_Paldea","Badge_Dragon_Paldea","Badge_Tenebres_Paldea","Badge_Feu_Paldea","Badge_Poison_Paldea","Badge_Fee_Paldea","Badge_Combat_Paldea"
+];
+const paldeaBadgeSliders = PALDEA_BADGE_KEYS.map((_, index) => document.getElementById(`paldeaBadge${index}`)).filter(Boolean);
+
+function getPaldeaManualBadges() {
+  return PALDEA_BADGE_KEYS.filter((badge, index) => Number(paldeaBadgeSliders[index]?.value || 0) === 1).join(",");
+}
+
+function setPaldeaManualBadges(value = "") {
+  const selected = new Set(String(value).split(",").map((item) => item.trim()).filter(Boolean));
+  PALDEA_BADGE_KEYS.forEach((badge, index) => {
+    if (paldeaBadgeSliders[index]) paldeaBadgeSliders[index].value = selected.has(badge) ? "1" : "0";
+  });
+}
+
+function syncPaldeaBadgeUi() {
+  const isPaldea = badgeGameSelect?.value === "paldea";
+  if (paldeaBadgeControls) paldeaBadgeControls.style.display = isPaldea ? "grid" : "none";
+  if (badgeCountInput) badgeCountInput.max = isPaldea ? "18" : "8";
+}
 
 function resolvePokemonNameLanguage() {
   const selected = pokemonNameLanguageInput?.value || "auto";
@@ -506,7 +527,7 @@ function collectDisplayOptions() {
     pokemonNameLanguage: pokemonNameLanguageInput?.value || "auto",
     badgeGame: badgeGameSelect?.value || "none",
     badgeCount: Math.max(0, Math.min(18, Number(badgeCountInput?.value) || 0)),
-    badgeManual: String(badgeManualInput?.value || "").trim(),
+    badgeManual: badgeGameSelect?.value === "paldea" ? getPaldeaManualBadges() : "",
     showBadges: Boolean(showBadgesInput?.checked)
   };
 }
@@ -658,7 +679,8 @@ function fillForm(data) {
   const opts = data?.displayOptions || {};
   if (badgeGameSelect) badgeGameSelect.value = opts.badgeGame || "none";
   if (badgeCountInput) badgeCountInput.value = String(Math.max(0, Math.min(18, Number(opts.badgeCount) || 0)));
-  if (badgeManualInput) badgeManualInput.value = opts.badgeManual || "";
+  setPaldeaManualBadges(opts.badgeManual || "");
+  syncPaldeaBadgeUi();
   if (showBadgesInput) showBadgesInput.checked = Boolean(opts.showBadges);
   showHeader.checked = opts.showHeader ?? true;
   showName.checked = opts.showName ?? true;
@@ -843,7 +865,6 @@ autoSaveInput?.addEventListener("change", () => {
   badgeInput,
   badgeGameSelect,
   badgeCountInput,
-  badgeManualInput,
   showBadgesInput,
   nuzlockeModeInput,
   showHeader,
@@ -868,6 +889,9 @@ copyUrlBtn.addEventListener("click", async () => {
     setStatus(t("app.status.obs_url_copy_error"), "error");
   }
 });
+
+badgeGameSelect?.addEventListener("change", syncPaldeaBadgeUi);
+paldeaBadgeSliders.forEach((slider) => slider.addEventListener("input", queueAutoSave));
 
 transitionToggle?.addEventListener("change", () => {
   document.body.classList.toggle("reduced-transitions", !transitionToggle.checked);
