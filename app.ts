@@ -77,13 +77,13 @@ const PALDEA_BADGE_KEYS = [
 const paldeaBadgeSliders = PALDEA_BADGE_KEYS.map((_, index) => document.getElementById(`paldeaBadge${index}`)).filter(Boolean);
 
 function getPaldeaManualBadges() {
-  return PALDEA_BADGE_KEYS.filter((badge, index) => Number(paldeaBadgeSliders[index]?.value || 0) === 1).join(",");
+  return PALDEA_BADGE_KEYS.filter((badge, index) => Boolean(paldeaBadgeSliders[index]?.checked)).join(",");
 }
 
 function setPaldeaManualBadges(value = "") {
   const selected = new Set(String(value).split(",").map((item) => item.trim()).filter(Boolean));
   PALDEA_BADGE_KEYS.forEach((badge, index) => {
-    if (paldeaBadgeSliders[index]) paldeaBadgeSliders[index].value = selected.has(badge) ? "1" : "0";
+    if (paldeaBadgeSliders[index]) paldeaBadgeSliders[index].checked = selected.has(badge);
   });
 }
 
