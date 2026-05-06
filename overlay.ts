@@ -94,7 +94,7 @@ function renderBadges(badgeGame, badgeCount, enabled, badgeManual = "") {
   }
   const prefix = getBadgePrefix(badgeGame);
   const suffix = getBadgeSuffix(badgeGame);
-  if (!enabled || !prefix || !suffix) {
+  if (!enabled || !prefix || (badgeGame !== "galar_epee" && badgeGame !== "galar_bouclier" && !suffix)) {
     overlayBadges.style.display = "none";
     overlayBadges.innerHTML = "";
     return;
@@ -104,7 +104,16 @@ function renderBadges(badgeGame, badgeCount, enabled, badgeManual = "") {
   overlayBadges.innerHTML = Array.from({ length: 8 }, (_, i) => {
     const index = i + 1;
     const locked = index > obtained ? "is-locked" : "";
-    return `<img class="overlay-badge-item ${locked}" src="./${prefix}${index}${suffix}" alt="Badge ${index}" loading="lazy" decoding="async">`;
+    const isVariantBadge = index === 4 || index === 6;
+    const galarVariantSuffix = badgeGame === "galar_epee"
+      ? "_Galar_Epee.png"
+      : badgeGame === "galar_bouclier"
+        ? "_Galar_Bouclier.png"
+        : "";
+    const currentSuffix = (badgeGame === "galar_epee" || badgeGame === "galar_bouclier")
+      ? (isVariantBadge ? galarVariantSuffix : "_Galar.png")
+      : suffix;
+    return `<img class="overlay-badge-item ${locked}" src="./${prefix}${index}${currentSuffix}" alt="Badge ${index}" loading="lazy" decoding="async">`;
   }).join("");
 }
 
